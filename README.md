@@ -7,7 +7,6 @@
 | 2251052061 | Nguyễn Vinh Lợi (Nhóm trưởng) | Fullstack |
 | 2251052021 | Lê Hồng Đức                   | Fullstack |
 | 2251012092 | Hồ Ngọc Minh                  | Fullstack |
-|------------|-------------------------------|-----------|
 ## Công nghệ sử dụng
 - Backend: Spring Boot
 - Frontend: React / Thymeleaf
