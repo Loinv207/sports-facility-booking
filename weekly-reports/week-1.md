@@ -10,7 +10,7 @@
 ## 1. Công việc đã hoàn thành
 | Thành viên      | MSSV       | Công việc                                                              | Link Commit/PR |
 |-----------------|------------|------------------------------------------------------------------------|----------------|
-| Nguyễn Vinh Lợi | 2251052061 | Khởi tạo project base cho backend, viết readme + báo cáo tiến độ tuần 1|[b54667d](https://github.com/Loinv207/sports-facility-booking/commit/b54667d4bef072af8de3d01e86d79c16846fe181), [bdc86ae](https://github.com/Loinv207/sports-facility-booking/commit/bdc86aea131d11b64ba21ade20bdf384d4e8b399)|
+| Nguyễn Vinh Lợi | 2251052061 | Khởi tạo project base cho backend, viết readme + báo cáo tiến độ tuần 1|[b54667d](https://github.com/Loinv207/sports-facility-booking/commit/b54667d4bef072af8de3d01e86d79c16846fe181), [bdc86ae](https://github.com/Loinv207/sports-facility-booking/commit/bdc86aea131d11b64ba21ade20bdf384d4e8b399), [4c5b80b](https://github.com/Loinv207/sports-facility-booking/commit/4c5b80b53e4398805ce08b25029ceb8140865319)|
 | Lê Hồng Đức     | 2251052021 | Thiết kế database                                                      |[af319ea](https://github.com/Loinv207/sports-facility-booking/pull/2/changes/af319ea31aaabdfa7891d0def3ed37c028789106)|
 | Hồ Ngọc Minh    | 2251012092 | Thiết kế usecase                                                       |[46ce895](https://github.com/Loinv207/sports-facility-booking/pull/1/changes/46ce89598f0f71f72962e23cd40f933295a76b3a)|
 ---
