@@ -1,7 +1,10 @@
 # Báo cáo Tuần 1
 **Tuần:** 1 (02/03/2026 - 08/03/2026)
+
 **Nhóm:** 3
+
 **Đề tài:** 2 - Đặt Sân Thể Thao
+
 **Nhóm trưởng:** Nguyễn Vinh Lợi - 2251052061
 ---
 ## 1. Công việc đã hoàn thành
