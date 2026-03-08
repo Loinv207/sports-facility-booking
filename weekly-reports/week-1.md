@@ -8,7 +8,7 @@
 | Thành viên      | MSSV       | Công việc                                                              | Link Commit/PR |
 |-----------------|------------|------------------------------------------------------------------------|----------------|
 | Nguyễn Vinh Lợi | 2251052061 | Khởi tạo project base cho backend, viết readme + báo cáo tiến độ tuần 1|                |
-| Lê Hồng Đức     | 2251052021 | Thiết kế database                                                      |                |
+| Lê Hồng Đức     | 2251052021 | Thiết kế database                                                      |[af319ea](https://github.com/Loinv207/sports-facility-booking/pull/2/changes/af319ea31aaabdfa7891d0def3ed37c028789106)|
 | Hồ Ngọc Minh    | 2251012092 | Thiết kế usecase                                                       |                |
 ---
 ## 2. Tiến độ tổng thể
@@ -33,4 +33,3 @@
 
 *Ngày nộp: 08/03/2026*
 *Xác nhận của Nhóm trưởng: Nguyễn Vinh Lợi*
-
