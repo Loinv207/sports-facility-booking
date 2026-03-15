@@ -73,3 +73,44 @@ Hệ thống có 3 tác nhân chính:
 <p align="center">
   <img src="Dashboard_Admin_UI.png" width="700">
 </p>
+
+
+
+
+
+
+# ĐẶC TẢ LUỒNG NGHIỆP VỤ HỆ THỐNG ĐẶT SÂN THỂ THAO
+
+## 1. Luồng Tìm Kiếm Sân (Search Flow)
+Mục tiêu là giúp người dùng lọc ra những sân còn trống theo đúng thời gian và địa điểm mong muốn.
+
+- **Bước 1 (Frontend):** Người dùng nhập các tiêu chí: Quận/Huyện, Loại sân (5/7/11), Ngày đá, Khung giờ (giờ bắt đầu - giờ kết thúc).
+- **Bước 2 (API):** Frontend gọi API Request `GET /api/pitches/search` kèm các tham số.
+- **Bước 3 (Backend):** - Truy vấn danh sách sân theo vị trí và loại sân.
+    - **Kiểm tra lịch trùng:** Loại bỏ các sân có bản ghi trong bảng `Booking` trùng khung giờ đã chọn và có trạng thái là `CONFIRMED` hoặc `PENDING_PAYMENT`.
+- **Bước 4 (Kết quả):** Trả về danh sách các sân thỏa mãn kèm thông tin chi tiết (giá, hình ảnh, tiện ích).
+
+---
+
+## 2. Luồng Đặt Sân (Booking Flow)
+Quy trình giữ chỗ tạm thời và xác nhận thông tin thuê sân.
+
+- **Bước 1:** Người dùng nhấn nút "Đặt sân" trên sân đã chọn.
+- **Bước 2:** Hệ thống kiểm tra JWT. Nếu chưa có, yêu cầu điều hướng sang trang Đăng nhập.
+- **Bước 3:** Frontend gửi `POST /api/bookings` kèm thông tin: `pitchId`, `date`, `startTime`, `endTime`.
+- **Bước 4 (Backend):** - Kiểm tra lại tính khả dụng (Double check) để tránh tranh chấp dữ liệu.
+    - Khởi tạo bản ghi mới trong DB với trạng thái `PENDING_PAYMENT`.
+    - Thiết lập thời gian hết hạn (Time-to-live) cho đơn hàng (ví dụ: 10 phút).
+
+---
+
+## 3. Luồng Thanh Toán Cọc Online (Payment Flow)
+Xác thực giao dịch tài chính để đảm bảo tính cam kết.
+
+- **Bước 1:** Backend tích hợp cổng thanh toán (VNPay/Momo) để tạo chuỗi thanh toán mã hóa và trả về `paymentUrl`.
+- **Bước 2:** Frontend chuyển hướng người dùng sang trang của phía Ngân hàng/Ví điện tử.
+- **Bước 3:** Người dùng quét mã QR và thực hiện thanh toán tiền cọc theo % quy định.
+- **Bước 4 (Webhook):** Cổng thanh toán gọi về API `/api/payment/callback` của Spring Boot để thông báo kết quả.
+- **Bước 5 (Cập nhật):**
+    - **Thành công:** Chuyển trạng thái Booking sang `CONFIRMED`.
+    - **Thất bại/Hết hạn:** Chuyển trạng thái sang `CANCELLED` và giải phóng khung giờ cho người khác.
