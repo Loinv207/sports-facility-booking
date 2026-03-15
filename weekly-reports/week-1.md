@@ -29,7 +29,7 @@
 ## 3. Kế hoạch tuần tới
 | Thành viên      | Công việc dự kiến                                                                                                                                   |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Nguyễn Vinh Lợi | Khởi tạo project base cho frontend, cấu hình router, config security, tạo UserRepo, tạo các DTO Auth, Login, Request, viết Đặc tả luồng Tìm sân, Đặt sân và Thanh toán cọc online |
+| Nguyễn Vinh Lợi | Khởi tạo project base cho frontend, cấu hình router, tạo UserRepo, tạo các DTO Auth, Login, Request, viết Đặc tả luồng Tìm sân, Đặt sân và Thanh toán cọc online |
 | Lê Hồng Đức     | Tạo các entity trong spring boot                                                                                                                    |
 | Hồ Ngọc Minh    | Viết mô tả chi tiết tính năng Duyệt sân và Cấu hình commission. thiết kế dashboard admin ui                                                         |
 
