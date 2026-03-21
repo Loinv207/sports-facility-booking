@@ -36,7 +36,7 @@ Hệ thống có 3 tác nhân chính:
 ## 3. Use Case Diagram
 
 <p align="center">
-  <img src="UseCase.png" width="700">
+  <img src="UseCaseSport.png" width="700">
 </p>
 
 ## 4. Use Case Specifications
@@ -114,3 +114,57 @@ Xác thực giao dịch tài chính để đảm bảo tính cam kết.
 - **Bước 5 (Cập nhật):**
     - **Thành công:** Chuyển trạng thái Booking sang `CONFIRMED`.
     - **Thất bại/Hết hạn:** Chuyển trạng thái sang `CANCELLED` và giải phóng khung giờ cho người khác.
+
+---
+
+## 4. Luồng duyệt sân (Facility Approval Workflow)
+
+Mục tiêu là đảm bảo các **facility (sân)** do **Facility Owner** đăng ký phải được **Admin kiểm tra và duyệt** trước khi hiển thị cho khách hàng đặt.
+
+- **Bước 1 (Frontend):** Chủ sân tạo sân mới và nhập thông tin sân: Tên trung tâm, địa chỉ, thành phố/quận, tên sân, loại sân, mô tả, ngày, giờ bắt đầu, giờ kết thúc, giá và ảnh sân. Trạng thái mặc định của sân là `PENDING`.
+- **Bước 2 (API):** Frontend (Admin) gọi API GET /api/admin/sports-centers?status=PENDING để lấy danh sách sân chờ duyệt.
+- **Bước 3 (Backend):**
+
+| Trường hợp | Trạng thái sân |
+|--|--|
+| Nếu admin chấp nhận | Cập nhật approval_status = APPROVED.|
+| Nếu admin từ chối | Cập nhật approval_status = REJECTED.|
+
+- **Bước 4 (Kết quả):**
+
+| Trạng thái | Hiển thị tìm kiếm | Có thể đặt |
+|-----------|------------------|------------|
+| APPROVED  | Có               | Có         |
+| PENDING   | Không            | Không      |
+| REJECTED  | Không            | Không      |
+
+---
+
+## 5. Công Thức Tính Phí Hoa Hồng (Commission)
+
+Mục tiêu là tính toán số tiền nền tảng thu được từ mỗi giao dịch đặt sân.
+
+- **Bước 1 (Input):** Người dùng chọn khung giờ đặt sân → hệ thống nhận:  
+- **Bước 1 (Input):**
+  - `price`
+  - `start_time`, `end_time`
+- **Bước 2 (Backend):**  Hệ thống thực hiện tính toán dựa trên dữ liệu đầu vào.
+	 - Tính tổng thời gian: total_hours = end_time - start_time.
+	 - Tính tổng tiền: Total_Price = price × total_hours
+- **Bước 3 (Commission):** Áp dụng tỷ lệ hoa hồng để tính phí nền tảng.
+
+Ví dụ: Trong trường hợp tỷ lệ hoa hồng 10%:
+| Thành phần | Giá trị |
+|---|---|
+| Commission_Rate | 10% |
+| Commission | Total_Price × Commission_Rate |
+
+- **Bước 4 (Kết quả):**
+
+| Thông tin | Giá trị |  
+|----------|--------|  
+| Total_Price | Tổng tiền đặt sân |  
+| Commission | Tiền nền tảng thu |  
+| Owner_Receive | Total_Price - Commission |
+
+
