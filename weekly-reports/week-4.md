@@ -29,9 +29,9 @@
 ## 3. Kế hoạch tuần tới
 | Thành viên      | Công việc dự kiến                                                                                                                                   |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Nguyễn Vinh Lợi |  |
-| Lê Hồng Đức     |  |                                                                                                                   |
-| Hồ Ngọc Minh    | |                                                         |
+| Nguyễn Vinh Lợi | Viết Service/Controller cho tính năng tìm sân (filter theo loại sân, giá, giờ). Phía Frontend: Dựng trang kết quả tìm kiếm. |
+| Lê Hồng Đức     | Viết API thêm/sửa/xóa sân thể thao. Đặc biệt là logic tạo khung giờ (Time Slots) cho từng sân để khách có thể chọn. |                                                                                                                   |
+| Hồ Ngọc Minh    | Viết logic lưu thông tin đặt sân vào DB, kiểm tra xem khung giờ đó đã có ai đặt chưa (Validation logic).|                                                         |
 
 
 *Ngày nộp: 29/03/2026*
