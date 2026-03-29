@@ -9,12 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sportsfacilitybooking.backend.dto.ApiError;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import tools.jackson.databind.ObjectMapper;
 
 /**
  * Trả về 401 khi chưa đăng nhập hoặc token không hợp lệ
