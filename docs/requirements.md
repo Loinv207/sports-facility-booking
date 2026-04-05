@@ -145,7 +145,6 @@ Mục tiêu là đảm bảo các **facility (sân)** do **Facility Owner** đă
 Mục tiêu là tính toán số tiền nền tảng thu được từ mỗi giao dịch đặt sân.
 
 - **Bước 1 (Input):** Người dùng chọn khung giờ đặt sân → hệ thống nhận:  
-- **Bước 1 (Input):**
   - `price`
   - `start_time`, `end_time`
 - **Bước 2 (Backend):**  Hệ thống thực hiện tính toán dựa trên dữ liệu đầu vào.
@@ -167,4 +166,74 @@ Ví dụ: Trong trường hợp tỷ lệ hoa hồng 10%:
 | Commission | Tiền nền tảng thu |  
 | Owner_Receive | Total_Price - Commission |
 
+---
 
+## 6. Lưu thông tin đặt sân vào database (Booking Persistence Flow)
+
+Mục tiêu là lưu thông tin đặt sân vào cơ sở dữ liệu một cách chính xác và đảm bảo tính nhất quán dữ liệu.
+
+- **Bước 1 (Input):** Hệ thống nhận thông tin đặt sân: `field_id`, `user_id`, `booking_date`, `start_time`, `end_time`.
+
+- **Bước 2 (Backend):**  Hệ thống kiểm tra trước khi lưu trữ dữ liệu.
+
+| Điều kiện | Xử lý |
+|---|---|
+| Sân chưa được duyệt | Không cho phép lưu |
+| Thời gian không hợp lệ | Không cho phép lưu |
+| Khung giờ bị trùng | Không cho phép lưu |
+
+- **Bước 3 (Database):** Nếu hợp lệ, hệ thống tạo bản ghi mới trong bảng Bookings: 
+
+| Trường | Giá trị |
+|---|---|
+| field_id | ID sân |
+| user_id | Người đặt |
+| booking_date | Ngày đặt |
+| start_time | Thời gian bắt đầu |
+| end_time | Thời gian kết thúc |
+| total_price | Giá đặt sân |
+| status | `PENDING_PAYMENT` |
+| expired_at | Thời gian hết hạn |
+
+- **Bước 4 (Đảm bảo tính nhất quán):**
+
+| Cơ chế | Mục đích |
+|---|---|
+| Transaction | Tránh ghi trùng dữ liệu |
+| Kiểm tra trước khi insert | Đảm bảo không double bookings |
+
+- **Bước 5 (Kết quả):**
+
+| Trạng thái | Ý nghĩa |
+|---|---|
+| PENDING_PAYMENT | Đã lưu và chờ thanh toán |
+| CONFIRMED | Đặt thành công |
+| CANCELLED | Hết hạn/ hủy |
+
+Việc kiểm tra trùng khung giờ được thực hiện theo Validation Flow (Mục 7).
+
+---
+
+## 7. Kiểm tra khung giờ đặt sân (Validation Flow)
+
+Mục tiêu là đảm bảo khung giờ người dùng chọn **không bị trùng với các booking đã tồn tại** và hợp lệ để đặt.
+
+- **Bước 1 (Input):** Hệ thống nhận thông tin đặt sân: `field_id`, `booking_date`, `start_time`,  `end_time`.
+
+- **Bước 2 (Backend):**  Hệ thống kiểm tra các booking hiện có trong ngày.
+
+| Điều kiện kiểm tra | Ý nghĩa |
+|---|---|
+| Cùng sân (`field_id`) | Xác định đúng sân |
+| Cùng ngày (`booking_date`) | Giới hạn phạm vi kiểm tra |
+| Trạng thái booking | Chỉ xét `CONFIRMED` và `PENDING_PAYMENT` |
+| Khung giờ <br> (`start_time`, `end_time`) | Kiểm tra sự giao nhau giữa các khoảng thời gian |
+
+- **Bước 3 (Logic kiểm tra) :** Hai khung giờ được xem là trùng nếu: <br> - start_time < existing_end_time <br> - AND  end_time > existing_start_time
+
+- **Bước 4 (Kết quả):** 
+
+| Trường hợp | Kết quả |
+|---|---|
+| Có khung giờ trùng | Không cho phép đặt |
+| Không có khung giờ trùng | Cho phép tiếp tục |
