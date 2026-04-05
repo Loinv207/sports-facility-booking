@@ -12,6 +12,9 @@ public class FieldSchedule {
     @Id
     private String id;
 
+    @Column(name="field_id")
+    private String fieldId;
+
     @Column(name="schedule_date")
     private LocalDate scheduleDate;
 
@@ -28,6 +31,9 @@ public class FieldSchedule {
 
     public String getId(){ return id; }
     public void setId(String id){ this.id=id; }
+
+    public String getFieldId(){ return fieldId; }
+    public void setFieldId(String fieldId){ this.fieldId=fieldId; }
 
     public LocalDate getScheduleDate(){ return scheduleDate; }
     public void setScheduleDate(LocalDate scheduleDate){ this.scheduleDate=scheduleDate; }
