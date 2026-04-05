@@ -13,6 +13,7 @@ function App() {
         <h1>dầdsfa</h1>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/register" element={<Register />} />
         <Route path="/pitch/:id" element={<PitchDetail />} />
         <Route path="/profile" element={<Profile />} />
