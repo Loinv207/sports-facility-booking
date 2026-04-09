@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sportsfacilitybooking.backend.config.JwtProperties;
-import com.sportsfacilitybooking.backend.dto.AuthReponse;
+import com.sportsfacilitybooking.backend.dto.AuthResponse;
 import com.sportsfacilitybooking.backend.dto.LoginRequest;
 import com.sportsfacilitybooking.backend.dto.RegisterRequest;
 import com.sportsfacilitybooking.backend.dto.UserResponse;
@@ -72,7 +72,7 @@ public class AuthService {
 
     }
 
-    public AuthReponse login(LoginRequest request) {
+    public AuthResponse login(LoginRequest request) {
         // 1. Tìm user theo username hoặc Email {"usernameOrEmail": "admin", "password": "admin123"}
         User user = userRepository.findByUsername(request.usernameOrEmail())
                     .or(() ->  userRepository.findByEmail(request.usernameOrEmail()))
@@ -92,10 +92,10 @@ public class AuthService {
         log.info("User logged in: {}", user.getUsername());
 
         // 5. Trả về AuthResponse
-        return AuthReponse.of(
+        return AuthResponse.of(
             accessToken,
             refreshToken,
-            "Bearer",
+            // "Bearer",
             jwtProperties.getAccessTokenExpirationMs(),
             userMapper.toResponse(user)
         );
@@ -105,7 +105,7 @@ public class AuthService {
 
     public UserResponse getCurrentUser(String username) {
         User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new ResourceNotFoundException("User", username));
+                    .orElseThrow(() -> new ResourceNotFoundException("User" + username));
         return userMapper.toResponse(user);
     }
 }
