@@ -1,5 +1,11 @@
 package com.sportsfacilitybooking.backend.service;
 
-public class UserMapper {
-    
+import com.sportsfacilitybooking.backend.entity.User;
+import com.sportsfacilitybooking.backend.dto.UserResponse; 
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    UserResponse toResponse(User user);
 }
