@@ -184,3 +184,14 @@
     border-right-color: var(--border);
   }
 }
+
+/* Minh thêm để test giao diện*/
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #0f172a;
+}
