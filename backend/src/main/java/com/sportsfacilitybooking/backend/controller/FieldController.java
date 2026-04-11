@@ -20,7 +20,7 @@ import com.sportsfacilitybooking.backend.service.FieldService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/fields")
+@RequestMapping({"/api/fields", "/api/stadiums"})
 public class FieldController {
     private final FieldService fieldService;
 
