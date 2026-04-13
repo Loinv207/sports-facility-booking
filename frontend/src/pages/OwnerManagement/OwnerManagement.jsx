@@ -54,7 +54,7 @@ export const OwnerManagement = () => {
     setMessage('')
 
     try {
-      const response = await fetch('http://localhost:8080/api/stadiums', {
+      const response = await fetch('http://localhost:8080/api/fields', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
