@@ -102,7 +102,7 @@ export const OwnerManagement = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="text-right text-xs">
+            <div className="text-xs text-right">
               <div className="text-slate-400">Chủ sân</div>
               <div className="mt-1 font-semibold text-white">Nguyễn Văn A</div>
             </div>
@@ -134,7 +134,7 @@ export const OwnerManagement = () => {
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[1.55fr_0.95fr]">
           <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#172131] shadow-[0_20px_80px_rgba(0,0,0,0.28)]">
-            <div className="border-b border-white/10 px-7 py-6">
+            <div className="py-6 border-b border-white/10 px-7">
               <h2 className="text-[26px] font-bold text-white">Thông tin chi tiết sân</h2>
               <p className="mt-2 text-[14px] text-slate-400">Điền chính xác để đội ngũ quản trị xét duyệt nhanh hơn.</p>
             </div>
@@ -187,7 +187,7 @@ export const OwnerManagement = () => {
                   />
                 </div>
 
-                <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 px-4 py-3">
+                <div className="px-4 py-3 border rounded-2xl border-sky-500/20 bg-sky-500/5">
                   <div className="text-[11px] uppercase tracking-[0.18em] text-sky-300">Xem nhanh giá</div>
                   <div className="mt-2 text-2xl font-bold text-white">{formatPrice(form.price || preview.price)}</div>
                   <div className="mt-1 text-[13px] text-slate-400">Giá hiển thị cho khách khi sân được duyệt.</div>
@@ -206,7 +206,7 @@ export const OwnerManagement = () => {
                 />
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-6">
+              <div className="flex flex-wrap items-center gap-4 pt-6 border-t border-white/10">
                 <button
                   type="submit"
                   disabled={!canSubmit || submitting}
@@ -232,7 +232,7 @@ export const OwnerManagement = () => {
 
           <aside className="space-y-6">
             <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#172131] shadow-[0_20px_80px_rgba(0,0,0,0.28)]">
-              <div className="border-b border-white/10 px-6 py-5">
+              <div className="px-6 py-5 border-b border-white/10">
                 <h2 className="text-[24px] font-bold text-white">Xem trước nhanh</h2>
                 <p className="mt-1 text-[13px] text-slate-400">Mô phỏng thẻ sân khi đã tạo thành công.</p>
               </div>
@@ -241,7 +241,7 @@ export const OwnerManagement = () => {
                 <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#0f1724]">
                   <div className="relative flex h-[230px] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.18),transparent_45%),linear-gradient(180deg,#1b2840_0%,#111827_100%)]">
                     <div className="absolute inset-0 opacity-40">
-                      <div className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/10" />
+                      <div className="absolute top-0 w-px h-full -translate-x-1/2 left-1/2 bg-white/10" />
                       <div className="absolute left-[18%] top-[22%] h-[56%] w-[64%] rounded-[32px] border border-white/10" />
                       <div className="absolute left-[25%] top-[30%] h-[40%] w-[50%] rounded-[28px] border border-white/10" />
                     </div>
@@ -250,7 +250,7 @@ export const OwnerManagement = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-3 px-5 py-5">
+                  <div className="px-5 py-5 space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-[11px] font-bold uppercase tracking-[0.22em] text-sky-300">
                         {String(preview.sportsType).toUpperCase()}
@@ -272,9 +272,9 @@ export const OwnerManagement = () => {
             <section className="rounded-[28px] border border-white/10 bg-[#172131] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.28)]">
               <h3 className="text-[22px] font-bold text-white">Lưu ý quan trọng</h3>
               <ul className="mt-4 space-y-4 text-[14px] leading-6 text-slate-300">
-                <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-sky-400" />Sân mới tạo sẽ ở trạng thái chờ duyệt và chưa hiển thị công khai ngay.</li>
-                <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-sky-400" />Quản trị viên sẽ rà soát thông tin trong khoảng 24 giờ.</li>
-                <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-sky-400" />Sau khi được duyệt, khách hàng mới có thể thấy sân và tiến hành đặt lịch.</li>
+                <li className="flex gap-3"><span className="w-2 h-2 mt-2 rounded-full bg-sky-400" />Sân mới tạo sẽ ở trạng thái chờ duyệt và chưa hiển thị công khai ngay.</li>
+                <li className="flex gap-3"><span className="w-2 h-2 mt-2 rounded-full bg-sky-400" />Quản trị viên sẽ rà soát thông tin trong khoảng 24 giờ.</li>
+                <li className="flex gap-3"><span className="w-2 h-2 mt-2 rounded-full bg-sky-400" />Sau khi được duyệt, khách hàng mới có thể thấy sân và tiến hành đặt lịch.</li>
               </ul>
             </section>
           </aside>
@@ -282,7 +282,7 @@ export const OwnerManagement = () => {
 
         {message && (
           <section className="mt-8 rounded-[28px] border border-emerald-400/20 bg-emerald-500/10 px-6 py-10 text-center shadow-[0_20px_80px_rgba(0,0,0,0.18)]">
-            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 text-2xl text-emerald-300">
+            <div className="flex items-center justify-center w-16 h-16 mx-auto mb-5 text-2xl border rounded-full border-emerald-400/30 bg-emerald-400/10 text-emerald-300">
               ✓
             </div>
             <h2 className="text-[34px] font-bold text-white">Tạo sân thành công</h2>
