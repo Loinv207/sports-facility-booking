@@ -36,6 +36,7 @@ public class SecurityConfig {
         //     .headers(headers -> headers.frameOptions(f -> f.sameOrigin())); // cho H2 console chay trong iframe
 
         http.csrf(csrf -> csrf.disable())
+        .cors(cors -> {})
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
@@ -43,9 +44,9 @@ public class SecurityConfig {
             .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
+            .requestMatchers("/api/fields/**").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
-            .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
