@@ -6,13 +6,20 @@ import { PitchDetail } from './pages/PitchDetail/PitchDetail'
 import { Profile } from './pages/Profile/Profile'
 import Register from './pages/Register/Register'
 import OwnerManagement from './pages/OwnerManagement/OwnerManagement'
+import HomePage from './pages/Home/Home'; // Trang chủ (done)
+import Login from './pages/login/Login'
+import PitchDetail from './pages/PitchDetail/PitchDetail'
+import Profile from './pages/Profile/Profile'
+import Register from './pages/Register/Register'
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/search" element={<Search />} />
         <Route path="/register" element={<Register />} />
         <Route path="/pitch/:id" element={<PitchDetail />} />
         <Route path="/profile" element={<Profile />} />

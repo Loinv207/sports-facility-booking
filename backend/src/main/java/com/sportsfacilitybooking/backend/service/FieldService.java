@@ -23,6 +23,34 @@ public class FieldService {
         return fieldRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    //Lấy stadiums có status "ACTIVE"
+    public List<FieldResponse> getActiveFields() {
+    return fieldRepository.findByStatusIgnoreCase("ACTIVE")
+        .stream()
+        .map(field -> new FieldResponse(
+            field.getId(),
+            field.getFieldName(),
+            field.getDescription(),
+            field.getStatus()
+        ))
+        .toList();
+    }
+    // Thay Data để test Postman và UI, sau này sẽ xóa
+    // return List.of(
+    //     new FieldResponse(
+    //         "field-001",
+    //         "Sân bóng A",
+    //         "Sân cỏ nhân tạo 7 người",
+    //         "ACTIVE"
+    //     ),
+    //     new FieldResponse(
+    //         "field-002",
+    //         "Sân bóng B",
+    //         "Sân tiêu chuẩn FIFA mini",
+    //         "ACTIVE"
+    //     )
+    // );}
+
     public FieldResponse getFieldById(String id) {
         Field field = fieldRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sân với id: " + id));
