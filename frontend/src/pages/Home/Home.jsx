@@ -1,42 +1,114 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import './Home.css';
 
 const HomePage = () => {
-  return (
-    <div className="min-h-screen bg-gray-50">
-  
-      <div className="bg-blue-600 py-20 text-white text-center">
-        <h1 className="text-4xl font-bold mb-4">Đặt Sân Thể Thao Dễ Dàng</h1>
-        <p className="mb-8">Tìm kiếm và đặt sân bóng, cầu lông, tennis trong giây lát.</p>
-        <div className="flex justify-center">
-          <input 
-            type="text" 
-            placeholder="Tìm tên sân hoặc khu vực..." 
-            className="px-4 py-2 w-1/3 rounded-l-md text-black focus:outline-none"
-          />
-          <button className="bg-orange-500 px-6 py-2 rounded-r-md font-semibold hover:bg-orange-600 transition">
-            Tìm kiếm
-          </button>
-        </div>
-      </div>
+  const [fields, setFields] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [keyword, setKeyword] = useState('');
 
-      <div className="max-w-6xl mx-auto py-12 px-4">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Sân phổ biến</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((item) => (
-            <div key={item} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="h-48 bg-gray-300"></div> 
-              <div className="p-4">
-                <h3 className="font-bold text-lg">Sân Bóng Đá Thống Nhất {item}</h3>
-                <p className="text-gray-600 text-sm italic">Quận 10, TP.HCM</p>
-                <div className="mt-4 flex justify-between items-center">
-                  <span className="text-blue-600 font-bold">200.000đ/giờ</span>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm">Chi tiết</button>
+  useEffect(() => {
+    const fetchActiveFields = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/fields/active');
+
+        if (!response.ok) {
+          throw new Error('Không thể tải danh sách sân');
+        }
+
+        const data = await response.json();
+        setFields(data);
+      } catch (error) {
+        console.error('Lỗi khi gọi API /api/fields/active:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActiveFields();
+  }, []);
+
+  const filteredFields = fields.filter((field) =>
+    field.fieldName?.toLowerCase().includes(keyword.toLowerCase()) ||
+    field.description?.toLowerCase().includes(keyword.toLowerCase())
+  );
+
+  return (
+    <div className="home-page">
+      <section className="hero-section">
+        <div className="hero-container">
+          <p className="hero-subtitle">Sports Now</p>
+          <h1 className="hero-title">Khám phá và đặt sân thể thao dễ dàng</h1>
+          <p className="hero-description">
+            Tìm kiếm các sân đang hoạt động, xem mô tả chi tiết và lựa chọn địa điểm phù hợp cho nhu cầu luyện tập của bạn.
+          </p>
+
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Tìm theo tên sân hoặc mô tả..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+            <button type="button">Tìm kiếm</button>
+          </div>
+        </div>
+      </section>
+
+      <section className="fields-section">
+        <div className="fields-header">
+          <div>
+            <h2>Danh sách sân đang hoạt động</h2>
+            <p>Hiển thị dữ liệu thật từ backend API</p>
+          </div>
+
+          {!loading && <div className="field-count">{filteredFields.length} sân</div>}
+        </div>
+
+        {loading ? (
+          <div className="empty-box">Đang tải dữ liệu...</div>
+        ) : filteredFields.length === 0 ? (
+          <div className="empty-box">Không có sân nào để hiển thị.</div>
+        ) : (
+          <div className="field-grid">
+            {filteredFields.map((field) => (
+              <div key={field.id} className="field-card">
+                <div className="field-image">
+                  <img
+                    src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1200"
+                    alt={field.fieldName}
+                  />
+                </div>
+
+                <div className="field-content">
+                  <div className="field-top">
+                    <h3>{field.fieldName}</h3>
+                    <span className="field-status">{field.status}</span>
+                  </div>
+
+                  <p className="field-description">
+                    {field.description || 'Chưa có mô tả cho sân này.'}
+                  </p>
+
+                  <div className="field-tags">
+                    <span>Bóng đá</span>
+                    <span>Sân ngoài trời</span>
+                    <span>Đặt ngay</span>
+                  </div>
+
+                  <div className="field-footer">
+                    <div>
+                      <p className="price-label">Giá tham khảo</p>
+                      <p className="price-value">100.000đ/giờ</p>
+                    </div>
+
+                    <button>Xem chi tiết</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };
