@@ -20,14 +20,7 @@ public class FieldService {
     }
 
     public List<FieldResponse> getAllFields() {
-        return fieldRepository.findAll().stream().map(field ->
-            new FieldResponse(
-                field.getId(),
-                field.getFieldName(),
-                field.getDescription(),
-                field.getStatus()
-            )
-        ).toList();
+        return fieldRepository.findAll().stream().map(this::toResponse).toList();
     }
 
     //Lấy stadiums có status "ACTIVE"
@@ -62,18 +55,21 @@ public class FieldService {
         Field field = fieldRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sân với id: " + id));
 
-        return new FieldResponse(field.getId(), field.getFieldName(), field.getDescription(), field.getStatus());
+        return toResponse(field);
     }
 
     public FieldResponse createField(FieldRequest request) {
         Field field = new Field();
         field.setId(UUID.randomUUID().toString());
         field.setFieldName(request.fieldName());
+        field.setSportsType(request.sportsType());
+        field.setAddress(request.address());
+        field.setPrice(request.price());
         field.setDescription(request.description());
-        field.setStatus(request.status());
+        field.setStatus(request.status() == null || request.status().isBlank() ? "PENDING" : request.status());
 
         fieldRepository.save(field);
-        return new FieldResponse(field.getId(), field.getFieldName(), field.getDescription(), field.getStatus());
+        return toResponse(field);
     }
 
     public FieldResponse updateField(String id, FieldRequest request) {
@@ -81,11 +77,16 @@ public class FieldService {
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sân với id: " + id));
 
         field.setFieldName(request.fieldName());
+        field.setSportsType(request.sportsType());
+        field.setAddress(request.address());
+        field.setPrice(request.price());
         field.setDescription(request.description());
-        field.setStatus(request.status());
+        if (request.status() != null && !request.status().isBlank()) {
+            field.setStatus(request.status());
+        }
 
         fieldRepository.save(field);
-        return new FieldResponse(field.getId(), field.getFieldName(), field.getDescription(), field.getStatus());
+        return toResponse(field);
     }
 
     public void deleteField(String id) {
@@ -93,5 +94,17 @@ public class FieldService {
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sân với id: " + id));
 
         fieldRepository.delete(field);
+    }
+
+    private FieldResponse toResponse(Field field) {
+        return new FieldResponse(
+            field.getId(),
+            field.getFieldName(),
+            field.getSportsType(),
+            field.getAddress(),
+            field.getPrice(),
+            field.getDescription(),
+            field.getStatus()
+        );
     }
 }
