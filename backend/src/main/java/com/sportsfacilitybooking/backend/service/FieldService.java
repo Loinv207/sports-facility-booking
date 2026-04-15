@@ -29,21 +29,6 @@ public class FieldService {
             .map(this::toResponse)
             .toList();
     }
-    // Thay Data để test Postman và UI, sau này sẽ xóa
-    // return List.of(
-    //     new FieldResponse(
-    //         "field-001",
-    //         "Sân bóng A",
-    //         "Sân cỏ nhân tạo 7 người",
-    //         "ACTIVE"
-    //     ),
-    //     new FieldResponse(
-    //         "field-002",
-    //         "Sân bóng B",
-    //         "Sân tiêu chuẩn FIFA mini",
-    //         "ACTIVE"
-    //     )
-    // );}
 
     public FieldResponse getFieldById(String id) {
         Field field = fieldRepository.findById(id)
@@ -88,6 +73,22 @@ public class FieldService {
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sân với id: " + id));
 
         fieldRepository.delete(field);
+    }
+
+    public FieldResponse approveField(String id) {
+        Field field = fieldRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy sân với ID: " + id));
+
+        field.setStatus("ACTIVE");
+        Field updatedField = fieldRepository.save(field);
+
+        return toResponse(updatedField);
+    }
+
+    public List<FieldResponse> getPendingFields() {
+        return fieldRepository.findByStatus("PENDING").stream()
+            .map(this::toResponse)
+            .toList();
     }
 
     private FieldResponse toResponse(Field field) {

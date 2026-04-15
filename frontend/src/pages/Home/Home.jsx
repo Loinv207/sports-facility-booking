@@ -11,11 +11,9 @@ const HomePage = () => {
     const fetchActiveFields = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/fields/active')
-
         if (!response.ok) {
           throw new Error('Không thể tải danh sách sân')
         }
-
         const data = await response.json()
         setFields(data)
       } catch (error) {
@@ -70,7 +68,6 @@ const HomePage = () => {
             <h2>Danh sách sân đang hoạt động</h2>
             <p>Hiển thị dữ liệu thật từ backend API</p>
           </div>
-
           {!loading && <div className="field-count">{filteredFields.length} sân</div>}
         </div>
 
@@ -110,7 +107,6 @@ const HomePage = () => {
                       <p className="price-label">Giá tham khảo</p>
                       <p className="price-value">{field.price ? `${field.price}đ/giờ` : 'Liên hệ'}</p>
                     </div>
-
                     <button>Xem chi tiết</button>
                   </div>
                 </div>

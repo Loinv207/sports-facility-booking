@@ -6,6 +6,7 @@ import { PitchDetail } from './pages/PitchDetail/PitchDetail'
 import { Profile } from './pages/Profile/Profile'
 import Register from './pages/Register/Register'
 import OwnerManagement from './pages/OwnerManagement/OwnerManagement'
+import AdminPendingFields from './pages/Admin/AdminPendingFields'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/pitch/:id" element={<PitchDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/owner-management" element={<OwnerManagement />} />
+        <Route path="/admin/fields/pending" element={<AdminPendingFields />} />
       </Routes>
     </Router>
   )

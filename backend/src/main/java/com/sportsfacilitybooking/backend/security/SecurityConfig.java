@@ -41,10 +41,10 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
             .requestMatchers("/api/fields/**").permitAll()
-            .requestMatchers("/api/fields/active/**").permitAll()
+            // Loi
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            //
             .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
-            .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
