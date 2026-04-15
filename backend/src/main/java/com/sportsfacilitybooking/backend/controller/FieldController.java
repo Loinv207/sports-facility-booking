@@ -33,6 +33,11 @@ public class FieldController {
         return ResponseEntity.ok(fieldService.getAllFields());
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<List<FieldResponse>> getActiveFields() {
+        return ResponseEntity.ok(fieldService.getActiveFields());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<FieldResponse> getFieldById(@PathVariable String id) {
         return ResponseEntity.ok(fieldService.getFieldById(id));

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Home from './pages/Home/Home'
+import HomePage from './pages/Home/Home'
 import Login from './pages/Login/Login'
 import { PitchDetail } from './pages/PitchDetail/PitchDetail'
 import { Profile } from './pages/Profile/Profile'
@@ -11,7 +11,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/pitch/:id" element={<PitchDetail />} />
