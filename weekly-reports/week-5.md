@@ -1,6 +1,6 @@
 
 # Báo cáo Tuần 5
-**Tuần:** 4 (30/03/2026 - 05/04/2026)
+**Tuần:** 5 (30/03/2026 - 05/04/2026)
 
 **Nhóm:** 3
 
@@ -30,9 +30,9 @@
 ## 3. Kế hoạch tuần tới
 | Thành viên      | Công việc dự kiến                                                                                                                                   |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| Nguyễn Vinh Lợi | Backend: Hoàn thiện Security (JWT). Viết API PUT /api/admin/fields/{id}/approve để đổi trạng thái sân sang ACTIVE. Frontend: Dựng trang Admin đơn giản liệt kê các sân đang PENDING và nút "Duyệt"|
-| Lê Hồng Đức     | Backend: Viết API POST /api/fields để lưu sân mới và DB (trạng thái mặc định là PENDING). Frontend: dựng form thêm sân (Tên, loại sân, địa chỉ, giá , mô tả) |                                                                                                                   |
-| Hồ Ngọc Minh    | Backend: Viết API GET /api/fields/active (Chỉ lấy những sân có trạng thái ACTIVE). Frontend: Dựng giao diện trang chủ, gọi API để hiển thị danh sách sân dưới dạng các thẻ (Card). |                                                         |
+| **Nguyễn Vinh Lợi** | **Backend:** Hoàn thiện Security (JWT). Viết API PUT /api/admin/fields/{id}/approve để đổi trạng thái sân sang ACTIVE <br>**Frontend:** Dựng trang Admin đơn giản liệt kê các sân đang PENDING và nút "Duyệt"|
+| **Lê Hồng Đức**     | **Backend:** Viết API POST /api/fields để lưu sân mới và DB (trạng thái mặc định là PENDING). <br>**Frontend:** dựng form thêm sân (Tên, loại sân, địa chỉ, giá , mô tả) |                                                                                                                   |
+| **Hồ Ngọc Minh**    |** Backend**: Viết API GET /api/fields/active (Chỉ lấy những sân có trạng thái ACTIVE). <br>**Frontend:** Dựng giao diện trang chủ, gọi API để hiển thị danh sách sân dưới dạng các thẻ (Card). |                                                         |
 
 
 *Ngày nộp: 05/04/2026*
