@@ -10,9 +10,9 @@
 ## 1. Công việc đã hoàn thành
 | Thành viên      | MSSV       | Công việc                                                              | Link Commit/PR |
 |-----------------|------------|------------------------------------------------------------------------|----------------|
-| Nguyễn Vinh Lợi | 2251052061 | **Backend:** <br>Hoàn thiện Security (JWT)<br>Viết API PUT /api/admin/fields/{id}/approve để đổi trạng thái sân sang ACTIVE<br>**Frontend:** Dựng trang Admin đơn giản liệt kê các sân đang PENDING và nút "Duyệt"|[51cf131](https://github.com/Loinv207/sports-facility-booking/pull/17/changes/51cf131ebf507edfec646b41617a45c135723229)|
-| Lê Hồng Đức     | 2251052021 | **Backend:** <br>Viết API POST /api/fields để lưu sân mới và DB (trạng thái mặc định là PENDING)<br>Frontend:<br>Dựng form thêm sân (Tên, loại sân, địa chỉ, giá , mô tả)|[74ef751](https://github.com/Loinv207/sports-facility-booking/pull/16/changes/74ef7513ea9c0b47b9a5130d44f6c7124d84fb54)|
-| Hồ Ngọc Minh    | 2251012092 | **Backend:** <br>Viết API GET /api/fields/active (Chỉ lấy những sân có trạng thái ACTIVE) <br>Frontend: <br>Dựng giao diện trang chủ, gọi API để hiển thị danh sách sân dưới dạng các thẻ (Card).|[f1ac42b](https://github.com/Loinv207/sports-facility-booking/pull/15/changes/f1ac42bd04b7f340b37e7cd62cf938a3fde002e3)|
+| Nguyễn Vinh Lợi | 2251052061 | **Backend:** <br>Hoàn thiện Security (JWT)<br>Viết API PUT /api/admin/fields/{id}/approve để đổi trạng thái sân sang ACTIVE<br>**Frontend:** <br>Dựng trang Admin đơn giản liệt kê các sân đang PENDING và nút "Duyệt"|[51cf131](https://github.com/Loinv207/sports-facility-booking/pull/17/changes/51cf131ebf507edfec646b41617a45c135723229)|
+| Lê Hồng Đức     | 2251052021 | **Backend:** <br>Viết API POST /api/fields để lưu sân mới và DB (trạng thái mặc định là PENDING)<br>**Frontend:**<br>Dựng form thêm sân (Tên, loại sân, địa chỉ, giá, mô tả)|[74ef751](https://github.com/Loinv207/sports-facility-booking/pull/16/changes/74ef7513ea9c0b47b9a5130d44f6c7124d84fb54)|
+| Hồ Ngọc Minh    | 2251012092 | **Backend:** <br>Viết API GET /api/fields/active (Chỉ lấy những sân có trạng thái ACTIVE) <br>**Frontend:** <br>Dựng giao diện trang chủ, gọi API để hiển thị danh sách sân dưới dạng các thẻ (Card).|[f1ac42b](https://github.com/Loinv207/sports-facility-booking/pull/15/changes/f1ac42bd04b7f340b37e7cd62cf938a3fde002e3)|
 ---
 ## 2. Tiến độ tổng thể
 | Hạng mục                | Trạng thái   | %    |
