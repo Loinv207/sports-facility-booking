@@ -8,4 +8,5 @@ import com.sportsfacilitybooking.backend.entity.Field;
 
 public interface FieldRepository extends JpaRepository<Field, String> {
     List<Field> findByStatusIgnoreCase(String status);
+    List<Field> findByStatus(String status);
 }

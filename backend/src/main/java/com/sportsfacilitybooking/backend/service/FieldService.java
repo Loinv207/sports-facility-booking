@@ -30,6 +30,9 @@ public class FieldService {
         .map(field -> new FieldResponse(
             field.getId(),
             field.getFieldName(),
+            field.getSportsType(),
+            field.getAddress(),
+            field.getPrice(),
             field.getDescription(),
             field.getStatus()
         ))
@@ -107,4 +110,24 @@ public class FieldService {
             field.getStatus()
         );
     }
+
+    
+    public FieldResponse approveField(String id) {
+   
+        Field field = fieldRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy sân với ID: " + id));
+
+        field.setStatus("ACTIVE");
+
+     Field updatedField = fieldRepository.save(field);
+
+     return toResponse(updatedField);
+}
+
+
+    public List<FieldResponse> getPendingFields() {
+        return fieldRepository.findByStatus("PENDING").stream()
+                .map(this::toResponse)
+                .toList();
+}
 }
