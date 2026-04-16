@@ -1,36 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import './Home.css';
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import './Home.css'
 
 const HomePage = () => {
-  const [fields, setFields] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [keyword, setKeyword] = useState('');
+  const [fields, setFields] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [keyword, setKeyword] = useState('')
 
   useEffect(() => {
     const fetchActiveFields = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/fields/active');
-
+        const response = await fetch('http://localhost:8080/api/fields/active')
         if (!response.ok) {
-          throw new Error('Không thể tải danh sách sân');
+          throw new Error('Không thể tải danh sách sân')
         }
-
-        const data = await response.json();
-        setFields(data);
+        const data = await response.json()
+        setFields(data)
       } catch (error) {
-        console.error('Lỗi khi gọi API /api/fields/active:', error);
+        console.error('Lỗi khi gọi API /api/fields/active:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchActiveFields();
-  }, []);
+    fetchActiveFields()
+  }, [])
 
   const filteredFields = fields.filter((field) =>
     field.fieldName?.toLowerCase().includes(keyword.toLowerCase()) ||
     field.description?.toLowerCase().includes(keyword.toLowerCase())
-  );
+  )
 
   return (
     <div className="home-page">
@@ -51,6 +50,15 @@ const HomePage = () => {
             />
             <button type="button">Tìm kiếm</button>
           </div>
+
+          <div className="hero-actions">
+            <Link to="/owner-management" className="hero-button primary">
+              Thêm sân mới
+            </Link>
+            <Link to="/login" className="hero-button secondary">
+              Đăng nhập
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -60,7 +68,6 @@ const HomePage = () => {
             <h2>Danh sách sân đang hoạt động</h2>
             <p>Hiển thị dữ liệu thật từ backend API</p>
           </div>
-
           {!loading && <div className="field-count">{filteredFields.length} sân</div>}
         </div>
 
@@ -90,17 +97,16 @@ const HomePage = () => {
                   </p>
 
                   <div className="field-tags">
-                    <span>Bóng đá</span>
-                    <span>Sân ngoài trời</span>
+                    <span>{field.sportsType || 'Bóng đá'}</span>
+                    <span>{field.address || 'Chưa có địa chỉ'}</span>
                     <span>Đặt ngay</span>
                   </div>
 
                   <div className="field-footer">
                     <div>
                       <p className="price-label">Giá tham khảo</p>
-                      <p className="price-value">100.000đ/giờ</p>
+                      <p className="price-value">{field.price ? `${field.price}đ/giờ` : 'Liên hệ'}</p>
                     </div>
-
                     <button>Xem chi tiết</button>
                   </div>
                 </div>
@@ -110,7 +116,7 @@ const HomePage = () => {
         )}
       </section>
     </div>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage

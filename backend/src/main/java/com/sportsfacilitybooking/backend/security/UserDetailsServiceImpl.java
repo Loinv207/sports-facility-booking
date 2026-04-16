@@ -28,11 +28,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(user == null) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
+        System.out.println("DEBUG - Password from DB: [" + user.getPasswordHash() + "]");
         return new User(
             user.getUsername(),
             user.getPasswordHash(),
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
+   
 
 }

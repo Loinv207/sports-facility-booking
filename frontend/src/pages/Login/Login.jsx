@@ -1,29 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage = () => {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">Đăng Nhập</h2>
-        <form>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email/Số điện thoại</label>
-            <input type="text" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Mật khẩu</label>
-            <input type="password" className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-          <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-            Đăng nhập
-          </button>
-        </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Chưa có tài khoản? <a href="/register" className="text-blue-600 font-medium">Đăng ký ngay</a>
-        </p>
-      </div>
-    </div>
-  );
+const Login = () => {
+    const [credentials, setCredentials] = useState({ usernameOrEmail: '', password: '' });
+    const navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
+            
+            
+            localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('userRole', response.data.user.role);
+
+            alert("Đăng nhập thành công!");
+            
+            
+            if (response.data.user.role === 'ADMIN') {
+                navigate('/admin/fields/pending');
+            } else {
+                navigate('/');
+            }
+        } catch (error) {
+            alert("Sai tài khoản hoặc mật khẩu!");
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen text-white bg-gray-900">
+            <form onSubmit={handleSubmit} className="p-8 bg-gray-800 rounded-lg shadow-xl w-96">
+                <h2 className="mb-6 text-2xl font-bold">Đăng nhập hệ thống</h2>
+                <input 
+                    name="usernameOrEmail" 
+                    placeholder="Username hoặc Email" 
+                    onChange={handleChange}
+                    className="w-full p-3 mb-4 bg-gray-700 rounded outline-none"
+                />
+                <input 
+                    name="password" 
+                    type="password" 
+                    placeholder="Mật khẩu" 
+                    onChange={handleChange}
+                    className="w-full p-3 mb-6 bg-gray-700 rounded outline-none"
+                />
+                <button type="submit" className="w-full p-3 font-bold rounded bg-sky-600 hover:bg-sky-700">
+                    Đăng nhập
+                </button>
+            </form>
+        </div>
+    );
 };
 
-export default LoginPage;
+export default Login;

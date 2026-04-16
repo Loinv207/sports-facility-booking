@@ -2,6 +2,7 @@ package com.sportsfacilitybooking.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,10 +32,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-        //     .csrf(csrf -> csrf.disable())
-        //     .headers(headers -> headers.frameOptions(f -> f.sameOrigin())); // cho H2 console chay trong iframe
-
         http.csrf(csrf -> csrf.disable())
         .cors(cors -> {})
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -44,10 +41,10 @@ public class SecurityConfig {
             .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
-            .requestMatchers("/api/fields/active/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/fields", "/api/fields/*", "/api/fields/active/**").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/fields").permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .requestMatchers("/api/users/**").hasAnyRole("USER", "ADMIN")
-            .anyRequest().authenticated()
         )
         .exceptionHandling(ex -> ex
             .authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -56,24 +53,6 @@ public class SecurityConfig {
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         http.headers(headers -> headers.frameOptions(f -> f.sameOrigin()));
         return http.build();
-        /**
-         * Luồng hoạt động sau khi wire
-         * Request đến
-         * |
-         * JwtAuthenticationFilter
-         * |- Có Bearer token? -> nếu có thì valadate -> set SecurityContext (User đã đăng nhập)
-         * |- Nếu không có token -> bỏ qua, đi tiếp 
-         * |
-         * authorizeHttpRequests kiểm tra
-         * |- /api/auth/** -> permitAll -> cho qua
-         * |- /api/admin/** -> hasRole("ADMIN")
-         *      |- Chưa đăng nhập -> jwtAuthenticationEntryPoint -> 401
-         *      |- Đã đăng nhập nhưng role USER -> CustomAccessDeniedHandler -> 403
-         * |- /api/users/** -> hasAllRoles("ADMIN", "USER")
-         *      |- Chưa đăng nhập -> jwtAuthenticationEntryPoint -> 401
-         * |- anyRequest().authenticated()
-         *      |- Chưa đăng nhập -> jwtAuthenticationEntryPoint -> 401
-         */
     }
 
     @Bean
