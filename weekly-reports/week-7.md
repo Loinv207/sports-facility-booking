@@ -20,8 +20,8 @@
 | Khởi tạo dự án & Git    | Done         | 100% |
 | Thiết kế Database       | Done         | 100% |
 | Phân tích yêu cầu       | Done         | 100% |
-| Backend API             | Đang làm     |  75% |
-| Frontend UI             | Đang làm     |  40% |
+| Backend API             | Đang làm     |  80% |
+| Frontend UI             | Đang làm     |  65% |
 | Docker                  | Chưa bắt đầu |   0% |
 | Testing                 | Chưa bắt đầu |   0% |
 
