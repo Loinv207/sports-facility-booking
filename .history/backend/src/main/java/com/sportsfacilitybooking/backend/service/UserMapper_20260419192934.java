@@ -1,0 +1,20 @@
+package com.sportsfacilitybooking.backend.service;
+
+import com.sportsfacilitybooking.backend.entity.User;
+import com.sportsfacilitybooking.backend.dto.UserResponse; 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    @Mapping(target = "fullname", source = "fullName")
+    
+    // Nếu trong Record bạn ĐÃ ĐẶT TÊN là createAt (không có ed)
+    // Và trong Entity là createdAt (có ed) thì dòng này mới đúng:
+    @Mapping(target = "createAt", source = "createdAt")
+    
+    // Tương tự, vì Entity User không có updatedAt, tớ dùng tạm createdAt
+    @Mapping(target = "updateAt", source = "createdAt")
+    UserResponse toResponse(User user);
+}
