@@ -1,6 +1,7 @@
 package com.sportsfacilitybooking.backend.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "fields")
@@ -17,7 +18,12 @@ public class Field {
 
     private String address;
 
-    private String price;
+    private BigDecimal price;
+
+    private Double rating;
+
+    @Column(name = "sports_center_id")
+    private String sportsCenterId;
 
     private String description;
 
@@ -57,12 +63,28 @@ public class Field {
         this.address = address;
     }
 
-    public String getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public String getSportsCenterId() {
+        return sportsCenterId;
+    }
+
+    public void setSportsCenterId(String sportsCenterId) {
+        this.sportsCenterId = sportsCenterId;
     }
 
     public String getDescription() {

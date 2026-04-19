@@ -7,6 +7,7 @@ import { Profile } from './pages/Profile/Profile'
 import Register from './pages/Register/Register'
 import OwnerManagement from './pages/OwnerManagement/OwnerManagement'
 import AdminPendingFields from './pages/Admin/AdminPendingFields'
+import Search from './pages/Search/Search'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/owner-management" element={<OwnerManagement />} />
         <Route path="/admin/fields/pending" element={<AdminPendingFields />} />
+        <Route path="/search" element={<Search />} />
       </Routes>
     </Router>
   )
