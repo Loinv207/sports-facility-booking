@@ -1,5 +1,7 @@
 package com.sportsfacilitybooking.backend.service;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -45,4 +47,25 @@ public class UserService {
     //  create
     //  update
     // delete...
+
+
+    @Transactional
+    public UserResponse toggleUserStatus(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + id));
+
+        if ("ACTIVE".equalsIgnoreCase(user.getStatus())) {
+            user.setStatus("LOCKED");
+        } else {
+            user.setStatus("ACTIVE");
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+
+  
+        User updatedUser = userRepository.save(user);
+
+        return userMapper.toResponse(updatedUser);
+}
 }

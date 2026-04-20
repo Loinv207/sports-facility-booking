@@ -2,13 +2,14 @@ package com.sportsfacilitybooking.backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name="notifications")
 public class Notification {
 
     @Id
-    private String id;
+    private String id = UUID.randomUUID().toString();
 
     private String title;
     private String message;
@@ -18,6 +19,10 @@ public class Notification {
 
     @Column(name="created_at")
     private LocalDateTime createdAt;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Notification(){}
 
@@ -35,4 +40,14 @@ public class Notification {
 
     public LocalDateTime getCreatedAt(){ return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt){ this.createdAt=createdAt; }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    
 }

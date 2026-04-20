@@ -9,4 +9,7 @@ public record SportsCenterResponse(
     String city,
     String approvalStatus,
     LocalDateTime createdAt
+    String phone,
+    String description,
+    String approvalStatus
 ) {}
