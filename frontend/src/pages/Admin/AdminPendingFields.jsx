@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { Activity, useEffect, useState } from 'react';
 import axios from 'axios';
+import AdminSidebar from './AdminSidebar';
+import { CheckCircle, Clock, MapPin, Search } from 'lucide-react';
 
 const AdminPendingFields = () => {
     const [fields, setFields] = useState([]);
@@ -58,48 +60,96 @@ const AdminPendingFields = () => {
     if (loading) return <div className="p-10 text-center">Đang tải dữ liệu...</div>;
 
     return (
-        <div className="max-w-6xl p-6 mx-auto">
-            <h1 className="mb-6 text-3xl font-bold text-gray-800">Quản lý duyệt sân</h1>
-            
-            <div className="overflow-hidden bg-white rounded-lg shadow-md">
-                <table className="min-w-full leading-normal">
-                    <thead>
-                        <tr className="text-sm text-gray-600 uppercase bg-gray-100">
-                            <th className="px-6 py-3 text-left">Tên sân</th>
-                            <th className="px-6 py-3 text-left">Loại thể thao</th>
-                            <th className="px-6 py-3 text-left">Địa chỉ</th>
-                            <th className="px-6 py-3 text-left">Giá (VND)</th>
-                            <th className="px-6 py-3 text-center">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-gray-700">
-                        {fields.length === 0 ? (
-                            <tr>
-                                <td colSpan="5" className="py-10 text-center text-gray-500">
-                                    Hiện tại không có sân nào đang chờ duyệt.
-                                </td>
-                            </tr>
+        <div className="flex min-h-screen bg-slate-50">
+            {/* Sidebar bên trái */}
+            <AdminSidebar />
+
+            {/* Nội dung chính bên phải */}
+            <main className="flex-1 p-8">
+                <div className="mx-auto max-w-7xl">
+                    
+                    {/* Header Section */}
+                    <div className="p-6 mb-8 bg-white border shadow-sm rounded-xl border-slate-100">
+                        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+                            <div>
+                                <h2 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
+                                    <Clock className="text-orange-500" /> Duyệt sân chờ
+                                </h2>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    Có {fields.length} sân đang chờ bạn phê duyệt vào hệ thống.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table Section */}
+                    <div className="overflow-hidden bg-white border shadow-sm rounded-xl border-slate-100">
+                        {loading ? (
+                            <div className="py-20 text-center text-slate-500 animate-pulse">
+                                Đang tải danh sách sân chờ duyệt...
+                            </div>
                         ) : (
-                            fields.map((field) => (
-                                <tr key={field.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-medium">{field.fieldName}</td>
-                                    <td className="px-6 py-4">{field.sportsType}</td>
-                                    <td className="px-6 py-4">{field.address}</td>
-                                    <td className="px-6 py-4">{field.price}</td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button 
-                                            onClick={() => handleApprove(field.id)}
-                                            className="px-4 py-2 font-bold text-white transition duration-200 bg-blue-600 rounded hover:bg-blue-700"
-                                        >
-                                            Duyệt sân
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                            <table className="min-w-full divide-y divide-slate-200">
+                                <thead className="bg-slate-50">
+                                    <tr>
+                                        <th className="px-6 py-4 text-sm font-semibold text-left text-slate-700">Tên sân</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-left text-slate-700">Loại thể thao</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-left text-slate-700">Địa chỉ</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-left text-slate-700">Giá (VND)</th>
+                                        <th className="px-6 py-4 text-sm font-semibold text-right text-slate-700">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-slate-200">
+                                    {fields.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="py-20 text-center text-slate-400">
+                                                <div className="flex flex-col items-center justify-center">
+                                                    <Search className="w-10 h-10 mb-2 opacity-20" />
+                                                    <p>Hiện tại không có sân nào đang chờ duyệt.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        fields.map((field) => (
+                                            <tr key={field.id} className="transition-colors hover:bg-slate-50/50">
+                                                <td className="px-6 py-4">
+                                                    <span className="font-bold text-slate-800">{field.fieldName}</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <Activity className="w-3 h-3 text-slate-400" />
+                                                        <span className="text-sm text-slate-600">{field.sportsType}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2 max-w-[250px]">
+                                                        <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                                        <span className="text-sm truncate text-slate-600">{field.address}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="text-sm font-semibold text-slate-700">
+                                                        {new Intl.NumberFormat('vi-VN').format(field.price)}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <button 
+                                                        onClick={() => handleApprove(field.id)}
+                                                        className="inline-flex items-center px-4 py-2 text-sm font-bold text-white transition duration-200 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 shadow-blue-200 active:scale-95"
+                                                    >
+                                                        <CheckCircle className="w-4 h-4 mr-2" />
+                                                        Duyệt sân
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         )}
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                </div>
+            </main>
         </div>
     );
 };

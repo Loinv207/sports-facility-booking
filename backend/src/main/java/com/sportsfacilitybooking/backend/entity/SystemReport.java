@@ -16,6 +16,12 @@ public class SystemReport {
     @Column(name="created_at")
     private LocalDateTime createdAt;
 
+    @Column(name="total_revenue")
+    private Double totalRevenue; 
+
+    @Column(name="total_bookings")
+    private Integer totalBookings;
+
     public SystemReport(){}
 
     public String getId(){ return id; }
@@ -26,4 +32,22 @@ public class SystemReport {
 
     public LocalDateTime getCreatedAt(){ return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt){ this.createdAt=createdAt; }
+
+    public Double getTotalRevenue() {
+        return totalRevenue;
+    }
+
+    public void setTotalRevenue(Double totalRevenue) {
+        this.totalRevenue = totalRevenue;
+    }
+
+    public Integer getTotalBookings() {
+        return totalBookings;
+    }
+
+    public void setTotalBookings(Integer totalBookings) {
+        this.totalBookings = totalBookings;
+    }
+
+        
 }
