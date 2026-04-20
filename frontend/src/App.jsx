@@ -7,6 +7,7 @@ import { Profile } from './pages/Profile/Profile'
 import Register from './pages/Register/Register'
 import OwnerManagement from './pages/OwnerManagement/OwnerManagement'
 import AdminPendingFields from './pages/Admin/AdminPendingFields'
+import Search from './pages/Search/Search'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import UserManagement from './pages/Admin/UserManagement'
 
@@ -36,6 +37,8 @@ function App() {
         
         {/* Route dành cho Chủ sân (Owner) */}
         <Route path="/owner-management" element={<OwnerManagement />} />
+        <Route path="/admin/fields/pending" element={<AdminPendingFields />} />
+        <Route path="/search" element={<Search />} />
 
         {/* --- ADMIN --- */}
         <Route 

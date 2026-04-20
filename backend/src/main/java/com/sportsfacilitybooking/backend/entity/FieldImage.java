@@ -9,6 +9,10 @@ public class FieldImage {
     @Id
     private String id;
 
+    @Column(name="field_id")
+    private String fieldId;
+
+    @Column(name="image_url")
     @Column(name = "field_id", nullable = false)
     private String fieldId;
 
@@ -23,6 +27,11 @@ public class FieldImage {
     public String getFieldId() { return fieldId; }
     public void setFieldId(String fieldId) { this.fieldId = fieldId; }
 
+    public String getFieldId(){ return fieldId; }
+    public void setFieldId(String fieldId){ this.fieldId=fieldId; }
+
+    public String getImageUrl(){ return imageUrl; }
+    public void setImageUrl(String imageUrl){ this.imageUrl=imageUrl; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }
