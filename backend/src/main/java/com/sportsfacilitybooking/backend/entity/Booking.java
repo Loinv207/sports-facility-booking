@@ -1,9 +1,13 @@
 package com.sportsfacilitybooking.backend.entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "bookings")
@@ -11,6 +15,15 @@ public class Booking {
 
     @Id
     private String id;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "field_id", nullable = false)
+    private String fieldId;
+
+    @Column(name = "field_schedule_id", nullable = false)
+    private String fieldScheduleId;
 
     @Column(name = "booking_date")
     private LocalDate bookingDate;
@@ -35,6 +48,30 @@ public class Booking {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getFieldId() {
+        return fieldId;
+    }
+
+    public void setFieldId(String fieldId) {
+        this.fieldId = fieldId;
+    }
+
+    public String getFieldScheduleId() {
+        return fieldScheduleId;
+    }
+
+    public void setFieldScheduleId(String fieldScheduleId) {
+        this.fieldScheduleId = fieldScheduleId;
     }
 
     public LocalDate getBookingDate() {

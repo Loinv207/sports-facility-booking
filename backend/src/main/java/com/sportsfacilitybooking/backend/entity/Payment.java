@@ -1,8 +1,12 @@
 package com.sportsfacilitybooking.backend.entity;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name="payments")
@@ -10,6 +14,9 @@ public class Payment {
 
     @Id
     private String id;
+
+    @Column(name = "booking_id", nullable = false)
+    private String bookingId;
 
     private BigDecimal amount;
 
@@ -29,6 +36,9 @@ public class Payment {
 
     public String getId(){ return id; }
     public void setId(String id){ this.id=id; }
+
+    public String getBookingId() { return bookingId; }
+    public void setBookingId(String bookingId) { this.bookingId = bookingId; }
 
     public BigDecimal getAmount(){ return amount; }
     public void setAmount(BigDecimal amount){ this.amount=amount; }

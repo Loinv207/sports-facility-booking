@@ -3,6 +3,7 @@ import './App.css'
 import HomePage from './pages/Home/Home'
 import Login from './pages/Login/Login'
 import { PitchDetail } from './pages/PitchDetail/PitchDetail'
+import { Payment } from './pages/Payment/Payment'
 import { Profile } from './pages/Profile/Profile'
 import Register from './pages/Register/Register'
 import OwnerManagement from './pages/OwnerManagement/OwnerManagement'
@@ -33,6 +34,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/pitch/:id" element={<PitchDetail />} />
+        <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<Profile />} />
         
         {/* Route dành cho Chủ sân (Owner) */}

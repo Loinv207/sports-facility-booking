@@ -295,7 +295,9 @@ public class FieldService {
             sportsCenter.getAddress(),
             sportsCenter.getCity(),
             sportsCenter.getApprovalStatus(),
-            sportsCenter.getCreatedAt()
+            sportsCenter.getCreatedAt(),
+            sportsCenter.getPhone(),
+            sportsCenter.getDescription()
         );
     }
 }

@@ -82,6 +82,9 @@ const Login = () => {
             // Lưu thông tin đăng nhập - Dùng tên key thống nhất cho toàn bộ App
             localStorage.setItem('token', response.data.accessToken);
             localStorage.setItem('role', response.data.user.role); // Lưu là 'role'
+            localStorage.setItem('username', response.data.user.username || '');
+            localStorage.setItem('fullName', response.data.user.fullName || response.data.user.fullname || '');
+            localStorage.setItem('email', response.data.user.email || '');
 
             alert("Đăng nhập thành công!");
             

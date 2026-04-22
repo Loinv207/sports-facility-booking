@@ -36,9 +36,10 @@ public class SportsCenterService {
             savedCenter.getName(),
             savedCenter.getAddress(),
             savedCenter.getCity(),
+            savedCenter.getApprovalStatus(),
+            savedCenter.getCreatedAt(),
             savedCenter.getPhone(),
-            savedCenter.getDescription(),
-            savedCenter.getApprovalStatus()
+            savedCenter.getDescription()
         );
     }
 }

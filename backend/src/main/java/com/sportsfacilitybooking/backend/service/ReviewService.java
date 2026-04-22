@@ -19,6 +19,7 @@ import com.sportsfacilitybooking.backend.entity.User;
 import com.sportsfacilitybooking.backend.exception.BusinessException;
 import com.sportsfacilitybooking.backend.exception.DuplicateResourceException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
+import com.sportsfacilitybooking.backend.repository.BookingRepository;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
 import com.sportsfacilitybooking.backend.repository.ReviewRepository;
 import com.sportsfacilitybooking.backend.repository.UserRepository;
@@ -28,15 +29,18 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final FieldRepository fieldRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     public ReviewService(
         ReviewRepository reviewRepository,
         FieldRepository fieldRepository,
-        UserRepository userRepository
+        UserRepository userRepository,
+        BookingRepository bookingRepository
     ) {
         this.reviewRepository = reviewRepository;
         this.fieldRepository = fieldRepository;
         this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     public ReviewResponse createReview(String fieldId, ReviewRequest request, UserDetails userDetails) {
@@ -50,6 +54,11 @@ public class ReviewService {
         User user = userRepository.findByUsername(userDetails.getUsername())
             .orElseGet(() -> userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay nguoi dung dang nhap")));
+
+        boolean hasCompletedBooking = bookingRepository.existsByUserIdAndFieldIdAndStatus(user.getId(), fieldId, "COMPLETED");
+        if (!hasCompletedBooking) {
+            throw new BusinessException("Ban chi co the danh gia sau khi hoan thanh booking cua san nay");
+        }
 
         if (reviewRepository.existsByFieldIdAndUserId(fieldId, user.getId())) {
             throw new DuplicateResourceException("Ban da danh gia san nay roi");

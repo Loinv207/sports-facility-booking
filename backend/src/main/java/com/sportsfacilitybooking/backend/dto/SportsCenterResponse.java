@@ -8,8 +8,7 @@ public record SportsCenterResponse(
     String address,
     String city,
     String approvalStatus,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
     String phone,
-    String description,
-    String approvalStatus
+    String description
 ) {}

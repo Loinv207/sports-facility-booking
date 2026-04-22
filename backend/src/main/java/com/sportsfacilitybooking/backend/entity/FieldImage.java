@@ -1,6 +1,9 @@
 package com.sportsfacilitybooking.backend.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "field_images")
@@ -9,10 +12,6 @@ public class FieldImage {
     @Id
     private String id;
 
-    @Column(name="field_id")
-    private String fieldId;
-
-    @Column(name="image_url")
     @Column(name = "field_id", nullable = false)
     private String fieldId;
 
@@ -21,17 +20,27 @@ public class FieldImage {
 
     public FieldImage() {}
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getFieldId() { return fieldId; }
-    public void setFieldId(String fieldId) { this.fieldId = fieldId; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getFieldId(){ return fieldId; }
-    public void setFieldId(String fieldId){ this.fieldId=fieldId; }
+    public String getFieldId() {
+        return fieldId;
+    }
 
-    public String getImageUrl(){ return imageUrl; }
-    public void setImageUrl(String imageUrl){ this.imageUrl=imageUrl; }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setFieldId(String fieldId) {
+        this.fieldId = fieldId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }
