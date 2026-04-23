@@ -94,64 +94,74 @@ const HomePage = () => {
 
   return (
     <PublicShell>
-      <section className="home-hero">
-        <div className="hero-copy">
-          <p className="hero-breadcrumb">Trang chủ / Cơ sở thể thao</p>
-          <span className="hero-kicker">Thể thao mỗi ngày</span>
-          <h1 className="hero-title">Khám phá cơ sở thể thao phù hợp cho lịch tập của bạn</h1>
-          <p className="hero-description">
-            Tìm kiếm sân đang hoạt động, so sánh nhanh theo bộ môn, khu vực và mức giá để đặt lịch nhanh hơn.
-          </p>
+      <a className="floating-messenger" href="https://m.me" target="_blank" rel="noreferrer" aria-label="Liên hệ Messenger">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 2C6.477 2 2 6.145 2 11.259c0 2.914 1.454 5.514 3.726 7.213V22l3.223-1.768c.968.27 1.994.418 3.051.418 5.523 0 10-4.145 10-9.259C22 6.145 17.523 2 12 2zm1.064 12.445-2.548-2.718-4.968 2.718 5.465-5.807 2.62 2.718 4.896-2.718-5.465 5.807z" fill="currentColor"/>
+        </svg>
+      </a>
 
-          <div className="hero-summary">
-            <div className="summary-item">
-              <strong>{dangTai ? '--' : tongSoCoSo}</strong>
-              <span>Cơ sở hiển thị</span>
-            </div>
-            <div className="summary-item">
-              <strong>{dangTai ? '--' : tongMonTheThao}</strong>
-              <span>Môn thể thao</span>
-            </div>
-            <div className="summary-item">
-              <strong>{dangTai ? '--' : danhGiaTrungBinh}</strong>
-              <span>Đánh giá trung bình</span>
+      <section className="home-hero home-hero-compact">
+        <div className="hero-shell-card">
+          <div className="hero-text-overlay">
+            <p className="hero-breadcrumb hero-breadcrumb-center">Trang chủ / Cơ sở thể thao</p>
+            <span className="hero-kicker hero-kicker-center">Thể thao mỗi ngày</span>
+            <h1 className="hero-title hero-title-center">Đặt sân thể thao dễ dàng và nhanh hơn mỗi ngày</h1>
+            <p className="hero-description hero-description-center">
+              Tìm kiếm và đặt lịch các sân bóng đá, cầu lông, tennis và nhiều môn thể thao khác với giao diện sáng, rõ và dễ thao tác hơn.
+            </p>
+
+            <div className="hero-actions">
+              <button type="button" className="hero-primary-action" onClick={xuLyTimKiem}>Đặt sân ngay</button>
+              <Link to="/search" className="hero-secondary-action">Xem sân phổ biến</Link>
             </div>
           </div>
-        </div>
 
-        <div className="hero-panel">
-          <div className="search-panel">
-            <div className="search-heading">
-              <h2>Tìm nhanh cơ sở</h2>
-              <p>Nhập tên sân, môn thể thao, địa chỉ hoặc từ khóa mô tả.</p>
-            </div>
-
-            <div className="search-box">
-              <div className="search-input-wrap">
-                <label htmlFor="field-search">Từ khóa</label>
-                <input
-                  id="field-search"
-                  type="text"
-                  placeholder="Ví dụ: cầu lông, Thủ Đức, sân 7 người..."
-                  value={tuKhoa}
-                  onChange={(e) => setTuKhoa(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      xuLyTimKiem()
-                    }
-                  }}
-                />
+          <div className="hero-bottom-panel">
+            <div className="hero-search-wide">
+              <div className="hero-search-grid">
+                <div className="hero-search-field">
+                  <label>Từ khóa</label>
+                  <input
+                    id="field-search"
+                    type="text"
+                    placeholder="Ví dụ: cầu lông, Thủ Đức..."
+                    value={tuKhoa}
+                    onChange={(e) => setTuKhoa(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        xuLyTimKiem()
+                      }
+                    }}
+                  />
+                </div>
+                <div className="hero-search-field">
+                  <label>Môn thể thao</label>
+                  <div className="hero-search-value">Bóng đá, cầu lông, tennis</div>
+                </div>
+                <div className="hero-search-field">
+                  <label>Trạng thái</label>
+                  <div className="hero-search-value">Sân đang hoạt động</div>
+                </div>
+                <button type="button" className="hero-search-submit" onClick={xuLyTimKiem}>
+                  Tìm sân
+                </button>
               </div>
-              <button type="button" className="search-button" onClick={xuLyTimKiem}>
-                Tìm cơ sở
-              </button>
             </div>
 
-            <div className="quick-filters">
-              <span>Sân đang mở</span>
-              <span>Giá minh bạch</span>
-              <span>Đặt lịch nhanh</span>
+            <div className="hero-summary hero-summary-compact">
+              <div className="summary-item">
+                <strong>{dangTai ? '--' : tongSoCoSo}</strong>
+                <span>Cơ sở hiển thị</span>
+              </div>
+              <div className="summary-item">
+                <strong>{dangTai ? '--' : tongMonTheThao}</strong>
+                <span>Môn thể thao</span>
+              </div>
+              <div className="summary-item">
+                <strong>{dangTai ? '--' : danhGiaTrungBinh}</strong>
+                <span>Đánh giá trung bình</span>
+              </div>
             </div>
           </div>
         </div>
