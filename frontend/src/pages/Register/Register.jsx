@@ -1,95 +1,154 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import PublicShell from '../../components/PublicShell'
+import '../Login/Auth.css'
 
 const RegisterPage = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    fullName: '',
+    phoneNumber: '',
+    role: 'USER'
   })
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (event) => {
+    event.preventDefault()
     setLoading(true)
+    setErrorMessage('')
 
     try {
       await axios.post('http://localhost:8080/api/auth/register', formData)
-      alert('Đăng ký thành công, mời đăng nhập')
       navigate('/login')
     } catch (error) {
-      const message = error.response?.data?.message || 'Đăng ký thất bại'
-      alert(message)
+      setErrorMessage(error.response?.data?.message || 'Đăng ký thất bại')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-green-600 text-center mb-6">Đăng Ký Thành Viên</h2>
+    <PublicShell breadcrumb="Trang chủ / Đăng ký">
+      <section className="auth-panel">
+          <div className="auth-form-side">
+            <div className="auth-copy">
+              <h1>Đăng ký</h1>
+              <p>Tạo tài khoản đầy đủ để đặt sân hoặc quản lý sân ngay trên hệ thống SPORTS NOW.</p>
+            </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              name="username"
-              type="text"
-              placeholder="Nhập username"
-              value={formData.username}
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-              required
-            />
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="auth-field">
+                <label>Họ và tên</label>
+                <input
+                  name="fullName"
+                  type="text"
+                  placeholder="Nguyễn Văn A"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Tên tài khoản</label>
+                <input
+                  name="username"
+                  type="text"
+                  placeholder="NguyenVanA"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="example@gmail.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Số điện thoại</label>
+                <input
+                  name="phoneNumber"
+                  type="text"
+                  placeholder="0900000000"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Vai trò</label>
+                <select name="role" value={formData.role} onChange={handleChange} className="auth-select" required>
+                  <option value="USER">Khách hàng</option>
+                  <option value="OWNER">Chủ sân</option>
+                </select>
+              </div>
+
+              <div className="auth-field">
+                <label>Mật khẩu</label>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Tối thiểu 8 ký tự"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {errorMessage && <div className="auth-error">{errorMessage}</div>}
+
+              <button type="submit" className="auth-submit" disabled={loading}>
+                {loading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
+              </button>
+
+              <div className="auth-divider">
+                <span>Hoặc</span>
+              </div>
+
+              <div className="auth-socials">
+                <button type="button" className="auth-social">Google</button>
+                <button type="button" className="auth-social">Facebook</button>
+              </div>
+
+              <p className="auth-switch">
+                Đã có tài khoản? <Link to="/login">Đăng nhập ngay</Link>
+              </p>
+            </form>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              name="email"
-              type="email"
-              placeholder="Nhập email"
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-              required
-            />
+          <div className="auth-visual-side">
+            <div className="auth-visual-box">
+              <div className="auth-visual-placeholder" />
+              <div className="auth-benefits">
+                <h2>Bắt đầu cùng SPORTS NOW</h2>
+                <ul>
+                  <li>Khách hàng có thể tìm sân và đặt lịch nhanh</li>
+                  <li>Chủ sân có thể quản lý booking và doanh thu</li>
+                  <li>Dữ liệu tài khoản đồng bộ đúng với database hệ thống</li>
+                </ul>
+              </div>
+            </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-            <input
-              name="password"
-              type="password"
-              placeholder="Tối thiểu 8 ký tự"
-              value={formData.password}
-              onChange={handleChange}
-              className="mt-1 w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-green-500 outline-none"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-2 rounded-md font-bold hover:bg-green-700 transition duration-200 disabled:opacity-60"
-          >
-            {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Đã có tài khoản? <a href="/login" className="text-green-600 hover:underline">Đăng nhập</a>
-        </p>
-      </div>
-    </div>
+      </section>
+    </PublicShell>
   )
 }
 

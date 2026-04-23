@@ -59,11 +59,18 @@ public class AuthService {
             throw new DuplicateResourceException("Email đã tồn tại");
         }
 
+        Role requestedRole = request.role() == null ? Role.USER : request.role();
+        if (requestedRole == Role.ADMIN) {
+            requestedRole = Role.USER;
+        }
+
         User user = User.builder()
         .username(request.username())
         .email(request.email())
         .passwordHash(passwordEncoder.encode((request.password())))
-        .role(Role.USER)
+        .fullName(request.fullName())
+        .phoneNumber(request.phoneNumber())
+        .role(requestedRole)
         .build();
 
         user = userRepository.save(user);

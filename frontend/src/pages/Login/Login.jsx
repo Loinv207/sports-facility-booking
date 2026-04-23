@@ -1,147 +1,145 @@
-// import React, { useState } from 'react';
-// import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
-
-// const Login = () => {
-//     const [credentials, setCredentials] = useState({ usernameOrEmail: '', password: '' });
-//     const navigate = useNavigate();
-
-//     const handleChange = (e) => {
-//         setCredentials({ ...credentials, [e.target.name]: e.target.value });
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         try {
-//             const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
-            
-            
-//             localStorage.setItem('token', response.data.accessToken);
-//             localStorage.setItem('userRole', response.data.user.role);
-
-//             alert("Đăng nhập thành công!");
-            
-            
-//             if (response.data.user.role === 'ADMIN') {
-//                 navigate('/admin/fields/pending');
-//             } else {
-//                 navigate('/');
-//             }
-//         } catch (error) {
-//             alert("Sai tài khoản hoặc mật khẩu!");
-//         }
-//     };
-
-//     return (
-//         <div className="flex flex-col items-center justify-center min-h-screen text-white bg-gray-900">
-//             <form onSubmit={handleSubmit} className="p-8 bg-gray-800 rounded-lg shadow-xl w-96">
-//                 <h2 className="mb-6 text-2xl font-bold">Đăng nhập hệ thống</h2>
-//                 <input 
-//                     name="usernameOrEmail" 
-//                     placeholder="Username hoặc Email" 
-//                     onChange={handleChange}
-//                     className="w-full p-3 mb-4 bg-gray-700 rounded outline-none"
-//                 />
-//                 <input 
-//                     name="password" 
-//                     type="password" 
-//                     placeholder="Mật khẩu" 
-//                     onChange={handleChange}
-//                     className="w-full p-3 mb-6 bg-gray-700 rounded outline-none"
-//                 />
-//                 <button type="submit" className="w-full p-3 font-bold rounded bg-sky-600 hover:bg-sky-700">
-//                     Đăng nhập
-//                 </button>
-//             </form>
-//         </div>
-//     );
-// };
-
-// export default Login;
-
-
-
-
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Link, useNavigate } from 'react-router-dom'
+import PublicShell from '../../components/PublicShell'
+import './Auth.css'
 
 const Login = () => {
-    const [credentials, setCredentials] = useState({ usernameOrEmail: '', password: '' });
-    const navigate = useNavigate();
+  const navigate = useNavigate()
+  const [shellKey, setShellKey] = useState(0)
+  const [credentials, setCredentials] = useState({ usernameOrEmail: '', password: '' })
+  const [remember, setRemember] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
-    const handleChange = (e) => {
-        setCredentials({ ...credentials, [e.target.name]: e.target.value });
-    };
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setCredentials((prev) => ({ ...prev, [name]: value }))
+  }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
-            
-            // Lưu thông tin đăng nhập - Dùng tên key thống nhất cho toàn bộ App
-            localStorage.setItem('token', response.data.accessToken);
-            localStorage.setItem('role', response.data.user.role); // Lưu là 'role'
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setLoading(true)
+    setErrorMessage('')
 
-            alert("Đăng nhập thành công!");
-            
-            // Điều hướng dựa trên vai trò
-            if (response.data.user.role === 'ADMIN') {
-                navigate('/admin/dashboard'); 
-            } else if (response.data.user.role === 'OWNER') {
-                navigate('/owner-management');
-            } else {
-                navigate('/');
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Sai tài khoản hoặc mật khẩu!");
-        }
-    };
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', credentials)
 
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen text-white bg-slate-900">
-            <form onSubmit={handleSubmit} className="w-full max-w-md p-8 border shadow-2xl bg-slate-800 rounded-2xl border-slate-700">
-                <div className="mb-8 text-center">
-                    <h2 className="text-3xl font-bold text-sky-400">Sport Now</h2>
-                    <p className="mt-2 text-slate-400">Đăng nhập để quản lý hệ thống</p>
-                </div>
+      localStorage.setItem('token', response.data.accessToken)
+      localStorage.setItem('role', response.data.user.role)
+      setShellKey((prev) => prev + 1)
 
-                <div className="space-y-4">
-                    <div>
-                        <label className="block mb-1 text-sm font-medium text-slate-300">Tài khoản</label>
-                        <input 
-                            name="usernameOrEmail" 
-                            type="text"
-                            placeholder="Username hoặc Email" 
-                            onChange={handleChange}
-                            className="w-full p-3 transition-all border rounded-lg outline-none bg-slate-700 border-slate-600 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block mb-1 text-sm font-medium text-slate-300">Mật khẩu</label>
-                        <input 
-                            name="password" 
-                            type="password" 
-                            placeholder="••••••••" 
-                            onChange={handleChange}
-                            className="w-full p-3 transition-all border rounded-lg outline-none bg-slate-700 border-slate-600 focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                            required
-                        />
-                    </div>
-                </div>
+      if (remember) {
+        localStorage.setItem('rememberedUsername', credentials.usernameOrEmail)
+      } else {
+        localStorage.removeItem('rememberedUsername')
+      }
 
-                <button type="submit" className="w-full p-3 mt-8 font-bold text-white rounded-lg bg-sky-600 hover:bg-sky-500 transform active:scale-[0.98] transition-all shadow-lg shadow-sky-900/20">
-                    Đăng nhập ngay
-                </button>
-                
-                <p className="mt-6 text-sm text-center text-slate-400">
-                    Bạn chưa có tài khoản? <span className="cursor-pointer text-sky-400 hover:underline" onClick={() => navigate('/register')}>Đăng ký</span>
-                </p>
+      if (response.data.user.role === 'ADMIN') {
+        navigate('/admin/dashboard')
+      } else if (response.data.user.role === 'OWNER') {
+        navigate('/owner-management')
+      } else {
+        navigate('/')
+      }
+    } catch (error) {
+      console.error(error)
+      setErrorMessage(error.response?.data?.message || 'Sai tài khoản hoặc mật khẩu.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const rememberedUsername = localStorage.getItem('rememberedUsername')
+    if (rememberedUsername) {
+      setCredentials((prev) => ({ ...prev, usernameOrEmail: rememberedUsername }))
+    }
+  }, [])
+
+  return (
+    <PublicShell key={shellKey} breadcrumb="Trang chủ / Đăng nhập">
+      <section className="auth-panel">
+          <div className="auth-form-side">
+            <div className="auth-copy">
+              <h1>Đăng nhập</h1>
+              <p>Đăng nhập để quản lý lịch đặt sân và tiếp tục sử dụng dịch vụ.</p>
+            </div>
+
+            <form className="auth-form" onSubmit={handleSubmit}>
+              <div className="auth-field">
+                <label>Email hoặc số điện thoại</label>
+                <input
+                  name="usernameOrEmail"
+                  type="text"
+                  placeholder="example@gmail.com"
+                  value={credentials.usernameOrEmail}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="auth-field">
+                <label>Mật khẩu</label>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={credentials.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="auth-row auth-row-between">
+                <label className="auth-check">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(event) => setRemember(event.target.checked)}
+                  />
+                  <span>Ghi nhớ đăng nhập</span>
+                </label>
+                <button type="button" className="auth-inline-button">Quên mật khẩu?</button>
+              </div>
+
+              {errorMessage && <div className="auth-error">{errorMessage}</div>}
+
+              <button type="submit" className="auth-submit" disabled={loading}>
+                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+              </button>
+
+              <div className="auth-divider">
+                <span>Hoặc</span>
+              </div>
+
+              <div className="auth-socials">
+                <button type="button" className="auth-social">Google</button>
+                <button type="button" className="auth-social">Facebook</button>
+              </div>
+
+              <p className="auth-switch">
+                Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
+              </p>
             </form>
-        </div>
-    );
-};
+          </div>
 
-export default Login;
+          <div className="auth-visual-side">
+            <div className="auth-visual-box">
+              <div className="auth-visual-placeholder" />
+              <div className="auth-benefits">
+                <h2>Nền tảng đặt sân hàng đầu</h2>
+                <ul>
+                  <li>Đặt sân nhanh chóng</li>
+                  <li>Theo dõi lịch đặt dễ dàng</li>
+                  <li>Thanh toán tiện lợi</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+      </section>
+    </PublicShell>
+  )
+}
+
+export default Login

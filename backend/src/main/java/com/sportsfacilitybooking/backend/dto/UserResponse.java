@@ -9,6 +9,8 @@ public record UserResponse(
     String email,
     Role role,
     String fullname,
+    String phoneNumber,
+    String avatarUrl,
     String status,
     Instant createAt,
     Instant updateAt

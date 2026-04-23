@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sportsfacilitybooking.backend.dto.UpdateProfileRequest;
 import com.sportsfacilitybooking.backend.dto.UserResponse;
 import com.sportsfacilitybooking.backend.entity.Role;
 import com.sportsfacilitybooking.backend.entity.User;
@@ -48,6 +49,21 @@ public class UserService {
     //  update
     // delete...
 
+
+    @Transactional
+    public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User" + id));
+
+        user.setFullName(request.fullName());
+        user.setPhoneNumber(request.phoneNumber());
+        user.setEmail(request.email());
+        user.setAvatarUrl(request.avatarUrl());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        User updatedUser = userRepository.save(user);
+        return userMapper.toResponse(updatedUser);
+    }
 
     @Transactional
     public UserResponse toggleUserStatus(Long id) {

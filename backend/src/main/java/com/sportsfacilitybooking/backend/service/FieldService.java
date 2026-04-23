@@ -158,7 +158,7 @@ public class FieldService {
         field.setRating(request.rating());
         field.setDescription(request.description());
         if (request.status() != null && !request.status().isBlank()) {
-            field.setStatus(request.status());
+            field.setStatus(request.status().trim().toUpperCase());
         }
 
         fieldRepository.save(field);
@@ -169,7 +169,8 @@ public class FieldService {
         Field field = fieldRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay san voi id: " + id));
 
-        fieldRepository.delete(field);
+        field.setStatus("HIDDEN");
+        fieldRepository.save(field);
     }
 
     public FieldResponse approveField(String id) {
