@@ -9,7 +9,7 @@
 | 2251012092 | Hồ Ngọc Minh                  | Fullstack |
 ## Công nghệ sử dụng
 - Backend: Spring Boot
-- Frontend: React / Thymeleaf
+- Frontend: ReactJS, TailwindCSS, Shadcn UI
 - Database: MySQL
 ## Cài đặt và chạy
 ### Yêu cầu
@@ -18,13 +18,13 @@
 - MySQL
 ### Chạy Backend
 cd backend
-./mvnw spring-boot:run
+mvn spring-boot:run
 ### Chạy Frontend 
 cd frontend
 npm install
-npm start
+npm run dev
 ### Truy cập
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:5173
 - Backend API: http://localhost:8080
 ## Demo
 
