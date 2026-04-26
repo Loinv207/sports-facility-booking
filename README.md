@@ -18,11 +18,11 @@
 - MySQL
 ### Chạy Backend
 cd backend
-mvn spring-boot:run
+<br>mvn spring-boot:run
 ### Chạy Frontend 
 cd frontend
-npm install
-npm run dev
+<br>npm install
+<br>npm run dev
 ### Truy cập
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8080
