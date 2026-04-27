@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +31,14 @@ public class FieldController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FieldResponse>> getAllFields() {
+    public ResponseEntity<List<FieldResponse>> getAllFields(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails != null) {
+            boolean isOwner = userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_OWNER"));
+            if (isOwner) {
+                return ResponseEntity.ok(fieldService.getFieldsByOwner(userDetails));
+            }
+        }
+
         return ResponseEntity.ok(fieldService.getAllFields());
     }
 
@@ -44,8 +53,8 @@ public class FieldController {
     }
 
     @PostMapping
-    public ResponseEntity<FieldResponse> createField(@Valid @RequestBody FieldRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(fieldService.createField(request));
+    public ResponseEntity<FieldResponse> createField(@Valid @RequestBody FieldRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(fieldService.createField(request, userDetails));
     }
 
     @PutMapping("/{id}")

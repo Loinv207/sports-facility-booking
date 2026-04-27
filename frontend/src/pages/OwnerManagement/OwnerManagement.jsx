@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 
 const API_BASE = 'http://localhost:8080'
 
@@ -74,6 +75,14 @@ const TextArea = ({ label, ...props }) => (
 )
 
 const OwnerManagement = () => {
+  const token = localStorage.getItem('token')
+  const userRole = localStorage.getItem('role')
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+
+  if (!token || userRole !== 'OWNER') {
+    return <Navigate to="/" replace />
+  }
+
   const [fieldForm, setFieldForm] = useState(emptyField)
   const [scheduleForm, setScheduleForm] = useState(emptySchedule)
   const [centerForm, setCenterForm] = useState(emptyCenter)
@@ -143,7 +152,7 @@ const OwnerManagement = () => {
     try {
       const response = await fetch(`${API_BASE}/api/fields`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify(fieldForm),
       })
 

@@ -21,6 +21,9 @@ public class Field {
 
     private String description;
 
+    @Column(name = "owner_id")
+    private Long ownerId;
+
     private String status;
 
     public Field() {}
@@ -71,6 +74,14 @@ public class Field {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getStatus() {
