@@ -40,7 +40,14 @@ public class FieldController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FieldResponse>> getAllFields() {
+    public ResponseEntity<List<FieldResponse>> getAllFields(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails != null) {
+            boolean isOwner = userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_OWNER"));
+            if (isOwner) {
+                return ResponseEntity.ok(fieldService.getFieldsByOwner(userDetails));
+            }
+        }
+
         return ResponseEntity.ok(fieldService.getAllFields());
     }
 
@@ -105,8 +112,8 @@ public class FieldController {
     }
 
     @PostMapping
-    public ResponseEntity<FieldResponse> createField(@Valid @RequestBody FieldRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(fieldService.createField(request));
+    public ResponseEntity<FieldResponse> createField(@Valid @RequestBody FieldRequest request, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(fieldService.createField(request, userDetails));
     }
 
     @PutMapping("/{id}")

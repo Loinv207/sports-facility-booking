@@ -11,6 +11,7 @@ import com.sportsfacilitybooking.backend.entity.Field;
 public interface FieldRepository extends JpaRepository<Field, String>, JpaSpecificationExecutor<Field> {
     List<Field> findByStatusIgnoreCase(String status);
     List<Field> findByStatus(String status);
+    List<Field> findByOwnerIdOrderByFieldNameAsc(Long ownerId);
     boolean existsByFieldNameIgnoreCase(String fieldName);
     Optional<Field> findByFieldNameIgnoreCase(String fieldName);
 }

@@ -153,6 +153,7 @@ const PreviewCard = ({ field, badge = 'Sẵn sàng gửi duyệt', badgeTone = '
 const OwnerManagement = () => {
   const token = localStorage.getItem('token')
   const userRole = localStorage.getItem('role')
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
 
   if (!token || userRole !== 'OWNER') {
     return <Navigate to="/" replace />
@@ -205,7 +206,9 @@ const OwnerManagement = () => {
   }
 
   const loadFields = async () => {
-    const response = await fetch(`${API_BASE}/api/fields`)
+    const response = await fetch(`${API_BASE}/api/fields`, {
+      headers: authHeaders,
+    })
     if (!response.ok) return
     const data = await response.json()
     setFields(data)
@@ -237,13 +240,17 @@ const OwnerManagement = () => {
   }
 
   const loadBookings = async () => {
-    const response = await fetch(`${API_BASE}/api/owner/bookings`)
+    const response = await fetch(`${API_BASE}/api/owner/bookings`, {
+      headers: authHeaders,
+    })
     if (!response.ok) return
     setBookings(await response.json())
   }
 
   const loadRevenue = async () => {
-    const response = await fetch(`${API_BASE}/api/owner/reports/revenue`)
+    const response = await fetch(`${API_BASE}/api/owner/reports/revenue`, {
+      headers: authHeaders,
+    })
     if (!response.ok) return
     setRevenue(await response.json())
   }
@@ -276,7 +283,7 @@ const OwnerManagement = () => {
     try {
       const response = await fetch(`${API_BASE}/api/fields`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify(fieldForm),
       })
 
