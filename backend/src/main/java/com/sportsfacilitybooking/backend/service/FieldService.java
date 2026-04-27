@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.sportsfacilitybooking.backend.dto.FieldFullDetailsResponse;
@@ -27,6 +28,7 @@ import com.sportsfacilitybooking.backend.repository.FieldImageRepository;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
 import com.sportsfacilitybooking.backend.repository.FieldScheduleRepository;
 import com.sportsfacilitybooking.backend.repository.SportsCenterRepository;
+import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
 public class FieldService {
@@ -34,21 +36,29 @@ public class FieldService {
     private final FieldImageRepository fieldImageRepository;
     private final FieldScheduleRepository fieldScheduleRepository;
     private final SportsCenterRepository sportsCenterRepository;
+    private final UserRepository userRepository;
 
     public FieldService(
         FieldRepository fieldRepository,
         FieldImageRepository fieldImageRepository,
         FieldScheduleRepository fieldScheduleRepository,
-        SportsCenterRepository sportsCenterRepository
+        SportsCenterRepository sportsCenterRepository,
+        UserRepository userRepository
     ) {
         this.fieldRepository = fieldRepository;
         this.fieldImageRepository = fieldImageRepository;
         this.fieldScheduleRepository = fieldScheduleRepository;
         this.sportsCenterRepository = sportsCenterRepository;
+        this.userRepository = userRepository;
     }
 
     public List<FieldResponse> getAllFields() {
         return fieldRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    public List<FieldResponse> getFieldsByOwner(UserDetails userDetails) {
+        Long ownerId = resolveOwnerId(userDetails);
+        return fieldRepository.findByOwnerIdOrderByFieldNameAsc(ownerId).stream().map(this::toResponse).toList();
     }
 
     public List<FieldResponse> getActiveFields() {
@@ -132,7 +142,7 @@ public class FieldService {
         );
     }
 
-    public FieldResponse createField(FieldRequest request) {
+    public FieldResponse createField(FieldRequest request, UserDetails userDetails) {
         Field field = new Field();
         field.setId(UUID.randomUUID().toString());
         field.setFieldName(request.fieldName());
@@ -142,6 +152,7 @@ public class FieldService {
         field.setRating(request.rating());
         field.setDescription(request.description());
         field.setStatus(request.status() == null || request.status().isBlank() ? "PENDING" : request.status());
+        field.setOwnerId(resolveOwnerId(userDetails));
 
         fieldRepository.save(field);
         return toResponse(field);
@@ -158,7 +169,7 @@ public class FieldService {
         field.setRating(request.rating());
         field.setDescription(request.description());
         if (request.status() != null && !request.status().isBlank()) {
-            field.setStatus(request.status());
+            field.setStatus(request.status().trim().toUpperCase());
         }
 
         fieldRepository.save(field);
@@ -169,7 +180,8 @@ public class FieldService {
         Field field = fieldRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay san voi id: " + id));
 
-        fieldRepository.delete(field);
+        field.setStatus("HIDDEN");
+        fieldRepository.save(field);
     }
 
     public FieldResponse approveField(String id) {
@@ -299,5 +311,11 @@ public class FieldService {
             sportsCenter.getPhone(),
             sportsCenter.getDescription()
         );
+    }
+
+    private Long resolveOwnerId(UserDetails userDetails) {
+        return userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay owner theo username: " + userDetails.getUsername()))
+            .getId();
     }
 }

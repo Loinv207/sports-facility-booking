@@ -18,7 +18,8 @@ public class FieldImage {
     @Column(name = "image_url", nullable = false, length = 1000)
     private String imageUrl;
 
-    public FieldImage() {}
+    public FieldImage() {
+    }
 
     public String getId() {
         return id;

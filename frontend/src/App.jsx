@@ -12,6 +12,16 @@ import Search from './pages/Search/Search'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import UserManagement from './pages/Admin/UserManagement'
 
+const OwnerRoute = ({ children }) => {
+  const token = localStorage.getItem('token')
+  const userRole = localStorage.getItem('role')
+
+  if (!token || userRole !== 'OWNER') {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
 
 const AdminRoute = ({ children }) => {
   const token = localStorage.getItem('token'); 
@@ -38,7 +48,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         
         {/* Route dành cho Chủ sân (Owner) */}
-        <Route path="/owner-management" element={<OwnerManagement />} />
+        <Route path="/owner-management" element={<OwnerRoute><OwnerManagement /></OwnerRoute>} />
         <Route path="/admin/fields/pending" element={<AdminPendingFields />} />
         <Route path="/search" element={<Search />} />
 

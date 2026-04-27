@@ -1,6 +1,5 @@
 package com.sportsfacilitybooking.backend.service;
 
-import java.util.Collections;
 import java.util.Map;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,6 +64,9 @@ public class BookingService {
         FieldSchedule schedule = fieldScheduleRepository.findById(request.fieldScheduleId())
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay lich san voi id: " + request.fieldScheduleId()));
 
+        Field field = fieldRepository.findById(schedule.getFieldId())
+            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay san voi id: " + schedule.getFieldId()));
+
         if (!"AVAILABLE".equalsIgnoreCase(schedule.getStatus())) {
             throw new BookingConflictException("Khung gio nay khong con san sang de dat");
         }
@@ -84,7 +86,12 @@ public class BookingService {
         booking.setUserId(user.getId());
         booking.setFieldId(schedule.getFieldId());
         booking.setFieldScheduleId(schedule.getId());
+        booking.setFieldName(field.getFieldName());
+        booking.setCustomerName(displayName(user));
         booking.setBookingDate(schedule.getScheduleDate());
+        booking.setStartTime(schedule.getStartTime() != null ? schedule.getStartTime().toString() : null);
+        booking.setEndTime(schedule.getEndTime() != null ? schedule.getEndTime().toString() : null);
+        booking.setDepositAmount(schedule.getPrice());
         booking.setTotalPrice(schedule.getPrice());
         booking.setStatus("PENDING_PAYMENT");
         booking.setCreatedAt(createdAt);
@@ -224,6 +231,18 @@ public class BookingService {
         return userRepository.findByUsername(username)
             .or(() -> userRepository.findByEmail(username))
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay nguoi dung dang nhap"));
+    }
+
+    private String displayName(User user) {
+        if (user.getFullName() != null && !user.getFullName().isBlank()) {
+            return user.getFullName().trim();
+        }
+
+        if (user.getUsername() != null && !user.getUsername().isBlank()) {
+            return user.getUsername().trim();
+        }
+
+        return user.getEmail();
     }
 
     private UserBookingResponse toUserBookingResponse(

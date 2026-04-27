@@ -1,13 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowRight, Filter, MapPin, Search as SearchIcon, SlidersHorizontal, Star, Trophy } from 'lucide-react'
-
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { SiteHeader } from '@/components/layout/SiteHeader'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import PublicShell from '../../components/PublicShell'
 
 const initialFilters = {
   keyword: '',
@@ -28,10 +22,10 @@ const fieldImages = [
 
 const formatPrice = (price) => {
   if (price === null || price === undefined || price === '') {
-    return 'Lien he'
+    return 'Liên hệ'
   }
 
-  return `${new Intl.NumberFormat('vi-VN').format(Number(price))} VND/gio`
+  return `${new Intl.NumberFormat('vi-VN').format(Number(price))} VND/giờ`
 }
 
 const activeFilterCount = (filters) =>
@@ -46,26 +40,17 @@ const activeFilterCount = (filters) =>
 const buildActiveFilterLabels = (filters) => {
   const labels = []
 
-  if (filters.keyword) labels.push(`Tu khoa: ${filters.keyword}`)
-  if (filters.sportsType) labels.push(`Loai: ${filters.sportsType}`)
-  if (filters.address) labels.push(`Khu vuc: ${filters.address}`)
-  if (filters.minPrice) labels.push(`Gia tu: ${filters.minPrice}`)
-  if (filters.maxPrice) labels.push(`Gia den: ${filters.maxPrice}`)
-  if (filters.minRating) labels.push(`Rating: ${filters.minRating}+`)
+  if (filters.keyword) labels.push(`Từ khóa: ${filters.keyword}`)
+  if (filters.sportsType) labels.push(`Loại: ${filters.sportsType}`)
+  if (filters.address) labels.push(`Khu vực: ${filters.address}`)
+  if (filters.minPrice) labels.push(`Giá từ: ${filters.minPrice}`)
+  if (filters.maxPrice) labels.push(`Giá đến: ${filters.maxPrice}`)
+  if (filters.minRating) labels.push(`Đánh giá: ${filters.minRating}+`)
 
   return labels
 }
 
-const getStatusClasses = (status) => {
-  switch (status) {
-    case 'ACTIVE':
-      return 'border-emerald-500/20 bg-emerald-500/10 text-emerald-700'
-    case 'PENDING':
-      return 'border-amber-500/20 bg-amber-500/10 text-amber-700'
-    default:
-      return 'border-slate-300 bg-slate-100 text-slate-700'
-  }
-}
+const inputClassName = 'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
 
 const Search = () => {
   const navigate = useNavigate()
@@ -104,7 +89,7 @@ const Search = () => {
         size: res.data.size ?? 9,
       })
     } catch (err) {
-      console.error('Loi khi fetch du lieu san:', err)
+      console.error('Lỗi khi fetch dữ liệu sân:', err)
       setFields([])
     } finally {
       setLoading(false)
@@ -119,13 +104,13 @@ const Search = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
 
-  const handleSearch = (event) => {
-    event.preventDefault()
+  const handleSearch = (e) => {
+    e.preventDefault()
     fetchFields(0)
   }
 
-  const handleChange = (event) => {
-    const { name, value } = event.target
+  const handleChange = (e) => {
+    const { name, value } = e.target
     setFilters((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -135,347 +120,216 @@ const Search = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4f8ff,_#eef2ff_42%,_#f8fafc_100%)] text-slate-900">
-      <SiteHeader />
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <Card className="border-0 bg-white/88 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
-          <CardContent className="grid gap-6 px-6 py-8 lg:grid-cols-[minmax(0,1.1fr)_320px] lg:px-8">
+    <PublicShell breadcrumb="Trang chủ / Sân thể thao">
+      <div className="mx-auto max-w-7xl px-1 pb-8 text-slate-900">
+        <div className="mb-8 overflow-hidden rounded-[32px] border border-blue-100 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(239,246,255,0.92))] px-6 py-8 shadow-[0_25px_70px_rgba(59,130,246,0.08)] md:px-8">
+          <p className="text-sm font-medium text-slate-500">Trang chủ / Sân thể thao</p>
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-600">Search Center</p>
-              <h1 className="mt-3 text-[clamp(2.2rem,4vw,4rem)] font-semibold leading-[0.98] text-slate-950">
-                Tim kiem san the thao theo bo loc chi tiet
-              </h1>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
-                Tap trung vao bo loc thuc dung, ket qua dang card de so sanh nhanh va mot giao dien dong bo voi dashboard lich su dat san.
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+                Danh sách sân
+              </div>
+              <h1 className="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">Tìm kiếm sân thể thao</h1>
+              <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-600 md:text-base">
+                Giao diện được làm lại theo tông xanh trắng để sáng hơn, sạch hơn và dễ nhìn hơn khi tìm kiếm sân.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Badge className="rounded-full bg-sky-50 px-3 py-1.5 text-sky-700 hover:bg-sky-50">Search refined</Badge>
-                <Badge className="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700 hover:bg-amber-50">Loc theo gia va rating</Badge>
-                <Badge className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700 hover:bg-emerald-50">Card view de so sanh</Badge>
+            </div>
+            <div className="rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Tổng kết</div>
+              <div className="mt-1 font-semibold text-slate-900">
+                {loading ? 'Đang tải kết quả...' : `Tìm thấy ${pageInfo.totalElements} sân phù hợp`}
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-1">
-              <Card className="border-0 bg-slate-50 shadow-none ring-1 ring-slate-200">
-                <CardContent className="flex items-center gap-4 px-5 py-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
-                    <SearchIcon className="h-5 w-5 text-sky-700" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Ket qua</p>
-                    <p className="mt-1 text-2xl font-semibold text-slate-900">{loading ? '--' : pageInfo.totalElements}</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-0 bg-amber-50 shadow-none ring-1 ring-amber-200">
-                <CardContent className="flex items-center gap-4 px-5 py-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
-                    <Filter className="h-5 w-5 text-amber-700" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Bo loc</p>
-                    <p className="mt-1 text-2xl font-semibold text-slate-900">{filterCount}</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-0 bg-emerald-50 shadow-none ring-1 ring-emerald-200">
-                <CardContent className="flex items-center gap-4 px-5 py-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
-                    <Trophy className="h-5 w-5 text-emerald-700" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Trang</p>
-                    <p className="mt-1 text-2xl font-semibold text-slate-900">
-                      {loading ? '--' : `${pageInfo.number + 1}/${Math.max(pageInfo.totalPages, 1)}`}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-8 grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="xl:sticky xl:top-6 xl:self-start">
-            <Card className="border-0 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <CardTitle className="flex items-center gap-2 text-2xl">
-                      <SlidersHorizontal className="h-5 w-5 text-sky-700" />
-                      Bo loc tim kiem
-                    </CardTitle>
-                    <CardDescription className="mt-2">
-                      Tinh chinh nhanh khu vuc, gia va muc danh gia de loc ket qua chat hon.
-                    </CardDescription>
-                  </div>
-                  <Badge className="rounded-full bg-slate-900 px-3 py-1 text-white hover:bg-slate-900">
-                    {filterCount} dang dung
-                  </Badge>
+            <form onSubmit={handleSearch} className="rounded-[30px] border border-blue-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-6 shadow-[0_20px_60px_rgba(59,130,246,0.08)]">
+              <div className="flex items-start justify-between gap-4 border-b border-blue-50 pb-5">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Bộ lọc</p>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900">Bộ lọc tìm kiếm</h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">Tinh chỉnh nhanh khu vực, giá và đánh giá để lọc kết quả sát hơn.</p>
                 </div>
-              </CardHeader>
+                <div className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                  {filterCount} đang dùng
+                </div>
+              </div>
 
-              <CardContent>
-                <form onSubmit={handleSearch} className="space-y-5">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">Tu khoa</label>
-                    <Input
-                      name="keyword"
-                      value={filters.keyword}
-                      onChange={handleChange}
-                      placeholder="Ten san, mo ta, dia chi..."
-                      className="h-11 rounded-2xl border-slate-200 bg-slate-50 px-4"
-                    />
-                  </div>
+              <div className="mt-5 space-y-5">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Từ khóa</label>
+                  <input name="keyword" value={filters.keyword} onChange={handleChange} placeholder="Tên sân, mô tả, địa chỉ..." className={inputClassName} />
+                </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">Loai san</label>
-                    <select
-                      name="sportsType"
-                      value={filters.sportsType}
-                      onChange={handleChange}
-                      className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-200/70"
-                    >
-                      <option value="">Tat ca</option>
-                      <option value="Football">Bong da</option>
-                      <option value="Badminton">Cau long</option>
-                      <option value="Tennis">Tennis</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Loại sân</label>
+                  <select name="sportsType" value={filters.sportsType} onChange={handleChange} className={inputClassName}>
+                    <option value="">Tất cả</option>
+                    <option value="Football">Bóng đá</option>
+                    <option value="Badminton">Cầu lông</option>
+                    <option value="Tennis">Tennis</option>
+                  </select>
+                </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">Khu vuc</label>
-                    <Input
-                      name="address"
-                      value={filters.address}
-                      onChange={handleChange}
-                      placeholder="Thu Duc, Quan 7..."
-                      className="h-11 rounded-2xl border-slate-200 bg-slate-50 px-4"
-                    />
-                  </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Khu vực</label>
+                  <input name="address" value={filters.address} onChange={handleChange} placeholder="Thủ Đức, Quận 7..." className={inputClassName} />
+                </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Khoang gia</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Input
-                        name="minPrice"
-                        type="number"
-                        value={filters.minPrice}
-                        onChange={handleChange}
-                        placeholder="50000"
-                        className="h-11 rounded-2xl border-slate-200 bg-white px-4"
-                      />
-                      <Input
-                        name="maxPrice"
-                        type="number"
-                        value={filters.maxPrice}
-                        onChange={handleChange}
-                        placeholder="300000"
-                        className="h-11 rounded-2xl border-slate-200 bg-white px-4"
-                      />
+                <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
+                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Khoảng giá</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">Giá từ</label>
+                      <input name="minPrice" type="number" value={filters.minPrice} onChange={handleChange} placeholder="50000" className={inputClassName} />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">Giá đến</label>
+                      <input name="maxPrice" type="number" value={filters.maxPrice} onChange={handleChange} placeholder="300000" className={inputClassName} />
                     </div>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-700">Rating toi thieu</label>
-                    <select
-                      name="minRating"
-                      value={filters.minRating}
-                      onChange={handleChange}
-                      className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-200/70"
-                    >
-                      <option value="">Khong gioi han</option>
-                      <option value="3">Tu 3.0</option>
-                      <option value="4">Tu 4.0</option>
-                      <option value="4.5">Tu 4.5</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Đánh giá tối thiểu</label>
+                  <select name="minRating" value={filters.minRating} onChange={handleChange} className={inputClassName}>
+                    <option value="">Không giới hạn</option>
+                    <option value="3">Từ 3.0</option>
+                    <option value="4">Từ 4.0</option>
+                    <option value="4.5">Từ 4.5</option>
+                  </select>
+                </div>
 
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Sap xep ket qua</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <select
-                        name="sortBy"
-                        value={filters.sortBy}
-                        onChange={handleChange}
-                        className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-200/70"
-                      >
-                        <option value="rating">Rating</option>
-                        <option value="price">Gia</option>
-                        <option value="fieldName">Ten san</option>
+                <div className="rounded-2xl border border-blue-100 bg-blue-50/40 p-4">
+                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Sắp xếp kết quả</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">Sắp xếp theo</label>
+                      <select name="sortBy" value={filters.sortBy} onChange={handleChange} className={inputClassName}>
+                        <option value="rating">Đánh giá</option>
+                        <option value="price">Giá</option>
+                        <option value="fieldName">Tên sân</option>
                       </select>
-                      <select
-                        name="sortDir"
-                        value={filters.sortDir}
-                        onChange={handleChange}
-                        className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-slate-900 focus:ring-4 focus:ring-slate-200/70"
-                      >
-                        <option value="desc">Giam dan</option>
-                        <option value="asc">Tang dan</option>
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700">Thứ tự</label>
+                      <select name="sortDir" value={filters.sortDir} onChange={handleChange} className={inputClassName}>
+                        <option value="desc">Giảm dần</option>
+                        <option value="asc">Tăng dần</option>
                       </select>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <div className="flex gap-3 pt-2">
-                    <Button type="submit" className="h-11 flex-1 rounded-2xl">
-                      Tim ket qua
-                    </Button>
-                    <Button type="button" variant="outline" className="h-11 rounded-2xl border-slate-300 bg-white" onClick={handleResetFilters}>
-                      Xoa loc
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+              <div className="mt-6 space-y-3 border-t border-blue-50 pt-5">
+                <button type="submit" className="w-full rounded-2xl bg-[linear-gradient(180deg,#3b82f6_0%,#2563eb_100%)] px-5 py-3.5 font-semibold text-white shadow-[0_18px_30px_rgba(37,99,235,0.18)] transition hover:-translate-y-0.5">
+                  Tìm kết quả phù hợp
+                </button>
+                <button type="button" onClick={handleResetFilters} className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-3.5 font-semibold text-slate-700 transition hover:border-blue-500 hover:text-blue-700">
+                  Xóa bộ lọc
+                </button>
+              </div>
+            </form>
           </aside>
 
           <section className="space-y-6">
-            <Card className="border-0 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-              <CardHeader>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <CardTitle className="text-2xl">Danh sach ket qua dang card</CardTitle>
-                    <CardDescription className="mt-2">
-                      Xem nhanh thong tin san, gia tham khao va truy cap sang trang chi tiet.
-                    </CardDescription>
-                  </div>
-                  <Button asChild variant="outline" className="rounded-2xl border-slate-300 bg-white">
-                    <Link to="/">Ve trang chu</Link>
-                  </Button>
+            <div className="rounded-[28px] border border-blue-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] px-5 py-5 shadow-[0_20px_60px_rgba(59,130,246,0.08)]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Kết quả tìm kiếm</p>
+                  <h2 className="mt-1 text-2xl font-bold text-slate-900 md:text-[30px]">Danh sách sân thể thao</h2>
                 </div>
+                <div className="flex items-center gap-4 text-sm text-slate-600">
+                  <span>{pageInfo.totalElements} cơ sở</span>
+                  <Link to="/" className="font-semibold text-blue-700 underline-offset-4 hover:underline">
+                    Về trang chủ
+                  </Link>
+                </div>
+              </div>
 
-                {activeFilterLabels.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {activeFilterLabels.map((label) => (
-                      <Badge key={label} className="rounded-full bg-amber-50 px-3 py-1.5 text-amber-700 hover:bg-amber-50">
-                        {label}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </CardHeader>
-            </Card>
+              {activeFilterLabels.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2 border-t border-blue-50 pt-4">
+                  {activeFilterLabels.map((label) => (
+                    <span key={label} className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-800">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {fields.length > 0 ? (
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 2xl:grid-cols-3">
                 {fields.map((field, index) => (
-                  <Card
-                    key={field.id}
-                    className="overflow-hidden border-0 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_32px_80px_rgba(15,23,42,0.12)]"
-                  >
-                    <div className="relative h-56 overflow-hidden">
-                      <img
-                        src={fieldImages[index % fieldImages.length]}
-                        alt={field.fieldName}
-                        className="h-full w-full object-cover transition duration-500 group-hover/card:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02),rgba(15,23,42,0.46))]" />
-                      <div className="absolute left-4 right-4 top-4 flex items-center justify-between gap-3">
-                        <Badge className="rounded-full bg-white/85 px-3 py-1 text-slate-900 hover:bg-white/85">
-                          {field.sportsType || 'The thao'}
-                        </Badge>
-                        <div className="inline-flex items-center gap-1 rounded-full bg-slate-950/75 px-3 py-1 text-sm font-medium text-white backdrop-blur">
-                          <Star className="h-3.5 w-3.5 fill-current text-amber-300" />
-                          {Number(field.rating || 4.5).toFixed(1)}
+                  <article key={field.id} className="overflow-hidden rounded-[26px] border border-blue-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] shadow-[0_18px_40px_rgba(59,130,246,0.08)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_54px_rgba(59,130,246,0.14)]">
+                    <div className="relative h-56 bg-slate-200">
+                      <img src={fieldImages[index % fieldImages.length]} alt={field.fieldName} className="h-full w-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-slate-900/10 to-transparent" />
+                      <div className="absolute inset-x-4 top-4 flex items-center justify-between">
+                        <span className="rounded-full bg-white/92 px-3 py-1 text-xs font-semibold text-slate-900 shadow-sm">{field.sportsType || 'Thể thao'}</span>
+                        <span className="rounded-full bg-blue-600/90 px-3 py-1 text-xs font-semibold text-white shadow-sm">★ {Number(field.rating || 4.5).toFixed(1)}</span>
+                      </div>
+                      <div className="absolute inset-x-5 bottom-4">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
+                          Có thể đặt nhanh
                         </div>
                       </div>
                     </div>
 
-                    <CardHeader className="pb-0">
-                      <div className="flex items-start justify-between gap-3">
+                    <div className="p-5 md:p-6">
+                      <div className="mb-3 flex items-start justify-between gap-3">
                         <div>
-                          <CardTitle className="text-xl">{field.fieldName}</CardTitle>
-                          <CardDescription className="mt-2 flex items-center gap-2">
-                            <MapPin className="h-4 w-4" />
-                            {field.address}
-                          </CardDescription>
+                          <h3 className="text-xl font-bold leading-tight text-slate-900">{field.fieldName}</h3>
+                          <p className="mt-1 text-sm text-slate-500">{field.address}</p>
                         </div>
-                        <Badge variant="outline" className={`rounded-full px-3 py-1 ${getStatusClasses(field.status)}`}>
-                          {field.status}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-
-                    <CardContent className="space-y-5 pt-5">
-                      <p className="text-sm leading-7 text-slate-600">
-                        {field.description || 'Thong tin mo ta dang duoc cap nhat cho co so nay.'}
-                      </p>
-
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline" className="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">
-                          {field.sportsType || 'Da mon'}
-                        </Badge>
-                        <Badge variant="outline" className="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">
-                          Danh gia cao
-                        </Badge>
-                        <Badge variant="outline" className="rounded-full border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">
-                          Dat nhanh
-                        </Badge>
+                        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase text-emerald-700">{field.status}</span>
                       </div>
 
-                      <div className="flex items-end justify-between gap-4 rounded-[22px] bg-slate-50 px-4 py-4">
+                      <p className="mb-4 line-clamp-2 text-sm leading-6 text-slate-600">{field.description || 'Thông tin mô tả đang được cập nhật cho cơ sở này.'}</p>
+
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        <span className="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">{field.sportsType || 'Đa môn'}</span>
+                        <span className="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">Đánh giá cao</span>
+                        <span className="rounded-xl bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700">Đặt nhanh</span>
+                      </div>
+
+                      <div className="flex items-end justify-between gap-4 border-t border-blue-50 pt-4">
                         <div>
-                          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Gia tham khao</p>
-                          <p className="mt-1 text-xl font-semibold text-slate-950">{formatPrice(field.price)}</p>
+                          <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Giá tham khảo</p>
+                          <p className="mt-1 text-xl font-bold text-blue-700">{formatPrice(field.price)}</p>
                         </div>
-                        <Button asChild className="rounded-xl">
-                          <Link to={`/pitch/${field.id}`}>
-                            Xem chi tiet
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Link>
-                        </Button>
+                        <Link to={`/pitch/${field.id}`} className="rounded-2xl border border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-600 hover:text-white">
+                          Xem chi tiết
+                        </Link>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </article>
                 ))}
               </div>
             ) : (
-              <Card className="border-0 bg-white/90 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-                <CardContent className="px-6 py-20 text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100">
-                    <SearchIcon className="h-7 w-7 text-slate-500" />
-                  </div>
-                  <h3 className="mt-5 text-2xl font-semibold text-slate-950">
-                    {loading ? 'Dang tai du lieu...' : 'Khong tim thay san nao phu hop'}
-                  </h3>
-                  <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-                    Dieu chinh bo loc hoac thu mot tu khoa khac de mo rong danh sach ket qua.
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="rounded-[28px] border-2 border-dashed border-blue-200 bg-white/90 px-6 py-24 text-center text-slate-500 shadow-sm">
+                {loading ? 'Đang tải dữ liệu...' : 'Không tìm thấy sân nào khớp với điều kiện của bạn.'}
+              </div>
             )}
 
             {pageInfo.totalPages > 1 && (
-              <Card className="border-0 bg-white/92 shadow-[0_20px_50px_rgba(15,23,42,0.08)]">
-                <CardContent className="flex flex-wrap items-center justify-center gap-3 px-5 py-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-2xl border-slate-300 bg-white"
-                    disabled={pageInfo.number === 0 || loading}
-                    onClick={() => fetchFields(pageInfo.number - 1)}
-                  >
-                    Trang truoc
-                  </Button>
-                  <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
-                    Trang {pageInfo.number + 1} / {pageInfo.totalPages}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="rounded-2xl border-slate-300 bg-white"
-                    disabled={pageInfo.number + 1 >= pageInfo.totalPages || loading}
-                    onClick={() => fetchFields(pageInfo.number + 1)}
-                  >
-                    Trang sau
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="flex flex-wrap items-center justify-center gap-3 rounded-[28px] border border-blue-100 bg-white px-5 py-4 shadow-sm">
+                <button type="button" disabled={pageInfo.number === 0 || loading} onClick={() => fetchFields(pageInfo.number - 1)} className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">
+                  Trang trước
+                </button>
+                <div className="text-sm text-slate-600">Trang {pageInfo.number + 1} / {pageInfo.totalPages}</div>
+                <button type="button" disabled={pageInfo.number + 1 >= pageInfo.totalPages || loading} onClick={() => fetchFields(pageInfo.number + 1)} className="rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">
+                  Trang sau
+                </button>
+              </div>
             )}
           </section>
         </div>
       </div>
-    </div>
+    </PublicShell>
   )
 }
 

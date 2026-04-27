@@ -55,7 +55,7 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers(); 
-    } catch (err) {
+    } catch {
       alert("Lỗi: Không thể cập nhật trạng thái người dùng.");
     }
   };

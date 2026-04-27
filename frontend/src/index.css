@@ -13,8 +13,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -54,6 +54,7 @@
 
 body {
   margin: 0;
+  font-family: var(--sans);
 }
 
 #root {
@@ -65,6 +66,25 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+}
+
+body,
+button,
+input,
+textarea,
+select,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+p,
+div,
+label {
+  font-family: 'Geist Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
 }
 
 h1,
