@@ -15,7 +15,7 @@
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.82), transparent 18%),
     linear-gradient(180deg, #f8fbff 0%, #eff6ff 52%, #e0f2fe 100%);
   color: var(--auth-text);
-  font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .auth-shell {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sportsfacilitybooking.backend.dto.UpdateProfileRequest;
 import com.sportsfacilitybooking.backend.dto.UserResponse;
 import com.sportsfacilitybooking.backend.entity.Role;
 import com.sportsfacilitybooking.backend.service.UserService;
@@ -16,6 +17,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -45,6 +49,12 @@ public class UserController {
         Page<UserResponse> users = userService.findAll(search, role, pageable);
 
         return ResponseEntity.ok(users);
+    }
+
+    @Operation(summary = "Cập nhật hồ sơ người dùng")
+    @PutMapping("/{id}/profile")
+    public ResponseEntity<UserResponse> updateProfile(@PathVariable Long id, @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok(userService.updateProfile(id, request));
     }
     
 }

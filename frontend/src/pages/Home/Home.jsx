@@ -1,63 +1,168 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import PublicShell from '../../components/PublicShell'
 import './Home.css'
 
+const danhSachAnhSan = [
+  'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1200',
+  'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=1200',
+  'https://images.unsplash.com/photo-1547347298-4074fc3086f0?auto=format&fit=crop&q=80&w=1200',
+]
+
+const dinhDangGia = (gia) => {
+  if (gia === null || gia === undefined || gia === '') {
+    return 'Liên hệ'
+  }
+
+  const giaSo = Number(gia)
+  if (Number.isNaN(giaSo)) {
+    return `${gia} VND`
+  }
+
+  return `${new Intl.NumberFormat('vi-VN').format(giaSo)} VND`
+}
+
+const dinhDangDanhGia = (danhGia) => {
+  if (danhGia === null || danhGia === undefined || danhGia === '') {
+    return '4.5'
+  }
+
+  return Number(danhGia).toFixed(1)
+}
+
+const rutGonDiaChi = (diaChi) => {
+  if (!diaChi) {
+    return 'Khu vực đang cập nhật'
+  }
+
+  const phanDiaChi = diaChi.split(',').map((item) => item.trim()).filter(Boolean)
+  return phanDiaChi.slice(0, 2).join(', ') || diaChi
+}
+
+const rutGonMoTa = (moTa) => {
+  if (!moTa) {
+    return 'Cơ sở thể thao được đánh giá tốt, phù hợp cho nhóm bạn và các buổi tập luyện định kỳ.'
+  }
+
+  return moTa.length > 115 ? `${moTa.slice(0, 112)}...` : moTa
+}
+
 const HomePage = () => {
-  const [fields, setFields] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [keyword, setKeyword] = useState('')
+  const navigate = useNavigate()
+  const [danhSachSan, setDanhSachSan] = useState([])
+  const [dangTai, setDangTai] = useState(true)
+  const [tuKhoa, setTuKhoa] = useState('')
 
   useEffect(() => {
-    const fetchActiveFields = async () => {
+    const taiDanhSachSanDangHoatDong = async () => {
       try {
         const response = await fetch('http://localhost:8080/api/fields/active')
         if (!response.ok) {
           throw new Error('Không thể tải danh sách sân')
         }
+
         const data = await response.json()
-        setFields(data)
+        setDanhSachSan(data)
       } catch (error) {
         console.error('Lỗi khi gọi API /api/fields/active:', error)
       } finally {
-        setLoading(false)
+        setDangTai(false)
       }
     }
 
-    fetchActiveFields()
+    taiDanhSachSanDangHoatDong()
   }, [])
 
-  const filteredFields = fields.filter((field) =>
-    field.fieldName?.toLowerCase().includes(keyword.toLowerCase()) ||
-    field.description?.toLowerCase().includes(keyword.toLowerCase())
-  )
+  const xuLyTimKiem = () => {
+    const tuKhoaDaCat = tuKhoa.trim()
+    const thamSoTimKiem = new URLSearchParams()
+
+    if (tuKhoaDaCat) {
+      thamSoTimKiem.set('keyword', tuKhoaDaCat)
+    }
+
+    navigate(`/search${thamSoTimKiem.toString() ? `?${thamSoTimKiem.toString()}` : ''}`)
+  }
+
+  const tongSoCoSo = danhSachSan.length
+  const tongMonTheThao = new Set(danhSachSan.map((san) => san.sportsType).filter(Boolean)).size
+  const danhGiaTrungBinh = danhSachSan.length
+    ? (
+        danhSachSan.reduce((tong, san) => tong + Number(san.rating || 4.5), 0) / danhSachSan.length
+      ).toFixed(1)
+    : '0.0'
 
   return (
-    <div className="home-page">
-      <section className="hero-section">
-        <div className="hero-container">
-          <p className="hero-subtitle">Sports Now</p>
-          <h1 className="hero-title">Khám phá và đặt sân thể thao dễ dàng</h1>
-          <p className="hero-description">
-            Tìm kiếm các sân đang hoạt động, xem mô tả chi tiết và lựa chọn địa điểm phù hợp cho nhu cầu luyện tập của bạn.
-          </p>
+    <PublicShell>
+      <a className="floating-messenger" href="https://m.me" target="_blank" rel="noreferrer" aria-label="Liên hệ Messenger">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M12 2C6.477 2 2 6.145 2 11.259c0 2.914 1.454 5.514 3.726 7.213V22l3.223-1.768c.968.27 1.994.418 3.051.418 5.523 0 10-4.145 10-9.259C22 6.145 17.523 2 12 2zm1.064 12.445-2.548-2.718-4.968 2.718 5.465-5.807 2.62 2.718 4.896-2.718-5.465 5.807z" fill="currentColor"/>
+        </svg>
+      </a>
 
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Tìm theo tên sân hoặc mô tả..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-            <button type="button">Tìm kiếm</button>
+      <section className="home-hero home-hero-compact">
+        <div className="hero-shell-card">
+          <div className="hero-text-overlay">
+            <p className="hero-breadcrumb hero-breadcrumb-center">Trang chủ / Cơ sở thể thao</p>
+            <span className="hero-kicker hero-kicker-center">Thể thao mỗi ngày</span>
+            <h1 className="hero-title hero-title-center">Đặt sân thể thao dễ dàng và nhanh hơn mỗi ngày</h1>
+            <p className="hero-description hero-description-center">
+              Tìm kiếm và đặt lịch các sân bóng đá, cầu lông, tennis và nhiều môn thể thao khác với giao diện sáng, rõ và dễ thao tác hơn.
+            </p>
+
+            <div className="hero-actions">
+              <button type="button" className="hero-primary-action" onClick={xuLyTimKiem}>Đặt sân ngay</button>
+              <Link to="/search" className="hero-secondary-action">Xem sân phổ biến</Link>
+            </div>
           </div>
 
-          <div className="hero-actions">
-            <Link to="/owner-management" className="hero-button primary">
-              Thêm sân mới
-            </Link>
-            <Link to="/login" className="hero-button secondary">
-              Đăng nhập
-            </Link>
+          <div className="hero-bottom-panel">
+            <div className="hero-search-wide">
+              <div className="hero-search-grid">
+                <div className="hero-search-field">
+                  <label>Từ khóa</label>
+                  <input
+                    id="field-search"
+                    type="text"
+                    placeholder="Ví dụ: cầu lông, Thủ Đức..."
+                    value={tuKhoa}
+                    onChange={(e) => setTuKhoa(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        xuLyTimKiem()
+                      }
+                    }}
+                  />
+                </div>
+                <div className="hero-search-field">
+                  <label>Môn thể thao</label>
+                  <div className="hero-search-value">Bóng đá, cầu lông, tennis</div>
+                </div>
+                <div className="hero-search-field">
+                  <label>Trạng thái</label>
+                  <div className="hero-search-value">Sân đang hoạt động</div>
+                </div>
+                <button type="button" className="hero-search-submit" onClick={xuLyTimKiem}>
+                  Tìm sân
+                </button>
+              </div>
+            </div>
+
+            <div className="hero-summary hero-summary-compact">
+              <div className="summary-item">
+                <strong>{dangTai ? '--' : tongSoCoSo}</strong>
+                <span>Cơ sở hiển thị</span>
+              </div>
+              <div className="summary-item">
+                <strong>{dangTai ? '--' : tongMonTheThao}</strong>
+                <span>Môn thể thao</span>
+              </div>
+              <div className="summary-item">
+                <strong>{dangTai ? '--' : danhGiaTrungBinh}</strong>
+                <span>Đánh giá trung bình</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -65,57 +170,68 @@ const HomePage = () => {
       <section className="fields-section">
         <div className="fields-header">
           <div>
-            <h2>Danh sách sân đang hoạt động</h2>
-            <p>Hiển thị dữ liệu thật từ backend API</p>
+            <span className="section-label">Danh sách nổi bật</span>
+            <h2>Cơ sở thể thao đang hoạt động</h2>
+            <p>
+              Giao diện mới ưu tiên sự cân đối, dễ xem nhanh thông tin quan trọng và thao tác đặt sân.
+            </p>
           </div>
-          {!loading && <div className="field-count">{filteredFields.length} sân</div>}
+          {!dangTai && <div className="field-count">{tongSoCoSo} cơ sở</div>}
         </div>
 
-        {loading ? (
-          <div className="empty-box">Đang tải dữ liệu...</div>
-        ) : filteredFields.length === 0 ? (
-          <div className="empty-box">Không có sân nào để hiển thị.</div>
+        {dangTai ? (
+          <div className="empty-box">Đang tải dữ liệu từ hệ thống...</div>
+        ) : danhSachSan.length === 0 ? (
+          <div className="empty-box">Hiện tại chưa có cơ sở nào đang hoạt động.</div>
         ) : (
           <div className="field-grid">
-            {filteredFields.map((field) => (
-              <div key={field.id} className="field-card">
+            {danhSachSan.map((san, index) => (
+              <article key={san.id} className="field-card">
                 <div className="field-image">
                   <img
-                    src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1200"
-                    alt={field.fieldName}
+                    src={danhSachAnhSan[index % danhSachAnhSan.length]}
+                    alt={san.fieldName}
                   />
+                  <div className="image-overlay" />
+                  <div className="field-badges">
+                    <span className="field-type">{san.sportsType || 'Thể thao tổng hợp'}</span>
+                    <span className="field-rating">★ {dinhDangDanhGia(san.rating)}</span>
+                  </div>
                 </div>
 
                 <div className="field-content">
                   <div className="field-top">
-                    <h3>{field.fieldName}</h3>
-                    <span className="field-status">{field.status}</span>
+                    <div>
+                      <h3>{san.fieldName}</h3>
+                      <p className="field-address">{rutGonDiaChi(san.address)}</p>
+                    </div>
+                    <span className="field-status">{san.status || 'ĐANG HOẠT ĐỘNG'}</span>
                   </div>
 
-                  <p className="field-description">
-                    {field.description || 'Chưa có mô tả cho sân này.'}
-                  </p>
+                  <p className="field-description">{rutGonMoTa(san.description)}</p>
 
-                  <div className="field-tags">
-                    <span>{field.sportsType || 'Bóng đá'}</span>
-                    <span>{field.address || 'Chưa có địa chỉ'}</span>
-                    <span>Đặt ngay</span>
+                  <div className="field-meta">
+                    <span>{san.sportsType || 'Đa môn'}</span>
+                    <span>Có sân hoạt động</span>
+                    <span>Đặt linh hoạt</span>
                   </div>
 
                   <div className="field-footer">
-                    <div>
-                      <p className="price-label">Giá tham khảo</p>
-                      <p className="price-value">{field.price ? `${field.price}đ/giờ` : 'Liên hệ'}</p>
+                    <div className="price-block">
+                      <p className="price-label">Từ</p>
+                      <p className="price-value">{dinhDangGia(san.price)}</p>
                     </div>
-                    <button>Xem chi tiết</button>
+                    <Link to={`/pitch/${san.id}`} className="field-action">
+                      Xem cơ sở
+                    </Link>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
       </section>
-    </div>
+    </PublicShell>
   )
 }
 

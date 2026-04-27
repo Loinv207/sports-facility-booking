@@ -15,6 +15,8 @@
 
 package com.sportsfacilitybooking.backend.dto;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +31,8 @@ public class FieldResponse {
     private String fieldName;
     private String sportsType;
     private String address;
-    private String price;
+    private BigDecimal price;
+    private Double rating;
     private String description;
     private String status;
 }

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class UserProfile {
 
     @Id
-    private String id;
+    private Long id;
 
     @Column(name = "first_name")
     private String firstName;
@@ -22,10 +22,13 @@ public class UserProfile {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    private String gender;
+    private String address;
+
     public UserProfile(){}
 
-    public String getId(){ return id; }
-    public void setId(String id){ this.id=id; }
+    public Long getId(){ return id; }
+    public void setId(Long id){ this.id=id; }
 
     public String getFirstName(){ return firstName; }
     public void setFirstName(String firstName){ this.firstName=firstName; }
@@ -38,4 +41,22 @@ public class UserProfile {
 
     public LocalDate getDateOfBirth(){ return dateOfBirth; }
     public void setDateOfBirth(LocalDate dateOfBirth){ this.dateOfBirth=dateOfBirth; }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    
 }

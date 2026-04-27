@@ -1,5 +1,7 @@
 package com.sportsfacilitybooking.backend.service;
 
+import java.time.LocalDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sportsfacilitybooking.backend.dto.UpdateProfileRequest;
 import com.sportsfacilitybooking.backend.dto.UserResponse;
 import com.sportsfacilitybooking.backend.entity.Role;
 import com.sportsfacilitybooking.backend.entity.User;
@@ -45,4 +48,40 @@ public class UserService {
     //  create
     //  update
     // delete...
+
+
+    @Transactional
+    public UserResponse updateProfile(Long id, UpdateProfileRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User" + id));
+
+        user.setFullName(request.fullName());
+        user.setPhoneNumber(request.phoneNumber());
+        user.setEmail(request.email());
+        user.setAvatarUrl(request.avatarUrl());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        User updatedUser = userRepository.save(user);
+        return userMapper.toResponse(updatedUser);
+    }
+
+    @Transactional
+    public UserResponse toggleUserStatus(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + id));
+
+        if ("ACTIVE".equalsIgnoreCase(user.getStatus())) {
+            user.setStatus("LOCKED");
+        } else {
+            user.setStatus("ACTIVE");
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+
+  
+        User updatedUser = userRepository.save(user);
+
+        return userMapper.toResponse(updatedUser);
+}
 }
