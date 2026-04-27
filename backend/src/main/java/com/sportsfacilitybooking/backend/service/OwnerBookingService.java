@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import com.sportsfacilitybooking.backend.exception.BusinessException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
 import com.sportsfacilitybooking.backend.repository.BookingRepository;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
+import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
 public class OwnerBookingService {
@@ -32,21 +34,22 @@ public class OwnerBookingService {
 
     private final BookingRepository bookingRepository;
     private final FieldRepository fieldRepository;
+    private final UserRepository userRepository;
 
-    public OwnerBookingService(BookingRepository bookingRepository, FieldRepository fieldRepository) {
+    public OwnerBookingService(BookingRepository bookingRepository, FieldRepository fieldRepository, UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.fieldRepository = fieldRepository;
+        this.userRepository = userRepository;
     }
 
-    public List<OwnerBookingResponse> getOwnerBookings() {
-        seedDemoBookingsIfEmpty();
-        return bookingRepository.findAllByOrderByCreatedAtDesc().stream().map(this::toResponse).toList();
+    public List<OwnerBookingResponse> getOwnerBookings(UserDetails userDetails) {
+        List<Booking> bookings = getBookingsForOwner(userDetails);
+        return bookings.stream().map(this::toResponse).toList();
     }
 
     @Transactional
-    public OwnerBookingResponse updateBookingStatus(String bookingId, OwnerBookingStatusRequest request) {
-        Booking booking = bookingRepository.findById(bookingId)
-            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay booking voi id: " + bookingId));
+    public OwnerBookingResponse updateBookingStatus(String bookingId, OwnerBookingStatusRequest request, UserDetails userDetails) {
+        Booking booking = getOwnerBookingOrThrow(bookingId, userDetails);
 
         String nextStatus = normalizeStatus(request.status());
         if (!nextStatus.equals("CONFIRMED") && !nextStatus.equals("REJECTED")) {
@@ -60,9 +63,8 @@ public class OwnerBookingService {
     }
 
     @Transactional
-    public OwnerBookingResponse checkIn(OwnerCheckInRequest request) {
-        Booking booking = bookingRepository.findById(request.bookingId())
-            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay booking voi id: " + request.bookingId()));
+    public OwnerBookingResponse checkIn(OwnerCheckInRequest request, UserDetails userDetails) {
+        Booking booking = getOwnerBookingOrThrow(request.bookingId(), userDetails);
 
         String currentStatus = normalizeStatus(booking.getStatus());
         if (!currentStatus.equals("CONFIRMED") && !currentStatus.equals("COMPLETED")) {
@@ -77,9 +79,8 @@ public class OwnerBookingService {
         return toResponse(booking);
     }
 
-    public OwnerRevenueReportResponse getRevenueReport() {
-        seedDemoBookingsIfEmpty();
-        List<Booking> bookings = bookingRepository.findAllByOrderByCreatedAtDesc();
+    public OwnerRevenueReportResponse getRevenueReport(UserDetails userDetails) {
+        List<Booking> bookings = getBookingsForOwner(userDetails);
 
         BigDecimal totalDepositOnline = sum(bookings.stream().map(Booking::getDepositAmount).toList());
         BigDecimal totalExtraCash = sum(bookings.stream().filter(booking -> "COMPLETED".equals(normalizeStatus(booking.getStatus()))).map(Booking::getExtraCash).toList());
@@ -131,6 +132,40 @@ public class OwnerBookingService {
         bookingRepository.save(createDemoBooking(firstField, "Nguyen Van A", LocalDate.now().plusDays(1), "18:00", "19:00", new BigDecimal("120000"), null, new BigDecimal("400000"), "PENDING"));
         bookingRepository.save(createDemoBooking(firstField, "Tran Thi B", LocalDate.now(), "19:00", "20:00", new BigDecimal("150000"), null, new BigDecimal("450000"), "CONFIRMED"));
         bookingRepository.save(createDemoBooking(secondField, "Le Van C", LocalDate.now().minusDays(1), "17:00", "18:00", new BigDecimal("100000"), new BigDecimal("50000"), new BigDecimal("350000"), "COMPLETED"));
+    }
+
+    private List<Booking> getBookingsForOwner(UserDetails userDetails) {
+        Long ownerId = resolveOwnerId(userDetails);
+        List<String> fieldIds = fieldRepository.findByOwnerIdOrderByFieldNameAsc(ownerId).stream()
+            .map(Field::getId)
+            .toList();
+
+        if (fieldIds.isEmpty()) {
+            return List.of();
+        }
+
+        return bookingRepository.findByFieldIdInOrderByCreatedAtDesc(fieldIds);
+    }
+
+    private Booking getOwnerBookingOrThrow(String bookingId, UserDetails userDetails) {
+        Booking booking = bookingRepository.findById(bookingId)
+            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay booking voi id: " + bookingId));
+
+        Long ownerId = resolveOwnerId(userDetails);
+        boolean belongsToOwner = fieldRepository.findByOwnerIdOrderByFieldNameAsc(ownerId).stream()
+            .anyMatch(field -> field.getId().equals(booking.getFieldId()));
+
+        if (!belongsToOwner) {
+            throw new ResourceNotFoundException("Khong tim thay booking thuoc owner hien tai: " + bookingId);
+        }
+
+        return booking;
+    }
+
+    private Long resolveOwnerId(UserDetails userDetails) {
+        return userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay owner theo username: " + userDetails.getUsername()))
+            .getId();
     }
 
     private Booking createDemoBooking(Field field, String customerName, LocalDate bookingDate, String startTime, String endTime, BigDecimal depositAmount, BigDecimal extraCash, BigDecimal totalPrice, String status) {
