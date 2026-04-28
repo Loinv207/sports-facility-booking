@@ -3,6 +3,8 @@ package com.sportsfacilitybooking.backend.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,25 +31,29 @@ public class OwnerBookingController {
     }
 
     @GetMapping("/bookings")
-    public ResponseEntity<List<OwnerBookingResponse>> getOwnerBookings() {
-        return ResponseEntity.ok(ownerBookingService.getOwnerBookings());
+    public ResponseEntity<List<OwnerBookingResponse>> getOwnerBookings(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ownerBookingService.getOwnerBookings(userDetails));
     }
 
     @PutMapping("/bookings/{id}/status")
     public ResponseEntity<OwnerBookingResponse> updateBookingStatus(
         @PathVariable String id,
-        @Valid @RequestBody OwnerBookingStatusRequest request
+        @Valid @RequestBody OwnerBookingStatusRequest request,
+        @AuthenticationPrincipal UserDetails userDetails
     ) {
-        return ResponseEntity.ok(ownerBookingService.updateBookingStatus(id, request));
+        return ResponseEntity.ok(ownerBookingService.updateBookingStatus(id, request, userDetails));
     }
 
     @PostMapping("/check-in")
-    public ResponseEntity<OwnerBookingResponse> checkIn(@Valid @RequestBody OwnerCheckInRequest request) {
-        return ResponseEntity.ok(ownerBookingService.checkIn(request));
+    public ResponseEntity<OwnerBookingResponse> checkIn(
+        @Valid @RequestBody OwnerCheckInRequest request,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ownerBookingService.checkIn(request, userDetails));
     }
 
     @GetMapping("/reports/revenue")
-    public ResponseEntity<OwnerRevenueReportResponse> getRevenueReport() {
-        return ResponseEntity.ok(ownerBookingService.getRevenueReport());
+    public ResponseEntity<OwnerRevenueReportResponse> getRevenueReport(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ownerBookingService.getRevenueReport(userDetails));
     }
 }
