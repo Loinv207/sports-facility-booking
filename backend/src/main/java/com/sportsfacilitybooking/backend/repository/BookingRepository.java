@@ -20,4 +20,7 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findAllByOrderByCreatedAtDesc();
 
     List<Booking> findByStatusIgnoreCaseOrderByCreatedAtDesc(String status);
+
+
+    List<Booking> findByStatusIn(List<String> statuses);
 }

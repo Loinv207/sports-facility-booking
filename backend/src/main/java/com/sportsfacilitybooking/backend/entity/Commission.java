@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 public class Commission {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name="commission_rate")
