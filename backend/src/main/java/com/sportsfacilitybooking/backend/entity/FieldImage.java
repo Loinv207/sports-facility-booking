@@ -1,6 +1,9 @@
 package com.sportsfacilitybooking.backend.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "field_images")
@@ -8,17 +11,23 @@ public class FieldImage {
 
     @Id
     private String id;
- 
+
     @Column(name = "field_id", nullable = false)
     private String fieldId;
 
     @Column(name = "image_url", nullable = false, length = 1000)
     private String imageUrl;
 
-    public FieldImage() {}
+    public FieldImage() {
+    }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getFieldId() {
         return fieldId;
@@ -35,6 +44,4 @@ public class FieldImage {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-
-    
 }

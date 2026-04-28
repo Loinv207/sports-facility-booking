@@ -16,8 +16,14 @@ public class Booking {
     @Id
     private String id;
 
+    @Column(name = "user_id")
+    private Long userId;
+
     @Column(name = "field_id")
     private String fieldId;
+
+    @Column(name = "field_schedule_id")
+    private String fieldScheduleId;
 
     @Column(name = "field_name")
     private String fieldName;
@@ -64,12 +70,28 @@ public class Booking {
         this.id = id;
     }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public String getFieldId() {
         return fieldId;
     }
 
     public void setFieldId(String fieldId) {
         this.fieldId = fieldId;
+    }
+
+    public String getFieldScheduleId() {
+        return fieldScheduleId;
+    }
+
+    public void setFieldScheduleId(String fieldScheduleId) {
+        this.fieldScheduleId = fieldScheduleId;
     }
 
     public String getFieldName() {

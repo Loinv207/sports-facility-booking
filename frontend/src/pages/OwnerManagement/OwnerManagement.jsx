@@ -153,11 +153,8 @@ const PreviewCard = ({ field, badge = 'Sẵn sàng gửi duyệt', badgeTone = '
 const OwnerManagement = () => {
   const token = localStorage.getItem('token')
   const userRole = localStorage.getItem('role')
+  const isOwner = Boolean(token && userRole === 'OWNER')
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
-
-  if (!token || userRole !== 'OWNER') {
-    return <Navigate to="/" replace />
-  }
 
   const [activeTab, setActiveTab] = useState('tong-quan')
   const [fieldForm, setFieldForm] = useState(emptyField)
@@ -192,14 +189,17 @@ const OwnerManagement = () => {
   const selectedFieldId = field?.id || fields[0]?.id || ''
 
   useEffect(() => {
+    if (!isOwner) return
     bootstrap()
-  }, [])
+    // bootstrap is intentionally run once after owner auth is known.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwner])
 
   useEffect(() => {
-    if (!selectedFieldId) return
+    if (!isOwner || !selectedFieldId) return
     loadImages(selectedFieldId)
     loadSchedules(selectedFieldId)
-  }, [selectedFieldId])
+  }, [isOwner, selectedFieldId])
 
   const bootstrap = async () => {
     await Promise.all([loadFields(), loadBookings(), loadRevenue()])
@@ -802,6 +802,10 @@ const OwnerManagement = () => {
     if (activeTab === 'tao-san') return renderTaoSan()
     if (activeTab === 'san-bong') return renderQuanLySan()
     return renderThongTinCoSo()
+  }
+
+  if (!isOwner) {
+    return <Navigate to="/" replace />
   }
 
   return (

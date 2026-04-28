@@ -1,5 +1,8 @@
 package com.sportsfacilitybooking.backend.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,16 +11,21 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sportsfacilitybooking.backend.config.JwtProperties;
 import com.sportsfacilitybooking.backend.dto.AuthResponse;
 import com.sportsfacilitybooking.backend.dto.LoginRequest;
 import com.sportsfacilitybooking.backend.dto.RegisterRequest;
+import com.sportsfacilitybooking.backend.dto.UpdateUserProfileRequest;
+import com.sportsfacilitybooking.backend.dto.UserProfileResponse;
 import com.sportsfacilitybooking.backend.dto.UserResponse;
 import com.sportsfacilitybooking.backend.entity.Role;
 import com.sportsfacilitybooking.backend.entity.User;
+import com.sportsfacilitybooking.backend.entity.UserProfile;
 import com.sportsfacilitybooking.backend.exception.DuplicateResourceException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
+import com.sportsfacilitybooking.backend.repository.UserProfileRepository;
 import com.sportsfacilitybooking.backend.repository.UserRepository;
 import com.sportsfacilitybooking.backend.security.JwtService;
 
@@ -31,6 +39,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final UserMapper userMapper;
+    private final UserProfileRepository userProfileRepository;
     private final JwtProperties jwtProperties;
 
     public AuthService(
@@ -40,6 +49,7 @@ public class AuthService {
         AuthenticationManager authenticationManager,
         UserDetailsService userDetailsService,
         UserMapper userMapper,
+        UserProfileRepository userProfileRepository,
         JwtProperties jwtProperties
     ) {
         this.userRepository = userRepository;
@@ -48,6 +58,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.userMapper = userMapper;
+        this.userProfileRepository = userProfileRepository;
         this.jwtProperties = jwtProperties;
     }
 
@@ -110,9 +121,76 @@ public class AuthService {
 
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getCurrentUser(String username) {
-        User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new ResourceNotFoundException("User" + username));
-        return userMapper.toResponse(user);
+        return userMapper.toResponse(findCurrentUserEntity(username));
+    }
+
+    @Transactional(readOnly = true)
+    public UserProfileResponse getCurrentProfile(String username) {
+        return toProfileResponse(findCurrentUserEntity(username));
+    }
+
+    @Transactional
+    public UserProfileResponse updateCurrentProfile(String username, UpdateUserProfileRequest request) {
+        User user = findCurrentUserEntity(username);
+
+        if (request.fullName() != null) {
+            user.setFullName(request.fullName().trim());
+        }
+        if (request.phoneNumber() != null) {
+            user.setPhoneNumber(request.phoneNumber().trim());
+        }
+
+        UserProfile profile = user.getUserProfile();
+        if (profile == null) {
+            profile = new UserProfile();
+            profile.setId(user.getId());
+        }
+
+        if (request.avatarUrl() != null) {
+            profile.setAvatarUrl(request.avatarUrl().trim());
+        }
+        if (request.dateOfBirth() != null) {
+            profile.setDateOfBirth(request.dateOfBirth());
+        }
+        if (request.gender() != null) {
+            profile.setGender(request.gender().trim());
+        }
+        if (request.address() != null) {
+            profile.setAddress(request.address().trim());
+        }
+
+        userProfileRepository.save(profile);
+        user.setUserProfile(profile);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        return toProfileResponse(user);
+    }
+
+    private User findCurrentUserEntity(String username) {
+        return userRepository.findByUsername(username)
+            .or(() -> userRepository.findByEmail(username))
+            .orElseThrow(() -> new ResourceNotFoundException("User " + username));
+    }
+
+    private UserProfileResponse toProfileResponse(User user) {
+        UserProfile profile = user.getUserProfile();
+        return new UserProfileResponse(
+            user.getId(),
+            user.getUsername(),
+            user.getEmail(),
+            user.getRole(),
+            user.getStatus(),
+            user.getFullName(),
+            user.getPhoneNumber(),
+            profile != null ? profile.getAvatarUrl() : null,
+            profile != null ? profile.getDateOfBirth() : null,
+            profile != null ? profile.getGender() : null,
+            profile != null ? profile.getAddress() : null,
+            user.getCreatedAt() != null ? user.getCreatedAt().toInstant(ZoneOffset.UTC) : null,
+            user.getUpdatedAt() != null ? user.getUpdatedAt().toInstant(ZoneOffset.UTC) : null
+        );
     }
 }
