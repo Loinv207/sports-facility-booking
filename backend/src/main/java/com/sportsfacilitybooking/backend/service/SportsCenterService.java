@@ -38,8 +38,8 @@ public class SportsCenterService {
             savedCenter.getCity(),
             savedCenter.getApprovalStatus(),
             savedCenter.getCreatedAt(),
-            savedCenter.getPhone(),       
-            savedCenter.getDescription() 
-);
+            savedCenter.getPhone(),
+            savedCenter.getDescription()
+        );
     }
 }
