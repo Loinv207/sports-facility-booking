@@ -31,109 +31,15 @@ const formatPrice = (value) => {
 const OwnerManagement = () => {
   const token = localStorage.getItem('token')
   const userRole = localStorage.getItem('role')
-  const isOwner = Boolean(token && userRole === 'OWNER')
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+
+  if (!token || userRole !== 'OWNER') {
+    return <Navigate to="/" replace />
+  }
 
   const [activeTab, setActiveTab] = useState('tong-quan')
   const [statusMessage, setStatusMessage] = useState('')
 
   const handleAction = async (callback) => {
-  const canCreateField = useMemo(() => {
-    return fieldForm.fieldName.trim() && fieldForm.sportsType.trim() && fieldForm.address.trim()
-  }, [fieldForm])
-
-  const selectedFieldId = field?.id || fields[0]?.id || ''
-
-  useEffect(() => {
-    if (!isOwner) return
-    bootstrap()
-    // bootstrap is intentionally run once after owner auth is known.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOwner])
-
-  useEffect(() => {
-    if (!isOwner || !selectedFieldId) return
-    loadImages(selectedFieldId)
-    loadSchedules(selectedFieldId)
-  }, [isOwner, selectedFieldId])
-
-  const bootstrap = async () => {
-    await Promise.all([loadFields(), loadBookings(), loadRevenue()])
-  }
-
-  const loadFields = async () => {
-    const response = await fetch(`${API_BASE}/api/fields`, {
-      headers: authHeaders,
-    })
-    if (!response.ok) return
-    const data = await response.json()
-    setFields(data)
-    if (!field && data.length) {
-      setField(data[0])
-      setUpdateForm({
-        fieldName: data[0].fieldName || '',
-        sportsType: data[0].sportsType || '',
-        address: data[0].address || '',
-        price: data[0].price || '',
-        description: data[0].description || '',
-        status: data[0].status || 'PENDING',
-      })
-    }
-  }
-
-  const loadImages = async (id) => {
-    const response = await fetch(`${API_BASE}/api/owner/fields/${id}/images`)
-    if (response.ok) {
-      setImages(await response.json())
-    }
-  }
-
-  const loadSchedules = async (id) => {
-    const response = await fetch(`${API_BASE}/api/owner/fields/${id}/schedules`)
-    if (response.ok) {
-      setSchedules(await response.json())
-    }
-  }
-
-  const loadBookings = async () => {
-    const response = await fetch(`${API_BASE}/api/owner/bookings`, {
-      headers: authHeaders,
-    })
-    if (!response.ok) return
-    setBookings(await response.json())
-  }
-
-  const loadRevenue = async () => {
-    const response = await fetch(`${API_BASE}/api/owner/reports/revenue`, {
-      headers: authHeaders,
-    })
-    if (!response.ok) return
-    setRevenue(await response.json())
-  }
-
-  const handleFieldChange = ({ target }) => {
-    const { name, value } = target
-    setFieldForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleUpdateChange = ({ target }) => {
-    const { name, value } = target
-    setUpdateForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleScheduleChange = ({ target }) => {
-    const { name, value } = target
-    setScheduleForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleCenterChange = ({ target }) => {
-    const { name, value } = target
-    setCenterForm((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const createField = async (event) => {
-    event.preventDefault()
-    setIsSavingField(true)
     setStatusMessage('')
     try {
       await callback()
@@ -306,10 +212,6 @@ const OwnerManagement = () => {
         saveCenter={() => handleAction(saveCenter)}
       />
     )
-  }
-
-  if (!isOwner) {
-    return <Navigate to="/" replace />
   }
 
   return (

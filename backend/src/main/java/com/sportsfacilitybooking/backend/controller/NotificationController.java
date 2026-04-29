@@ -47,11 +47,11 @@ public class NotificationController {
         
         if ("USER".equalsIgnoreCase(target)) {
             targets = userRepository.findAll().stream()
-                .filter(u -> u.getRole().getName().contains("USER"))
+                .filter(u -> u.getRole() != null && u.getRole().name().contains("USER"))
                 .collect(Collectors.toList());
         } else if ("OWNER".equalsIgnoreCase(target)) {
             targets = userRepository.findAll().stream()
-                .filter(u -> u.getRole().getName().contains("OWNER"))
+                .filter(u -> u.getRole() != null && u.getRole().name().contains("OWNER"))
                 .collect(Collectors.toList());
         } else {
             targets = userRepository.findAll();
