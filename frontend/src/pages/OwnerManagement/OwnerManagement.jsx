@@ -183,6 +183,7 @@ const OwnerManagement = () => {
     loadBookings,
     loadRevenue,
     updateBookingStatus,
+    cancelBooking,
     checkInBooking,
   } = ownerBookings
 
@@ -242,7 +243,8 @@ const OwnerManagement = () => {
           bookings={bookings}
           checkInForm={checkInForm}
           setCheckInForm={setCheckInForm}
-          updateBookingStatus={(bookingId, status) => handleAction(() => updateBookingStatus(bookingId, status))}
+          updateBookingStatus={(bookingId, status, note) => handleAction(() => updateBookingStatus(bookingId, status, note))}
+          cancelBooking={(bookingId, note) => handleAction(() => cancelBooking(bookingId, note))}
           checkInBooking={(bookingId) => handleAction(() => checkInBooking(bookingId))}
           formatCurrency={formatCurrency}
         />

@@ -25,13 +25,25 @@ export const useOwnerBookings = (token, onStatusChange) => {
     return data
   }
 
-  const updateBookingStatus = async (bookingId, status) => {
+  const syncBooking = (data) => {
+    setBookings((prev) => prev.map((item) => (item.id === data.id ? data : item)))
+  }
+
+  const updateBookingStatus = async (bookingId, status, note) => {
     const data = await api.updateBookingStatus(bookingId, {
       status,
-      note: status === 'REJECTED' ? 'Chủ sân từ chối do không giữ được khung giờ.' : 'Chủ sân đã xác nhận lịch.',
+      note: note || (status === 'REJECTED' ? 'Chủ sân từ chối do không giữ được khung giờ.' : 'Chủ sân đã xác nhận lịch.'),
     })
-    setBookings((prev) => prev.map((item) => (item.id === data.id ? data : item)))
+    syncBooking(data)
     onStatusChange(`Đã chuyển đơn đặt sang ${data.status}.`)
+    await loadRevenue()
+    return data
+  }
+
+  const cancelBooking = async (bookingId, note = 'Chủ sân đã hủy lịch và mở lại khung giờ cho khách khác.') => {
+    const data = await api.cancelBookingByOwner(bookingId, { note })
+    syncBooking(data)
+    onStatusChange('Đã hủy lịch, slot thời gian đã mở lại AVAILABLE.')
     await loadRevenue()
     return data
   }
@@ -42,7 +54,7 @@ export const useOwnerBookings = (token, onStatusChange) => {
       extraCash: Number(checkInForm.extraCash || 0),
       note: checkInForm.note,
     })
-    setBookings((prev) => prev.map((item) => (item.id === data.id ? data : item)))
+    syncBooking(data)
     setCheckInForm(emptyCheckIn)
     onStatusChange('Check-in thành công, đơn đặt đã chuyển sang COMPLETED.')
     await loadRevenue()
@@ -57,6 +69,7 @@ export const useOwnerBookings = (token, onStatusChange) => {
     loadBookings,
     loadRevenue,
     updateBookingStatus,
+    cancelBooking,
     checkInBooking,
   }
 }
