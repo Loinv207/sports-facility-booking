@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sportsfacilitybooking.backend.dto.AuthResponse;
+import com.sportsfacilitybooking.backend.dto.ChangePasswordRequest;
 import com.sportsfacilitybooking.backend.dto.LoginRequest;
 import com.sportsfacilitybooking.backend.dto.RegisterRequest;
 import com.sportsfacilitybooking.backend.dto.UpdateUserProfileRequest;
@@ -70,5 +71,19 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(authService.updateCurrentProfile(userDetails.getUsername(), request));
+    }
+
+    @Operation(summary = "Doi mat khau tai khoan hien tai")
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        authService.changeCurrentPassword(userDetails.getUsername(), request);
+        return ResponseEntity.noContent().build();
     }
 }

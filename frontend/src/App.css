@@ -179,6 +179,21 @@ body {
   display: flex;
   gap: 12px;
   margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.profile-password-form {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profile-password-form .profile-form-grid {
+  grid-template-columns: 1fr;
+}
+
+.profile-password-form .profile-actions {
+  margin-top: 18px;
 }
 
 .profile-button {
@@ -188,6 +203,11 @@ body {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.profile-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
 .profile-button.primary {
@@ -201,10 +221,41 @@ body {
   color: #f5f1e8;
 }
 
+.profile-message {
+  margin-top: 14px;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.profile-message.success {
+  border: 1px solid rgba(22, 101, 52, 0.18);
+  background: rgba(220, 252, 231, 0.92);
+  color: #166534;
+}
+
+.profile-message.error {
+  border: 1px solid rgba(190, 18, 60, 0.18);
+  background: rgba(255, 228, 230, 0.92);
+  color: #be123c;
+}
+
 .profile-booking-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.profile-empty-state {
+  padding: 22px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d7cfbf;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
 }
 
 .profile-booking-item {
@@ -256,6 +307,11 @@ body {
 .profile-status.pending {
   background: rgba(250, 204, 21, 0.12);
   color: #fde68a;
+}
+
+.profile-status.cancelled {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fecdd3;
 }
 
 @theme inline {

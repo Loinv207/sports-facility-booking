@@ -103,7 +103,6 @@ const HomePage = () => {
       <section className="home-hero home-hero-compact">
         <div className="hero-shell-card">
           <div className="hero-text-overlay">
-            <p className="hero-breadcrumb hero-breadcrumb-center">Trang chủ / Cơ sở thể thao</p>
             <span className="hero-kicker hero-kicker-center">Thể thao mỗi ngày</span>
             <h1 className="hero-title hero-title-center">Đặt sân thể thao dễ dàng và nhanh hơn mỗi ngày</h1>
             <p className="hero-description hero-description-center">
@@ -171,10 +170,7 @@ const HomePage = () => {
         <div className="fields-header">
           <div>
             <span className="section-label">Danh sách nổi bật</span>
-            <h2>Cơ sở thể thao đang hoạt động</h2>
-            <p>
-              Giao diện mới ưu tiên sự cân đối, dễ xem nhanh thông tin quan trọng và thao tác đặt sân.
-            </p>
+            <h2>Sân đang hoạt động</h2>
           </div>
           {!dangTai && <div className="field-count">{tongSoCoSo} cơ sở</div>}
         </div>

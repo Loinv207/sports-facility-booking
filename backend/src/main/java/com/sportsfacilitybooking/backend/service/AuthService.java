@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sportsfacilitybooking.backend.config.JwtProperties;
 import com.sportsfacilitybooking.backend.dto.AuthResponse;
+import com.sportsfacilitybooking.backend.dto.ChangePasswordRequest;
 import com.sportsfacilitybooking.backend.dto.LoginRequest;
 import com.sportsfacilitybooking.backend.dto.RegisterRequest;
 import com.sportsfacilitybooking.backend.dto.UpdateUserProfileRequest;
@@ -23,6 +24,7 @@ import com.sportsfacilitybooking.backend.dto.UserResponse;
 import com.sportsfacilitybooking.backend.entity.Role;
 import com.sportsfacilitybooking.backend.entity.User;
 import com.sportsfacilitybooking.backend.entity.UserProfile;
+import com.sportsfacilitybooking.backend.exception.BusinessException;
 import com.sportsfacilitybooking.backend.exception.DuplicateResourceException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
 import com.sportsfacilitybooking.backend.repository.UserProfileRepository;
@@ -141,6 +143,16 @@ public class AuthService {
         if (request.phoneNumber() != null) {
             user.setPhoneNumber(request.phoneNumber().trim());
         }
+        if (request.email() != null) {
+            String email = request.email().trim();
+            if (!email.equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(email)) {
+                throw new DuplicateResourceException("Email đã tồn tại");
+            }
+            user.setEmail(email);
+        }
+        if (request.avatarUrl() != null) {
+            user.setAvatarUrl(request.avatarUrl().trim());
+        }
 
         UserProfile profile = user.getUserProfile();
         if (profile == null) {
@@ -148,9 +160,6 @@ public class AuthService {
             profile.setId(user.getId());
         }
 
-        if (request.avatarUrl() != null) {
-            profile.setAvatarUrl(request.avatarUrl().trim());
-        }
         if (request.dateOfBirth() != null) {
             profile.setDateOfBirth(request.dateOfBirth());
         }
@@ -169,6 +178,25 @@ public class AuthService {
         return toProfileResponse(user);
     }
 
+    @Transactional
+    public void changeCurrentPassword(String username, ChangePasswordRequest request) {
+        User user = findCurrentUserEntity(username);
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new BusinessException("Mat khau hien tai khong dung");
+        }
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new BusinessException("Xac nhan mat khau moi khong khop");
+        }
+        if (passwordEncoder.matches(request.newPassword(), user.getPasswordHash())) {
+            throw new BusinessException("Mat khau moi phai khac mat khau hien tai");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+
     private User findCurrentUserEntity(String username) {
         return userRepository.findByUsername(username)
             .or(() -> userRepository.findByEmail(username))
@@ -185,7 +213,7 @@ public class AuthService {
             user.getStatus(),
             user.getFullName(),
             user.getPhoneNumber(),
-            profile != null ? profile.getAvatarUrl() : null,
+            user.getAvatarUrl() != null ? user.getAvatarUrl() : profile != null ? profile.getAvatarUrl() : null,
             profile != null ? profile.getDateOfBirth() : null,
             profile != null ? profile.getGender() : null,
             profile != null ? profile.getAddress() : null,

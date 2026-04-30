@@ -10,7 +10,7 @@ import java.time.ZoneOffset;
 public interface UserMapper {
 
     
-    @Mapping(target = "fullname", expression = "java(user.getUserProfile() != null ? user.getUserProfile().getFirstName() + \" \" + user.getUserProfile().getLastName() : user.getFullName())")
+    @Mapping(target = "fullname", source = "fullName")
     @Mapping(target = "phoneNumber", source = "phoneNumber")
     @Mapping(target = "avatarUrl", source = "avatarUrl")
     @Mapping(target = "createAt", expression = "java(user.getCreatedAt() != null ? user.getCreatedAt().toInstant(ZoneOffset.UTC) : null)")
