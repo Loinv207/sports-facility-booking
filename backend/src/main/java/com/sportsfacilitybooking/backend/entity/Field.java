@@ -25,10 +25,18 @@ public class Field {
     @Column(name = "sports_center_id")
     private String sportsCenterId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sports_center_id", insertable = false, updatable = false)
+    private SportsCenter sportsCenter;
+
     private String description;
 
     @Column(name = "owner_id")
     private Long ownerId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", insertable = false, updatable = false)
+    private User owner;
 
     private String status;
 
@@ -90,6 +98,14 @@ public class Field {
         this.sportsCenterId = sportsCenterId;
     }
 
+    public SportsCenter getSportsCenter() {
+        return sportsCenter;
+    }
+
+    public void setSportsCenter(SportsCenter sportsCenter) {
+        this.sportsCenter = sportsCenter;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -104,6 +120,14 @@ public class Field {
 
     public void setOwnerId(Long ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public String getStatus() {

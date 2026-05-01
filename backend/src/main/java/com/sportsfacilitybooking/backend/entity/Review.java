@@ -13,8 +13,16 @@ public class Review {
     @Column(name = "field_id", nullable = false)
     private String fieldId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", insertable = false, updatable = false)
+    private Field field;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     private Integer rating;
     private String comment;
@@ -30,8 +38,14 @@ public class Review {
     public String getFieldId() { return fieldId; }
     public void setFieldId(String fieldId) { this.fieldId = fieldId; }
 
+    public Field getField() { return field; }
+    public void setField(Field field) { this.field = field; }
+
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     public Integer getRating(){ return rating; }
     public void setRating(Integer rating){ this.rating=rating; }

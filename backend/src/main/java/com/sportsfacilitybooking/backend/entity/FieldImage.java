@@ -2,7 +2,10 @@ package com.sportsfacilitybooking.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,6 +17,10 @@ public class FieldImage {
 
     @Column(name = "field_id", nullable = false)
     private String fieldId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", insertable = false, updatable = false)
+    private Field field;
 
     @Column(name = "image_url", nullable = false, length = 1000)
     private String imageUrl;
@@ -35,6 +42,14 @@ public class FieldImage {
 
     public void setFieldId(String fieldId) {
         this.fieldId = fieldId;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
     }
 
     public String getImageUrl() {

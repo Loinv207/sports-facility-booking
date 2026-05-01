@@ -15,6 +15,10 @@ public class FieldSchedule {
     @Column(name="field_id")
     private String fieldId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", insertable = false, updatable = false)
+    private Field field;
+
     @Column(name="schedule_date")
     private LocalDate scheduleDate;
 
@@ -34,6 +38,9 @@ public class FieldSchedule {
 
     public String getFieldId(){ return fieldId; }
     public void setFieldId(String fieldId){ this.fieldId=fieldId; }
+
+    public Field getField(){ return field; }
+    public void setField(Field field){ this.field=field; }
 
     public LocalDate getScheduleDate(){ return scheduleDate; }
     public void setScheduleDate(LocalDate scheduleDate){ this.scheduleDate=scheduleDate; }

@@ -6,7 +6,11 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,11 +23,26 @@ public class Booking {
     @Column(name = "user_id")
     private Long userId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
+
     @Column(name = "field_id")
     private String fieldId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", insertable = false, updatable = false)
+    private Field field;
+
     @Column(name = "field_schedule_id")
     private String fieldScheduleId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_schedule_id", insertable = false, updatable = false)
+    private FieldSchedule fieldSchedule;
+
+    @OneToOne(mappedBy = "booking", fetch = FetchType.LAZY)
+    private Payment payment;
 
     @Column(name = "field_name")
     private String fieldName;
@@ -78,6 +97,14 @@ public class Booking {
         this.userId = userId;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public String getFieldId() {
         return fieldId;
     }
@@ -86,12 +113,36 @@ public class Booking {
         this.fieldId = fieldId;
     }
 
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
+
     public String getFieldScheduleId() {
         return fieldScheduleId;
     }
 
     public void setFieldScheduleId(String fieldScheduleId) {
         this.fieldScheduleId = fieldScheduleId;
+    }
+
+    public FieldSchedule getFieldSchedule() {
+        return fieldSchedule;
+    }
+
+    public void setFieldSchedule(FieldSchedule fieldSchedule) {
+        this.fieldSchedule = fieldSchedule;
+    }
+
+    public Payment getPayment() {
+        return payment;
+    }
+
+    public void setPayment(Payment payment) {
+        this.payment = payment;
     }
 
     public String getFieldName() {

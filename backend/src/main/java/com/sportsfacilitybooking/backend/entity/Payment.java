@@ -5,7 +5,10 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,6 +20,10 @@ public class Payment {
 
     @Column(name = "booking_id", nullable = false)
     private String bookingId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", insertable = false, updatable = false)
+    private Booking booking;
 
     private BigDecimal amount;
 
@@ -39,6 +46,9 @@ public class Payment {
 
     public String getBookingId() { return bookingId; }
     public void setBookingId(String bookingId) { this.bookingId = bookingId; }
+
+    public Booking getBooking() { return booking; }
+    public void setBooking(Booking booking) { this.booking = booking; }
 
     public BigDecimal getAmount(){ return amount; }
     public void setAmount(BigDecimal amount){ this.amount=amount; }
