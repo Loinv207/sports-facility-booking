@@ -22,10 +22,14 @@ import com.sportsfacilitybooking.backend.dto.OwnerCheckInRequest;
 import com.sportsfacilitybooking.backend.dto.OwnerRevenueReportResponse;
 import com.sportsfacilitybooking.backend.entity.Booking;
 import com.sportsfacilitybooking.backend.entity.Field;
+import com.sportsfacilitybooking.backend.entity.FieldSchedule;
+import com.sportsfacilitybooking.backend.entity.Payment;
 import com.sportsfacilitybooking.backend.exception.BusinessException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
 import com.sportsfacilitybooking.backend.repository.BookingRepository;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
+import com.sportsfacilitybooking.backend.repository.FieldScheduleRepository;
+import com.sportsfacilitybooking.backend.repository.PaymentRepository;
 import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
@@ -34,11 +38,21 @@ public class OwnerBookingService {
 
     private final BookingRepository bookingRepository;
     private final FieldRepository fieldRepository;
+    private final FieldScheduleRepository fieldScheduleRepository;
+    private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
 
-    public OwnerBookingService(BookingRepository bookingRepository, FieldRepository fieldRepository, UserRepository userRepository) {
+    public OwnerBookingService(
+        BookingRepository bookingRepository,
+        FieldRepository fieldRepository,
+        FieldScheduleRepository fieldScheduleRepository,
+        PaymentRepository paymentRepository,
+        UserRepository userRepository
+    ) {
         this.bookingRepository = bookingRepository;
         this.fieldRepository = fieldRepository;
+        this.fieldScheduleRepository = fieldScheduleRepository;
+        this.paymentRepository = paymentRepository;
         this.userRepository = userRepository;
     }
 
@@ -52,12 +66,23 @@ public class OwnerBookingService {
         Booking booking = getOwnerBookingOrThrow(bookingId, userDetails);
 
         String nextStatus = normalizeStatus(request.status());
-        if (!nextStatus.equals("CONFIRMED") && !nextStatus.equals("REJECTED")) {
-            throw new BusinessException("Owner chi duoc chuyen booking sang CONFIRMED hoac REJECTED");
+        if (!nextStatus.equals("CONFIRMED") && !nextStatus.equals("REJECTED") && !nextStatus.equals("CANCELLED")) {
+            throw new BusinessException("Owner chi duoc chuyen booking sang CONFIRMED, REJECTED hoac CANCELLED");
         }
 
         booking.setStatus(nextStatus);
         booking.setNote(cleanText(request.note()));
+
+        if (nextStatus.equals("CONFIRMED")) {
+            updateScheduleStatus(booking.getFieldScheduleId(), "BOOKED");
+            updatePaymentStatus(booking.getId(), "PAID", null);
+        }
+
+        if (nextStatus.equals("REJECTED") || nextStatus.equals("CANCELLED")) {
+            updateScheduleStatus(booking.getFieldScheduleId(), "AVAILABLE");
+            updatePaymentStatus(booking.getId(), "CANCELLED", null);
+        }
+
         bookingRepository.save(booking);
         return toResponse(booking);
     }
@@ -73,8 +98,14 @@ public class OwnerBookingService {
 
         booking.setStatus("COMPLETED");
         booking.setCheckedInAt(LocalDateTime.now());
-        booking.setExtraCash(safeAmount(request.extraCash()));
+        BigDecimal extraCash = safeAmount(request.extraCash());
+        booking.setExtraCash(extraCash);
+        booking.setTotalPrice(safeAmount(booking.getDepositAmount()).add(extraCash));
         booking.setNote(cleanText(request.note()));
+
+        updateScheduleStatus(booking.getFieldScheduleId(), "BOOKED");
+        updatePaymentStatus(booking.getId(), "PAID", booking.getTotalPrice());
+
         bookingRepository.save(booking);
         return toResponse(booking);
     }
@@ -166,6 +197,30 @@ public class OwnerBookingService {
         return userRepository.findByUsername(userDetails.getUsername())
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay owner theo username: " + userDetails.getUsername()))
             .getId();
+    }
+
+    private void updateScheduleStatus(String fieldScheduleId, String status) {
+        if (fieldScheduleId == null || fieldScheduleId.isBlank()) {
+            return;
+        }
+
+        FieldSchedule schedule = fieldScheduleRepository.findById(fieldScheduleId)
+            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay lich san voi id: " + fieldScheduleId));
+        schedule.setStatus(status);
+        fieldScheduleRepository.save(schedule);
+    }
+
+    private void updatePaymentStatus(String bookingId, String paymentStatus, BigDecimal amount) {
+        Payment payment = paymentRepository.findByBookingId(bookingId).orElse(null);
+        if (payment == null) {
+            return;
+        }
+
+        payment.setPaymentStatus(paymentStatus);
+        if (amount != null) {
+            payment.setAmount(amount);
+        }
+        paymentRepository.save(payment);
     }
 
     private Booking createDemoBooking(Field field, String customerName, LocalDate bookingDate, String startTime, String endTime, BigDecimal depositAmount, BigDecimal extraCash, BigDecimal totalPrice, String status) {

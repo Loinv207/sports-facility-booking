@@ -68,6 +68,14 @@ export const createOwnerApi = (token) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     }),
+    cancelBookingByOwner: (bookingId, payload) => request(`/api/owner/bookings/${bookingId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'CANCELLED',
+        ...(payload || {}),
+      }),
+    }),
     checkInBooking: (payload) => request('/api/owner/check-in', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
