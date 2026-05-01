@@ -121,29 +121,8 @@ const Search = () => {
   }
 
   return (
-    <PublicShell breadcrumb="Trang chủ / Sân thể thao">
+    <PublicShell>
       <div className="search-page mx-auto max-w-7xl px-1 pb-8 text-slate-900">
-        <div className="search-hero-card mb-8 overflow-hidden rounded-[32px] border border-blue-100 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(239,246,255,0.92))] px-6 py-8 shadow-[0_25px_70px_rgba(59,130,246,0.08)] md:px-8">
-          <p className="text-sm font-medium text-slate-500">Trang chủ / Sân thể thao</p>
-          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="search-eyebrow mb-3 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-                Danh sách sân
-              </div>
-              <h1 className="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">Tìm kiếm sân thể thao</h1>
-              <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-600 md:text-base">
-                Giao diện được làm lại theo tông xanh trắng để sáng hơn, sạch hơn và dễ nhìn hơn khi tìm kiếm sân.
-              </p>
-            </div>
-            <div className="search-summary-card rounded-2xl border border-blue-100 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Tổng kết</div>
-              <div className="mt-1 font-semibold text-slate-900">
-                {loading ? 'Đang tải kết quả...' : `Tìm thấy ${pageInfo.totalElements} sân phù hợp`}
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="xl:sticky xl:top-6 xl:self-start">
             <form onSubmit={handleSearch} className="search-filter-panel rounded-[30px] border border-blue-100 bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-6 shadow-[0_20px_60px_rgba(59,130,246,0.08)]">
