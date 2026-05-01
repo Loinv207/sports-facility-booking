@@ -58,7 +58,7 @@ const Login = () => {
   }, [])
 
   return (
-    <PublicShell key={shellKey} breadcrumb="Trang chủ / Đăng nhập">
+    <PublicShell key={shellKey}>
       <section className="auth-panel">
           <div className="auth-form-side">
             <div className="auth-copy">

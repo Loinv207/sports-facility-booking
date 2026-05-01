@@ -442,14 +442,6 @@ const PitchDetail = () => {
       <SiteHeader />
 
       <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6 lg:py-10">
-        <div className="mb-8 text-sm text-slate-500">
-          <Link to="/" className="transition hover:text-slate-800">Trang chu</Link>
-          <span className="mx-2">/</span>
-          <Link to="/search" className="transition hover:text-slate-800">San the thao</Link>
-          <span className="mx-2">/</span>
-          <span className="text-slate-700">Chi tiet san</span>
-        </div>
-
         <div className="grid gap-7 lg:grid-cols-[minmax(0,1.25fr)_380px]">
           <section className="space-y-7">
             <Card className="overflow-hidden border-0 bg-white/92 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">

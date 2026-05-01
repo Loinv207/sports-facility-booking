@@ -2,6 +2,7 @@ package com.sportsfacilitybooking.backend.dto;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 public record UpdateUserProfileRequest(
@@ -11,7 +12,10 @@ public record UpdateUserProfileRequest(
     @Size(max = 20, message = "So dien thoai toi da 20 ky tu")
     String phoneNumber,
 
-    @Size(max = 1000, message = "Avatar URL toi da 1000 ky tu")
+    @Email(message = "Email khong hop le")
+    @Size(max = 255, message = "Email toi da 255 ky tu")
+    String email,
+
     String avatarUrl,
 
     LocalDate dateOfBirth,
