@@ -51,7 +51,7 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
     if (!window.confirm("Bạn có chắc chắn muốn thay đổi trạng thái người dùng này?")) return;
     try {
       const token = localStorage.getItem('token'); // Đã sửa từ admin_token thành token cho khớp
-      await axios.put(`/api/admin/users/${userId}/toggle-status`, {}, {
+      await axios.put(`/api/admin/users/${userId}/status`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers(); 

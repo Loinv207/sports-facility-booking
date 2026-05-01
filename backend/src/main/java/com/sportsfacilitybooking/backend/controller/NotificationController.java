@@ -9,6 +9,7 @@ import com.sportsfacilitybooking.backend.entity.User;
 import com.sportsfacilitybooking.backend.repository.NotificationRepository;
 import com.sportsfacilitybooking.backend.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,8 @@ public class NotificationController {
         Notification notification = new Notification();
         notification.setTitle(request.getTitle());
         notification.setMessage(request.getMessage());
+        notification.setIsRead(false);
+        notification.setCreatedAt(LocalDateTime.now());
         notification.setUser(user); 
         
         return ResponseEntity.ok(notificationRepository.save(notification));
@@ -62,6 +65,8 @@ public class NotificationController {
             Notification note = new Notification();
             note.setTitle(request.getTitle());
             note.setMessage(request.getMessage());
+            note.setIsRead(false);
+            note.setCreatedAt(LocalDateTime.now());
             note.setUser(user);
             return note;
         }).collect(Collectors.toList());

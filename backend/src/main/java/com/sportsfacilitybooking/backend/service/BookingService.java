@@ -29,7 +29,7 @@ import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
 public class BookingService {
-    private static final List<String> BLOCKING_BOOKING_STATUSES = List.of("PENDING_PAYMENT", "PAID");
+    private static final List<String> BLOCKING_BOOKING_STATUSES = List.of("PENDING_PAYMENT", "PAID", "CONFIRMED", "COMPLETED");
 
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
@@ -206,8 +206,7 @@ public class BookingService {
         Payment payment = paymentRepository.findByBookingId(booking.getId())
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay thong tin thanh toan cho booking: " + bookingId));
 
-        booking.setStatus("COMPLETED");
-        booking.setCheckedInAt(LocalDateTime.now());
+        booking.setStatus("PAID");
         bookingRepository.save(booking);
 
         payment.setPaymentStatus("PAID");

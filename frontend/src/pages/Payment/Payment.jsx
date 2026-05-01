@@ -90,7 +90,7 @@ export const Payment = () => {
 
       setBooking(response.data)
       sessionStorage.setItem('pendingBooking', JSON.stringify(response.data))
-      setMessage('Thanh toan da duoc xac nhan. Booking cua ban hien da chuyen sang COMPLETED.')
+      setMessage('Thanh toan da duoc xac nhan. Booking cua ban hien da chuyen sang PAID va dang cho chu san xu ly.')
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Khong the xac nhan thanh toan luc nay.')
     } finally {
