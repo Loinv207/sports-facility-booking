@@ -1,5 +1,6 @@
 package com.sportsfacilitybooking.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -21,6 +22,14 @@ public class SystemReport {
 
     @Column(name="total_bookings")
     private Integer totalBookings;
+
+    @Column(name = "created_by_admin_id")
+    private Long createdByAdminId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_admin_id", insertable = false, updatable = false)
+    @JsonIgnore
+    private User createdByAdmin;
 
     public SystemReport(){}
 
@@ -47,6 +56,22 @@ public class SystemReport {
 
     public void setTotalBookings(Integer totalBookings) {
         this.totalBookings = totalBookings;
+    }
+
+    public Long getCreatedByAdminId() {
+        return createdByAdminId;
+    }
+
+    public void setCreatedByAdminId(Long createdByAdminId) {
+        this.createdByAdminId = createdByAdminId;
+    }
+
+    public User getCreatedByAdmin() {
+        return createdByAdmin;
+    }
+
+    public void setCreatedByAdmin(User createdByAdmin) {
+        this.createdByAdmin = createdByAdmin;
     }
 
         

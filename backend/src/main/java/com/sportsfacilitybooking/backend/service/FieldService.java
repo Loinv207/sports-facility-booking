@@ -28,6 +28,7 @@ import com.sportsfacilitybooking.backend.repository.FieldImageRepository;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
 import com.sportsfacilitybooking.backend.repository.FieldScheduleRepository;
 import com.sportsfacilitybooking.backend.repository.SportsCenterRepository;
+import com.sportsfacilitybooking.backend.repository.SportsTypeRepository;
 import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
@@ -36,6 +37,7 @@ public class FieldService {
     private final FieldImageRepository fieldImageRepository;
     private final FieldScheduleRepository fieldScheduleRepository;
     private final SportsCenterRepository sportsCenterRepository;
+    private final SportsTypeRepository sportsTypeRepository;
     private final UserRepository userRepository;
 
     public FieldService(
@@ -43,12 +45,14 @@ public class FieldService {
         FieldImageRepository fieldImageRepository,
         FieldScheduleRepository fieldScheduleRepository,
         SportsCenterRepository sportsCenterRepository,
+        SportsTypeRepository sportsTypeRepository,
         UserRepository userRepository
     ) {
         this.fieldRepository = fieldRepository;
         this.fieldImageRepository = fieldImageRepository;
         this.fieldScheduleRepository = fieldScheduleRepository;
         this.sportsCenterRepository = sportsCenterRepository;
+        this.sportsTypeRepository = sportsTypeRepository;
         this.userRepository = userRepository;
     }
 
@@ -130,6 +134,7 @@ public class FieldService {
             field.getId(),
             field.getFieldName(),
             field.getSportsType(),
+            field.getSportsTypeId(),
             field.getAddress(),
             field.getPrice(),
             field.getRating(),
@@ -147,6 +152,7 @@ public class FieldService {
         field.setId(UUID.randomUUID().toString());
         field.setFieldName(request.fieldName());
         field.setSportsType(request.sportsType());
+        field.setSportsTypeId(resolveSportsTypeId(request));
         field.setAddress(request.address());
         field.setPrice(request.price());
         field.setRating(request.rating());
@@ -164,6 +170,7 @@ public class FieldService {
 
         field.setFieldName(request.fieldName());
         field.setSportsType(request.sportsType());
+        field.setSportsTypeId(resolveSportsTypeId(request));
         field.setAddress(request.address());
         field.setPrice(request.price());
         field.setRating(request.rating());
@@ -272,12 +279,27 @@ public class FieldService {
             field.getId(),
             field.getFieldName(),
             field.getSportsType(),
+            field.getSportsTypeId(),
             field.getAddress(),
             field.getPrice(),
             field.getRating(),
             field.getDescription(),
             field.getStatus()
         );
+    }
+
+    private Integer resolveSportsTypeId(FieldRequest request) {
+        if (request.sportsTypeId() != null) {
+            return request.sportsTypeId();
+        }
+
+        if (request.sportsType() == null || request.sportsType().isBlank()) {
+            return null;
+        }
+
+        return sportsTypeRepository.findByNameIgnoreCase(request.sportsType().trim())
+            .map(sportsType -> sportsType.getId())
+            .orElse(null);
     }
 
     private FieldImageResponse toImageResponse(FieldImage fieldImage) {

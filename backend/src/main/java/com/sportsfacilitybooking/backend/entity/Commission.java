@@ -1,5 +1,6 @@
 package com.sportsfacilitybooking.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -17,6 +18,14 @@ public class Commission {
     @Column(name="commission_amount")
     private BigDecimal commissionAmount;
 
+    @Column(name = "updated_by_admin_id")
+    private Long updatedByAdminId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by_admin_id", insertable = false, updatable = false)
+    @JsonIgnore
+    private User updatedByAdmin;
+
     public Commission(){}
 
     public String getId(){ return id; }
@@ -27,4 +36,10 @@ public class Commission {
 
     public BigDecimal getCommissionAmount(){ return commissionAmount; }
     public void setCommissionAmount(BigDecimal commissionAmount){ this.commissionAmount=commissionAmount; }
+
+    public Long getUpdatedByAdminId(){ return updatedByAdminId; }
+    public void setUpdatedByAdminId(Long updatedByAdminId){ this.updatedByAdminId=updatedByAdminId; }
+
+    public User getUpdatedByAdmin(){ return updatedByAdmin; }
+    public void setUpdatedByAdmin(User updatedByAdmin){ this.updatedByAdmin=updatedByAdmin; }
 }

@@ -30,6 +30,7 @@ public class FieldResponse {
     private String id;
     private String fieldName;
     private String sportsType;
+    private Integer sportsTypeId;
     private String address;
     private BigDecimal price;
     private Double rating;

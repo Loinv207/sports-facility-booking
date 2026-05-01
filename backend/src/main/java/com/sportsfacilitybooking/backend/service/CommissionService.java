@@ -2,6 +2,7 @@ package com.sportsfacilitybooking.backend.service;
 
 import com.sportsfacilitybooking.backend.entity.Commission;
 import com.sportsfacilitybooking.backend.repository.CommissionRepository;
+import com.sportsfacilitybooking.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -11,6 +12,9 @@ public class CommissionService {
 
     @Autowired
     private CommissionRepository commissionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     
     public Commission getSystemCommission() {
@@ -23,9 +27,13 @@ public class CommissionService {
     }
 
     
-    public Commission updateCommissionRate(BigDecimal newRate) {
+    public Commission updateCommissionRate(BigDecimal newRate, String adminUsername) {
         Commission config = getSystemCommission();
         config.setCommissionRate(newRate);
+        if (adminUsername != null && !adminUsername.isBlank()) {
+            userRepository.findByUsername(adminUsername)
+                    .ifPresent(admin -> config.setUpdatedByAdminId(admin.getId()));
+        }
         return commissionRepository.save(config);
     }
 }
