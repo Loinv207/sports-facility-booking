@@ -130,3 +130,31 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* Keep the website palette consistently light across OS color-scheme settings. */
+:root {
+  --text: #475569;
+  --text-h: #0f172a;
+  --bg: #f8fcff;
+  --border: rgba(14, 165, 233, 0.16);
+  --code-bg: #ecfeff;
+  --accent: #0ea5e9;
+  --accent-bg: rgba(14, 165, 233, 0.1);
+  --accent-border: rgba(14, 165, 233, 0.42);
+  --social-bg: rgba(248, 252, 255, 0.75);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #475569;
+    --text-h: #0f172a;
+    --bg: #f8fcff;
+    --border: rgba(14, 165, 233, 0.16);
+    --code-bg: #ecfeff;
+    --accent: #0ea5e9;
+    --accent-bg: rgba(14, 165, 233, 0.1);
+    --accent-border: rgba(14, 165, 233, 0.42);
+    --social-bg: rgba(248, 252, 255, 0.75);
+  }
+}

@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 const navLinkClass = ({ isActive }) =>
-  `transition ${isActive ? 'text-white' : 'text-[#a6a094] hover:text-[#f5f1e8]'}`
+  `transition ${isActive ? 'text-blue-700' : 'text-slate-600 hover:text-slate-950'}`
 
 const PublicShell = ({ breadcrumb, children, actions }) => {
   const navigate = useNavigate()
@@ -30,7 +30,7 @@ const PublicShell = ({ breadcrumb, children, actions }) => {
             <NavLink to="/" end className={navLinkClass}>Trang chủ</NavLink>
             <NavLink to="/search" className={navLinkClass}>Sân thể thao</NavLink>
             {laChuSan ? <NavLink to="/owner-management" className={navLinkClass}>Quản lý chủ sân</NavLink> : null}
-            <a href="#footer" className="text-[#a6a094] transition hover:text-[#f5f1e8]">Liên hệ</a>
+            <a href="#footer" className="text-slate-600 transition hover:text-slate-950">Liên hệ</a>
           </nav>
 
           {daDangNhap ? (

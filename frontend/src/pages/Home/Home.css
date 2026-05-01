@@ -1076,3 +1076,98 @@
     font-size: 22px;
   }
 }
+
+/* Home polish aligned with the public theme */
+.hero-shell-card {
+  border-color: rgba(14, 165, 233, 0.18);
+  box-shadow: 0 28px 72px rgba(37, 99, 235, 0.16);
+}
+
+.hero-shell-card::before {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.34), rgba(15, 23, 42, 0.68));
+}
+
+.hero-title-center {
+  color: #ffffff;
+  text-shadow: 0 12px 30px rgba(15, 23, 42, 0.45);
+}
+
+.hero-primary-action,
+.hero-search-submit,
+.search-button {
+  background: linear-gradient(180deg, #0ea5e9 0%, #2563eb 100%);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.22);
+}
+
+.hero-secondary-action {
+  border-color: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.92);
+  color: #0369a1;
+}
+
+.hero-search-wide {
+  border-color: rgba(14, 165, 233, 0.18);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.16);
+}
+
+.hero-search-field input,
+.hero-search-value {
+  border-color: rgba(14, 165, 233, 0.18);
+  background: #f8fcff;
+}
+
+.hero-search-field input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+  background: #ffffff;
+}
+
+.summary-item {
+  border-color: rgba(14, 165, 233, 0.16);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.summary-item strong {
+  color: #0369a1;
+}
+
+.summary-item span {
+  color: #475569;
+}
+
+.field-card {
+  border-color: rgba(14, 165, 233, 0.16);
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%);
+  box-shadow: 0 20px 48px rgba(37, 99, 235, 0.1);
+}
+
+.field-card:hover {
+  border-color: rgba(14, 165, 233, 0.28);
+  box-shadow: 0 28px 64px rgba(37, 99, 235, 0.16);
+}
+
+.field-status {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.field-meta span {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.field-footer {
+  border-top-color: rgba(14, 165, 233, 0.12);
+}
+
+.field-action {
+  border-color: rgba(14, 165, 233, 0.35);
+  background: rgba(14, 165, 233, 0.08);
+  color: #0369a1;
+}
+
+.empty-box {
+  background: #ffffff;
+  color: #64748b;
+}

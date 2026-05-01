@@ -1,0 +1,94 @@
+.search-page {
+  color: #0f172a;
+}
+
+.search-hero-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(14, 165, 233, 0.18) !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(240, 249, 255, 0.9)),
+    radial-gradient(circle at 12% 0%, rgba(16, 185, 129, 0.13), transparent 32%),
+    radial-gradient(circle at 92% 18%, rgba(37, 99, 235, 0.16), transparent 30%) !important;
+  box-shadow: 0 26px 70px rgba(37, 99, 235, 0.11) !important;
+}
+
+.search-eyebrow {
+  border-color: rgba(14, 165, 233, 0.2) !important;
+  background: #e0f7fa !important;
+  color: #0369a1 !important;
+}
+
+.search-summary-card,
+.search-filter-panel,
+.search-results-shell,
+.search-field-card,
+.search-empty-state,
+.search-pagination {
+  border-color: rgba(14, 165, 233, 0.16) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fcff 100%) !important;
+  box-shadow: 0 20px 55px rgba(37, 99, 235, 0.09) !important;
+}
+
+.search-filter-panel,
+.search-results-shell,
+.search-field-card {
+  border-radius: 24px !important;
+}
+
+.search-input-control {
+  border-color: rgba(14, 165, 233, 0.18) !important;
+  background: #f8fcff !important;
+  color: #0f172a !important;
+}
+
+.search-input-control:focus {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14) !important;
+  background: #ffffff !important;
+}
+
+.search-soft-panel {
+  border-color: rgba(14, 165, 233, 0.14) !important;
+  background: #ecfeff !important;
+}
+
+.search-primary-button {
+  background: linear-gradient(180deg, #0ea5e9 0%, #2563eb 100%) !important;
+  box-shadow: 0 18px 30px rgba(37, 99, 235, 0.2) !important;
+}
+
+.search-ghost-button {
+  border-color: rgba(14, 165, 233, 0.2) !important;
+  color: #0369a1 !important;
+}
+
+.search-chip {
+  border-color: rgba(14, 165, 233, 0.2) !important;
+  background: #e0f7fa !important;
+  color: #075985 !important;
+}
+
+.search-card-badge {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #0f172a !important;
+}
+
+.search-rating-badge {
+  background: rgba(14, 165, 233, 0.92) !important;
+}
+
+.search-card-tag {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+}
+
+.search-detail-link {
+  border-color: #0ea5e9 !important;
+  color: #0369a1 !important;
+}
+
+.search-detail-link:hover {
+  background: #0ea5e9 !important;
+  color: #ffffff !important;
+}
