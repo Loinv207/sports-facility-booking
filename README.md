@@ -12,20 +12,47 @@
 - Frontend: React / Thymeleaf
 - Database: MySQL
 ## Cài đặt và chạy
-### Yêu cầu
-- Java 25
-- Node.js 18+ 
-- MySQL
+### Yêu cầu
+- Java 21
+- Node.js 18+
+- MySQL hoặc quyền truy cập database RDS đã cấu hình
+
 ### Chạy Backend
+```bash
 cd backend
 ./mvnw spring-boot:run
-### Chạy Frontend 
+```
+
+### Chạy Frontend
+```bash
 cd frontend
 npm install
-npm start
+npm run dev
+```
+
 ### Truy cập
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:5173
 - Backend API: http://localhost:8080
+
+## Chạy bằng Docker
+Dự án đã có sẵn:
+- `backend/Dockerfile`
+- `frontend/Dockerfile`
+- `docker-compose.yml`
+
+### Build và chạy toàn bộ hệ thống
+```bash
+docker compose up --build
+```
+
+### Truy cập khi chạy Docker
+- Frontend: http://localhost:4173
+- Backend API: http://localhost:8080
+
+### Lưu ý Docker
+- `docker-compose.yml` hiện dùng cùng cấu hình database MySQL RDS như project đang chạy thật.
+- Nếu muốn demo hoàn toàn local, có thể cấu hình thêm service MySQL riêng trong `docker-compose.yml`.
+
 ## Demo
 
 ## Tài liệu

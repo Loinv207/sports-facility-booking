@@ -1,0 +1,31 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sports-booking-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://sportsnow.ccv6i6g4e9td.us-east-1.rds.amazonaws.com:3306/sports_now?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: sportsadmin
+      SPRING_DATASOURCE_PASSWORD: 123456789a
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - sports-booking-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sports-booking-frontend
+    ports:
+      - "4173:4173"
+    depends_on:
+      - backend
+    networks:
+      - sports-booking-network
+
+networks:
+  sports-booking-network:
+    driver: bridge
