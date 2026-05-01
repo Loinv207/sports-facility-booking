@@ -81,7 +81,7 @@ const Search = () => {
         size: pageInfo.size,
       }
 
-      const res = await axios.get('http://localhost:8080/api/fields/search', { params })
+      const res = await axios.get('/api/fields/search', { params })
       setFields(res.data.content || [])
       setPageInfo({
         number: res.data.number ?? 0,

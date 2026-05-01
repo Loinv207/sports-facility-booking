@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Send, Bell, Megaphone } from 'lucide-react';
+import { Megaphone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import AdminSidebar from './AdminSidebar';
+
+const toast = {
+  error: (message) => window.alert(message),
+  success: (message) => window.alert(message),
+};
 
 const AdminNotification = () => {
   const [target, setTarget] = useState("ALL");
@@ -21,16 +24,18 @@ const AdminNotification = () => {
 
     setIsSending(true);
     try {
-      
+      const token = localStorage.getItem('token');
       await axios.post(`/api/notifications/broadcast?target=${target}`, {
         title: form.title,
         message: form.message,
         userId: null 
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       
       toast.success("Thông báo đã được gửi đi!");
       setForm({ title: '', message: '' });
-    } catch (error) {
+    } catch {
       toast.error("Lỗi khi gửi thông báo hệ thống.");
     } finally {
       setIsSending(false);
@@ -38,7 +43,10 @@ const AdminNotification = () => {
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto space-y-6">
+    <div className="flex min-h-screen bg-slate-50">
+      <AdminSidebar />
+      <main className="flex-1 p-8">
+      <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3 mb-4">
         <Megaphone className="w-8 h-8 text-blue-600" />
         <h1 className="text-2xl font-bold">Hệ thống thông báo</h1>
@@ -53,16 +61,15 @@ const AdminNotification = () => {
           {/* Chọn đối tượng */}
           <div className="space-y-2">
             <label className="text-sm font-semibold">Gửi đến nhóm đối tượng</label>
-            <Select value={target} onValueChange={setTarget}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn đối tượng nhận" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Tất cả người dùng</SelectItem>
-                <SelectItem value="USER">Chỉ khách thuê sân (User)</SelectItem>
-                <SelectItem value="OWNER">Chỉ chủ sân (Owner)</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              value={target}
+              onChange={(event) => setTarget(event.target.value)}
+              className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="ALL">Tất cả người dùng</option>
+              <option value="USER">Chỉ khách thuê sân (User)</option>
+              <option value="OWNER">Chỉ chủ sân (Owner)</option>
+            </select>
           </div>
 
           {/* Tiêu đề */}
@@ -78,9 +85,9 @@ const AdminNotification = () => {
           {/* Nội dung */}
           <div className="space-y-2">
             <label className="text-sm font-semibold">Nội dung chi tiết</label>
-            <Textarea 
+            <textarea 
               placeholder="Nhập nội dung cần thông báo..." 
-              className="min-h-[120px]"
+              className="min-h-[120px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               value={form.message}
               onChange={(e) => setForm({...form, message: e.target.value})}
             />
@@ -96,6 +103,8 @@ const AdminNotification = () => {
           </Button>
         </CardFooter>
       </Card>
+      </div>
+      </main>
     </div>
   );
 };

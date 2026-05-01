@@ -28,7 +28,7 @@ const RegisterPage = () => {
     setErrorMessage('')
 
     try {
-      await axios.post('http://localhost:8080/api/auth/register', formData)
+      await axios.post('/api/auth/register', formData)
       navigate('/login')
     } catch (error) {
       setErrorMessage(error.response?.data?.message || 'Đăng ký thất bại')

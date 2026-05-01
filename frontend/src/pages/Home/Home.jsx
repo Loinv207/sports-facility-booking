@@ -56,7 +56,7 @@ const HomePage = () => {
   useEffect(() => {
     const taiDanhSachSanDangHoatDong = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/fields/active')
+        const response = await fetch('/api/fields/active')
         if (!response.ok) {
           throw new Error('Không thể tải danh sách sân')
         }

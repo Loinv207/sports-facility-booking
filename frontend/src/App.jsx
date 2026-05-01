@@ -11,6 +11,9 @@ import AdminPendingFields from './pages/Admin/AdminPendingFields'
 import Search from './pages/Search/Search'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import UserManagement from './pages/Admin/UserManagement'
+import AdminConfig from './pages/Admin/AdminConfig'
+import FinanceDashboard from './pages/Admin/FinanceDashboard'
+import AdminNotification from './pages/Admin/AdminNotification'
 
 const OwnerRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -24,16 +27,25 @@ const OwnerRoute = ({ children }) => {
 }
 
 const AdminRoute = ({ children }) => {
-  const token = localStorage.getItem('token'); 
-  const userRole = localStorage.getItem('role'); 
+  const token = localStorage.getItem('token')
+  const userRole = localStorage.getItem('role')
 
-  
   if (!token || userRole !== 'ADMIN') {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />
   }
 
-  return children;
-};
+  return children
+}
+
+const AuthRoute = ({ children }) => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    return <Navigate to="/login" replace />
+  }
+
+  return children
+}
 
 function App() {
   return (
@@ -45,11 +57,10 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/pitch/:id" element={<PitchDetail />} />
         <Route path="/payment" element={<Payment />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<AuthRoute><Profile /></AuthRoute>} />
         
         {/* Route dành cho Chủ sân (Owner) */}
         <Route path="/owner-management" element={<OwnerRoute><OwnerManagement /></OwnerRoute>} />
-        <Route path="/admin/fields/pending" element={<AdminPendingFields />} />
         <Route path="/search" element={<Search />} />
 
         {/* --- ADMIN --- */}
@@ -64,6 +75,18 @@ function App() {
         <Route 
           path="/admin/users" 
           element={<AdminRoute><UserManagement /></AdminRoute>} 
+        />
+        <Route 
+          path="/admin/config" 
+          element={<AdminRoute><AdminConfig /></AdminRoute>} 
+        />
+        <Route 
+          path="/admin/finance" 
+          element={<AdminRoute><FinanceDashboard /></AdminRoute>} 
+        />
+        <Route 
+          path="/admin/notifications" 
+          element={<AdminRoute><AdminNotification /></AdminRoute>} 
         />
 
       </Routes>

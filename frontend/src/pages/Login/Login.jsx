@@ -23,7 +23,7 @@ const Login = () => {
     setErrorMessage('')
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', credentials)
+      const response = await axios.post('/api/auth/login', credentials)
 
       localStorage.setItem('token', response.data.accessToken)
       localStorage.setItem('role', response.data.user.role)

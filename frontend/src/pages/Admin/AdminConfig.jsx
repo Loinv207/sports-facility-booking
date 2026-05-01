@@ -1,60 +1,79 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Save, Settings2, LayoutGrid } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import AdminSidebar from './AdminSidebar';
+
+const toast = {
+  error: (message) => window.alert(message),
+  success: (message) => window.alert(message),
+  warning: (message) => window.alert(message),
+};
 
 const AdminConfig = () => {
   const [sportsTypes, setSportsTypes] = useState([]);
   const [newType, setNewType] = useState({ name: '', description: '' });
   const [commissionRate, setCommissionRate] = useState("");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
+      const token = localStorage.getItem('token');
+      const authConfig = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
       const [resTypes, resComm] = await Promise.all([
-        axios.get('/api/categories'),
-        axios.get('/api/admin/config/commission')
+        axios.get('/api/categories', authConfig),
+        axios.get('/api/admin/config/commission', authConfig)
       ]);
       setSportsTypes(resTypes.data);
       setCommissionRate(resComm.data.commissionRate);
-    } catch (error) {
+    } catch {
       toast.error("Không thể tải dữ liệu cấu hình");
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchData();
+  }, [fetchData]);
 
   const handleAddType = async () => {
     if (!newType.name) return toast.warning("Vui lòng nhập tên loại sân");
     try {
-      await axios.post('/api/categories', newType);
+      const token = localStorage.getItem('token');
+      await axios.post('/api/categories', newType, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setNewType({ name: '', description: '' });
       fetchData();
       toast.success("Đã thêm loại sân mới");
-    } catch (error) {
+    } catch {
       toast.error("Lỗi khi thêm loại sân");
     }
   };
 
   const handleUpdateCommission = async () => {
     try {
+      const token = localStorage.getItem('token');
       await axios.put('/api/admin/config/commission', Number(commissionRate), {
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       toast.success("Cập nhật tỷ lệ hoa hồng thành công");
-    } catch (error) {
+    } catch {
       toast.error("Lỗi cập nhật cấu hình");
     }
   };
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50 min-h-screen">
+    <div className="flex min-h-screen bg-slate-50">
+      <AdminSidebar />
+      <main className="flex-1 p-8 space-y-8">
       <div className="flex items-center gap-2 mb-6">
         <Settings2 className="w-8 h-8 text-primary" />
         <h1 className="text-3xl font-bold tracking-tight">Cấu hình hệ thống</h1>
@@ -74,7 +93,7 @@ const AdminConfig = () => {
           <CardContent className="space-y-4">
             <div className="flex gap-3 items-end">
               <div className="grid w-full items-center gap-1.5">
-                <Label htmlFor="typeName">Tên loại sân</Label>
+                <label htmlFor="typeName" className="text-sm font-medium">Tên loại sân</label>
                 <Input 
                   id="typeName" 
                   placeholder="Ví dụ: Sân bóng đá 11 người" 
@@ -97,7 +116,7 @@ const AdminConfig = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sportsTypes.map((type: any) => (
+                  {sportsTypes.map((type) => (
                     <TableRow key={type.id}>
                       <TableCell className="font-medium">#{type.id}</TableCell>
                       <TableCell>{type.name}</TableCell>
@@ -123,7 +142,7 @@ const AdminConfig = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="rate">Phần trăm (%)</Label>
+                <label htmlFor="rate" className="text-sm font-medium">Phần trăm (%)</label>
                 <div className="relative">
                   <Input 
                     id="rate" 
@@ -148,6 +167,7 @@ const AdminConfig = () => {
         </div>
 
       </div>
+      </main>
     </div>
   );
 };

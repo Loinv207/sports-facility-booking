@@ -15,6 +15,7 @@ import {
 import { Bar, Line } from 'react-chartjs-2';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { DollarSign, Percent, Wallet, TrendingUp } from 'lucide-react';
+import AdminSidebar from './AdminSidebar';
 
 ChartJS.register(
   CategoryScale,
@@ -34,7 +35,10 @@ const FinanceDashboard = () => {
   useEffect(() => {
     const fetchFinanceData = async () => {
       try {
-        const res = await axios.get('/api/admin/reports/finance');
+        const token = localStorage.getItem('token');
+        const res = await axios.get('/api/admin/reports/finance', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setReportData(res.data);
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu", error);
@@ -81,7 +85,7 @@ const FinanceDashboard = () => {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: 'bottom' as const },
+      legend: { position: 'bottom' },
     },
     scales: {
       y: { beginAtZero: true, grid: { display: false } },
@@ -90,7 +94,9 @@ const FinanceDashboard = () => {
   };
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50 min-h-screen">
+    <div className="flex min-h-screen bg-slate-50">
+      <AdminSidebar />
+      <main className="flex-1 p-8 space-y-8">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold tracking-tight">Finance Dashboard</h1>
         <p className="text-muted-foreground">Phân tích dòng tiền và hiệu quả kinh doanh của hệ thống.</p>
@@ -150,6 +156,7 @@ const FinanceDashboard = () => {
           </CardContent>
         </Card>
       </div>
+      </main>
     </div>
   );
 };

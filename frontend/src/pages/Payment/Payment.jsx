@@ -79,7 +79,7 @@ export const Payment = () => {
       setMessage('')
 
       const response = await axios.post(
-        `http://localhost:8080/api/bookings/user/${booking.bookingId}/confirm-payment`,
+        `/api/bookings/user/${booking.bookingId}/confirm-payment`,
         {},
         {
           headers: {

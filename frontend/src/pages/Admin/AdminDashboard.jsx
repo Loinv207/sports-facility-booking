@@ -14,7 +14,7 @@ const AdminDashboard = () => {
       try {
         // Sửa lại thành 'token' cho đồng bộ với trang Login/UserManagement
         const token = localStorage.getItem('token'); 
-        const res = await axios.get('http://localhost:8080/api/admin/reports/system', {
+        const res = await axios.get('/api/admin/reports/system', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setData(res.data);

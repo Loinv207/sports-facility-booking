@@ -26,7 +26,7 @@ const UserManagement = () => {
       const token = localStorage.getItem('token'); 
       if (!token) return;
 
-      const res = await axios.get('http://localhost:8080/api/admin/users', {
+      const res = await axios.get('/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(res.data.content);
@@ -51,7 +51,7 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
     if (!window.confirm("Bạn có chắc chắn muốn thay đổi trạng thái người dùng này?")) return;
     try {
       const token = localStorage.getItem('token'); // Đã sửa từ admin_token thành token cho khớp
-      await axios.put(`http://localhost:8080/api/admin/users/${userId}/toggle-status`, {}, {
+      await axios.put(`/api/admin/users/${userId}/toggle-status`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsers(); 

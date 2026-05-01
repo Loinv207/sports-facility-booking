@@ -178,7 +178,7 @@ const PitchDetail = () => {
     const fetchPitchDetail = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`http://localhost:8080/api/fields/${id}/full-details`)
+        const response = await axios.get(`/api/fields/${id}/full-details`)
         setDetail(response.data)
       } catch (error) {
         console.error('Loi khi tai chi tiet san:', error)
@@ -195,7 +195,7 @@ const PitchDetail = () => {
     const fetchReviews = async () => {
       try {
         setReviewsLoading(true)
-        const response = await axios.get(`http://localhost:8080/api/fields/${id}/reviews`)
+        const response = await axios.get(`/api/fields/${id}/reviews`)
         setReviews(Array.isArray(response.data) ? response.data : [])
       } catch (error) {
         console.error('Loi khi tai reviews:', error)
@@ -217,7 +217,7 @@ const PitchDetail = () => {
 
       try {
         setReviewEligibilityLoading(true)
-        const response = await axios.get('http://localhost:8080/api/bookings/user', {
+        const response = await axios.get('/api/bookings/user', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -326,7 +326,7 @@ const PitchDetail = () => {
     try {
       setReviewSubmitting(true)
       const response = await axios.post(
-        `http://localhost:8080/api/fields/${id}/reviews`,
+        `/api/fields/${id}/reviews`,
         {
           rating: Number(reviewForm.rating),
           comment: reviewForm.comment.trim(),
@@ -369,7 +369,7 @@ const PitchDetail = () => {
     try {
       setBookingSubmitting(true)
       const response = await axios.post(
-        'http://localhost:8080/api/bookings',
+        '/api/bookings',
         {
           fieldScheduleId: selectedSlot,
           paymentMethod: 'BANK_TRANSFER',

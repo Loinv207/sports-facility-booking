@@ -17,7 +17,7 @@ const AdminPendingFields = () => {
             return;
         }
 
-        const response = await axios.get('http://localhost:8080/api/admin/fields/pending', {
+        const response = await axios.get('/api/admin/fields/pending', {
             headers: {
                 
                 'Authorization': `Bearer ${token}` 
@@ -45,7 +45,12 @@ const AdminPendingFields = () => {
         if (window.confirm("Xác nhận duyệt sân này?")) {
             try {
                 
-                await axios.put(`http://localhost:8080/api/admin/fields/${id}/approve`);
+                const token = localStorage.getItem('token'); 
+                await axios.put(`/api/admin/fields/${id}/approve`, {}, {
+                    headers: {
+                        'Authorization': `Bearer ${token}` 
+                    }
+                });
                 alert("Đã duyệt thành công!");
                 
                 

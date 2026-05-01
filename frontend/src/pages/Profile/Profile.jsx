@@ -96,7 +96,7 @@ const Profile = () => {
     const token = localStorage.getItem('token')
     if (!token) return
 
-    axios.get('http://localhost:8080/api/auth/me', {
+    axios.get('/api/auth/me', {
       headers: { Authorization: `Bearer ${token}` },
     }).then((response) => {
       syncProfile(response.data)
@@ -117,7 +117,7 @@ const Profile = () => {
       setBookingError('')
 
       try {
-        const response = await axios.get('http://localhost:8080/api/bookings/user', {
+        const response = await axios.get('/api/bookings/user', {
           headers: { Authorization: `Bearer ${token}` },
         })
 
@@ -145,7 +145,7 @@ const Profile = () => {
     setProfileError('')
 
     try {
-      const response = await axios.put('http://localhost:8080/api/auth/me', {
+      const response = await axios.put('/api/auth/me', {
         fullName: fullName.trim(),
         phoneNumber: phoneNumber.trim(),
         email: email.trim(),
@@ -199,7 +199,7 @@ const Profile = () => {
     setPasswordError('')
 
     try {
-      await axios.put('http://localhost:8080/api/auth/me/password', passwordForm, {
+      await axios.put('/api/auth/me/password', passwordForm, {
         headers: { Authorization: `Bearer ${token}` },
       })
 

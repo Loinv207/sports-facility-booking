@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { Navigate } from 'react-router-dom'
 import PublicShell from '../../components/PublicShell'
 import OwnerBookings from './OwnerBookings'
 import OwnerCenterForm from './OwnerCenterForm'
@@ -30,12 +29,6 @@ const formatPrice = (value) => {
 
 const OwnerManagement = () => {
   const token = localStorage.getItem('token')
-  const userRole = localStorage.getItem('role')
-
-  if (!token || userRole !== 'OWNER') {
-    return <Navigate to="/" replace />
-  }
-
   const [activeTab, setActiveTab] = useState('tong-quan')
   const [statusMessage, setStatusMessage] = useState('')
 
@@ -94,16 +87,47 @@ const OwnerManagement = () => {
   } = ownerBookings
 
   useEffect(() => {
-    handleAction(async () => {
-      await Promise.all([loadFields(), loadBookings(), loadRevenue()])
-    })
+    let isMounted = true
+
+    const loadOwnerData = async () => {
+      try {
+        await Promise.all([loadFields(), loadBookings(), loadRevenue()])
+      } catch (error) {
+        if (isMounted) {
+          setStatusMessage(error.message || 'CĂ³ lá»—i xáº£y ra.')
+        }
+      }
+    }
+
+    loadOwnerData()
+
+    return () => {
+      isMounted = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (!selectedFieldId) return
-    handleAction(async () => {
-      await Promise.all([loadImages(selectedFieldId), loadSchedules(selectedFieldId)])
-    })
+
+    let isMounted = true
+
+    const loadFieldDetails = async () => {
+      try {
+        await Promise.all([loadImages(selectedFieldId), loadSchedules(selectedFieldId)])
+      } catch (error) {
+        if (isMounted) {
+          setStatusMessage(error.message || 'CĂ³ lá»—i xáº£y ra.')
+        }
+      }
+    }
+
+    loadFieldDetails()
+
+    return () => {
+      isMounted = false
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFieldId])
 
   const previewField = useMemo(() => {

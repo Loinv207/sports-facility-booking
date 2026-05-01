@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, Clock, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Clock, LogOut, Settings, Wallet, Megaphone } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
@@ -8,6 +8,9 @@ const AdminSidebar = () => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20}/> },
     { name: 'Người dùng', path: '/admin/users', icon: <Users size={20}/> },
     { name: 'Duyệt sân', path: '/admin/fields/pending', icon: <Clock size={20}/> },
+    { name: 'Cấu hình', path: '/admin/config', icon: <Settings size={20}/> },
+    { name: 'Tài chính', path: '/admin/finance', icon: <Wallet size={20}/> },
+    { name: 'Thông báo', path: '/admin/notifications', icon: <Megaphone size={20}/> },
   ];
 
   return (
