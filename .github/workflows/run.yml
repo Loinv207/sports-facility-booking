@@ -1,4 +1,4 @@
-name: Sports Facility Booking Docker Compose
+name: Sports Facility Booking Docker Compose Test
 
 on:
   push:
