@@ -5,12 +5,16 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 @Entity
 @Table(name = "users")
 @Data 
 @Builder 
 @NoArgsConstructor 
-@AllArgsConstructor 
+@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class) 
 public class User {
 
     @Id
@@ -33,12 +37,14 @@ public class User {
     @Enumerated(EnumType.STRING) 
     private Role role; 
 
-    private String status;
+    @Column(columnDefinition = "VARCHAR(255) DEFAULT 'ACTIVE'")
+    private String status = "ACTIVE";
 
     @Column(name = "avatar_url", columnDefinition = "LONGTEXT")
     private String avatarUrl;
 
-    @Column(name = "created_at")
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -48,5 +54,10 @@ public class User {
     @JoinColumn(name = "user_profile_id") 
     private UserProfile userProfile;
 
-
+    @PrePersist
+    protected void onCreate() {
+        if (this.status == null) {
+            this.status = "ACTIVE";
+        }
+    }
 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -14,9 +15,9 @@ import { Button } from "@/components/ui/button";
 import { Search, ShieldCheck, UserCog, Lock, Unlock, Mail, Phone, AlertTriangle, X } from "lucide-react";
 import AdminSidebar from './AdminSidebar';
 
-
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [pendingUser, setPendingUser] = useState(null);
@@ -30,10 +31,12 @@ const UserManagement = () => {
       const token = localStorage.getItem('token'); 
       if (!token) return;
 
-      const res = await axios.get('/api/admin/users', {
+      const res = await axios.get('/api/admin/users?size=100', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUsers(res.data.content);
+      
+      setUsers(res.data.content || []);
+      setTotalUsers(res.data.totalElements || 0);
     } catch (err) {
       console.error("Lỗi lấy danh sách user:", err);
     } finally {
@@ -45,25 +48,28 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
- 
-const filteredUsers = Array.isArray(users) ? users.filter(user => 
-  user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-  user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-) : []; 
+  const filteredUsers = Array.isArray(users) ? users.filter(user => 
+    (user.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+  ) : []; 
 
   const handleToggleStatus = async () => {
     if (!pendingUser) return;
     try {
       setSubmittingToggle(true);
       const token = localStorage.getItem('token');
-      await axios.put(`/api/admin/users/${pendingUser.id}/toggle-status`, {}, {
+      
+      // Đã sửa path từ /toggle-status thành /status để khớp với @PutMapping("/{id}/status") ở Backend
+      await axios.put(`/api/admin/users/${pendingUser.id}/status`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      await fetchUsers();
+
+      await fetchUsers(); // Tải lại danh sách sau khi cập nhật thành công
       setStatusTone('success');
       setStatusMessage(`Đã cập nhật trạng thái cho ${pendingUser.fullName || pendingUser.email}.`);
       setPendingUser(null);
-    } catch {
+    } catch (error) {
+      console.error("Lỗi cập nhật trạng thái:", error);
       setStatusTone('error');
       setStatusMessage("Lỗi: Không thể cập nhật trạng thái người dùng.");
     } finally {
@@ -72,13 +78,8 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
   };
 
   return (
-    // 2. Bọc toàn bộ bằng một thẻ div có class flex
     <div className="flex min-h-screen bg-slate-50">
-      
-      {/* 3. Sidebar nằm cố định bên trái */}
       <AdminSidebar />
-
-      {/* 4. Phần nội dung chính nằm bên phải, chiếm hết khoảng trống còn lại (flex-1) */}
       <main className="flex-1 p-8">
         <div className="mx-auto space-y-6 max-w-7xl">
           
@@ -88,7 +89,7 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
               <h2 className="flex items-center gap-2 text-2xl font-bold text-slate-900">
                 <UserCog className="text-blue-600" /> Quản lý người dùng
               </h2>
-              <p className="mt-1 text-sm text-slate-500">Hệ thống đang quản lý {users.length} thành viên.</p>
+              <p className="mt-1 text-sm text-slate-500">Hệ thống đang quản lý {totalUsers} thành viên.</p>
             </div>
 
             <div className="relative w-full max-w-sm">
@@ -104,7 +105,7 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
 
           {/* Table Section */}
           <div className="overflow-hidden bg-white border shadow-sm rounded-xl border-slate-100">
-            {statusMessage ? (
+            {statusMessage && (
               <div className={`mx-6 mt-6 flex items-start gap-3 rounded-xl border px-4 py-4 text-sm ${
                 statusTone === 'success'
                   ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
@@ -113,7 +114,8 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{statusMessage}</span>
               </div>
-            ) : null}
+            )}
+
             {loading ? (
               <div className="py-20 text-center text-slate-500 animate-pulse">
                 Đang tải dữ liệu người dùng...
@@ -135,7 +137,8 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
                       <TableRow key={user.id} className="transition-colors hover:bg-slate-50/50">
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-800">{user.fullName}</span>
+                            
+                            <span className="font-bold text-slate-800">{user.fullName || "Chưa đặt tên"}</span>
                             <div className="flex items-center mt-1 text-xs text-slate-400">
                               <Mail className="w-3 h-3 mr-1" /> {user.email}
                             </div>
@@ -206,10 +209,11 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
         </div>
       </main>
 
-      {pendingUser ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+      
+      {pendingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/45">
+          <div className="w-full max-w-lg bg-white shadow-xl rounded-2xl">
+            <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100">
               <div>
                 <h3 className="text-xl font-bold text-slate-900">Xác nhận thay đổi trạng thái</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -219,43 +223,37 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
               <button
                 type="button"
                 onClick={() => !submittingToggle && setPendingUser(null)}
-                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                aria-label="Đóng"
+                className="p-2 transition rounded-full text-slate-400 hover:bg-slate-100"
               >
-                <X className="h-5 w-5" />
+                <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-4 px-6 py-5">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="px-6 py-5 space-y-4">
+              <div className="px-4 py-4 border rounded-xl border-slate-200 bg-slate-50">
                 <p className="text-sm font-semibold text-slate-900">{pendingUser.fullName || 'Người dùng'}</p>
                 <p className="mt-1 text-sm text-slate-600">{pendingUser.email}</p>
                 <p className="mt-1 text-sm text-slate-500">Vai trò: {pendingUser.role}</p>
-                <p className="mt-3 text-sm font-medium text-slate-700">
-                  Trạng thái hiện tại: {pendingUser.status === 'ACTIVE' ? 'Đang hoạt động' : 'Bị khóa'}
-                </p>
               </div>
               <div className="flex justify-end gap-3">
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
                   onClick={() => setPendingUser(null)}
                   disabled={submittingToggle}
-                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Hủy
-                </button>
-                <button
-                  type="button"
+                </Button>
+                <Button
                   onClick={handleToggleStatus}
                   disabled={submittingToggle}
-                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className={pendingUser.status === 'ACTIVE' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}
                 >
-                  {submittingToggle ? 'Đang xử lý...' : (pendingUser.status === 'ACTIVE' ? 'Xác nhận khóa' : 'Xác nhận mở khóa')}
-                </button>
+                  {submittingToggle ? 'Đang xử lý...' : 'Xác nhận'}
+                </Button>
               </div>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

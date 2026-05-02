@@ -31,4 +31,11 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findByFieldIdInOrderByCreatedAtDesc(@Param("fieldIds") List<String> fieldIds);
 
     List<Booking> findByStatusIn(List<String> statuses);
+
+
+    // BookingRepository.java
+    @Query("SELECT MONTH(b.bookingDate) as month, SUM(b.totalPrice) as revenue, COUNT(b.id) as count " +
+        "FROM Booking b WHERE b.status IN ('PAID', 'COMPLETED') AND YEAR(b.bookingDate) = YEAR(CURRENT_DATE) " +
+        "GROUP BY MONTH(b.bookingDate) ORDER BY MONTH(b.bookingDate)")
+    List<Object[]> getMonthlyRevenueReport();
 }
