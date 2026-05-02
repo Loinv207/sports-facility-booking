@@ -35,14 +35,14 @@ const fallbackImagesBySport = {
 }
 
 const amenityBySport = {
-  Football: ['Bai giu xe', 'Phong thay do', 'Den chieu sang', 'Can tin', 'Phong tam', 'Thue dung cu'],
-  Badminton: ['Bai giu xe', 'May lanh', 'Khu khoi dong', 'Nuoc uong', 'Cho ngoi cho', 'Phong tam'],
-  Tennis: ['Bai giu xe', 'Phong thay do', 'Shop phu kien', 'Den chieu sang', 'Phong tam', 'Khu lounge'],
+  Football: ['Bãi giữ xe', 'Phòng thay đồ', 'Đèn chiếu sáng', 'Căn tin', 'Phòng tắm', 'Thuê dụng cụ'],
+  Badminton: ['Bãi giữ xe', 'Máy lạnh', 'Khu khởi động', 'Nước uống', 'Chỗ ngồi chờ', 'Phòng tắm'],
+  Tennis: ['Bãi giữ xe', 'Phòng thay đồ', 'Shop phụ kiện', 'Đèn chiếu sáng', 'Phòng tắm', 'Khu lounge'],
 }
 
 const formatPrice = (price) => {
   if (price === null || price === undefined || price === '') {
-    return 'Lien he'
+    return 'Liên hệ'
   }
 
   const amount = Number(price)
@@ -63,7 +63,7 @@ const formatRating = (rating) => {
 
 const formatReviewDate = (value) => {
   if (!value) {
-    return 'Vua xong'
+    return 'Vừa xong'
   }
 
   return new Intl.DateTimeFormat('vi-VN', {
@@ -77,6 +77,21 @@ const formatReviewDate = (value) => {
 
 const formatSlotLabel = (startTime, endTime) => `${String(startTime).slice(0, 5)} - ${String(endTime).slice(0, 5)}`
 
+const calculateDurationHours = (startTime, endTime) => {
+  if (!startTime || !endTime) {
+    return 0
+  }
+
+  const [startHour = '0', startMinute = '0'] = String(startTime).slice(0, 5).split(':')
+  const [endHour = '0', endMinute = '0'] = String(endTime).slice(0, 5).split(':')
+
+  const startTotalMinutes = Number(startHour) * 60 + Number(startMinute)
+  const endTotalMinutes = Number(endHour) * 60 + Number(endMinute)
+  const durationMinutes = Math.max(0, endTotalMinutes - startTotalMinutes)
+
+  return durationMinutes / 60
+}
+
 const getStatusClasses = (status) => {
   switch (status) {
     case 'AVAILABLE':
@@ -88,32 +103,6 @@ const getStatusClasses = (status) => {
     default:
       return 'border-slate-300 bg-slate-100 text-slate-700'
   }
-}
-
-const buildPreviewSchedules = (price) => {
-  const today = new Date()
-  const slots = [
-    ['07:00', '08:00'],
-    ['08:00', '09:00'],
-    ['18:00', '19:00'],
-    ['19:00', '20:00'],
-    ['20:00', '21:00'],
-  ]
-
-  return Array.from({ length: 3 }, (_, dayOffset) => {
-    const currentDate = new Date(today)
-    currentDate.setDate(today.getDate() + dayOffset)
-
-    return slots.map(([start, end], slotIndex) => ({
-      id: `preview-${dayOffset}-${slotIndex}`,
-      scheduleDate: currentDate.toISOString().slice(0, 10),
-      startTime: `${start}:00`,
-      endTime: `${end}:00`,
-      price,
-      status: slotIndex === 2 ? 'BOOKED' : 'AVAILABLE',
-      isPreview: true,
-    }))
-  }).flat()
 }
 
 const groupSchedulesByDate = (schedules) => {
@@ -181,7 +170,7 @@ const PitchDetail = () => {
         const response = await axios.get(`/api/fields/${id}/full-details`)
         setDetail(response.data)
       } catch (error) {
-        console.error('Loi khi tai chi tiet san:', error)
+        console.error('Lỗi khi tải chi tiết sân:', error)
         setDetail(null)
       } finally {
         setLoading(false)
@@ -198,7 +187,7 @@ const PitchDetail = () => {
         const response = await axios.get(`/api/fields/${id}/reviews`)
         setReviews(Array.isArray(response.data) ? response.data : [])
       } catch (error) {
-        console.error('Loi khi tai reviews:', error)
+        console.error('Lỗi khi tải reviews:', error)
         setReviews([])
       } finally {
         setReviewsLoading(false)
@@ -229,7 +218,7 @@ const PitchDetail = () => {
         )
         setEligibleToReview(canReview)
       } catch (requestError) {
-        console.error('Loi khi kiem tra quyen danh gia:', requestError)
+        console.error('Lỗi khi kiểm tra quyền đánh giá:', requestError)
         setEligibleToReview(false)
       } finally {
         setReviewEligibilityLoading(false)
@@ -253,8 +242,7 @@ const PitchDetail = () => {
       return []
     }
 
-    const realSchedules = Array.isArray(detail.schedules) ? detail.schedules : []
-    return realSchedules.length > 0 ? realSchedules : buildPreviewSchedules(detail.price)
+    return Array.isArray(detail.schedules) ? detail.schedules : []
   }, [detail])
 
   const groupedDates = useMemo(() => groupSchedulesByDate(normalizedSchedules), [normalizedSchedules])
@@ -319,7 +307,7 @@ const PitchDetail = () => {
     setReviewError('')
 
     if (!token) {
-      setReviewError('Ban can dang nhap truoc khi gui danh gia.')
+      setReviewError('Bạn cần đăng nhập trước khi gửi đánh giá.')
       return
     }
 
@@ -340,9 +328,9 @@ const PitchDetail = () => {
 
       setReviews((current) => [response.data, ...current])
       setReviewForm({ rating: '5', comment: '' })
-      setReviewMessage('Danh gia cua ban da duoc gui thanh cong.')
+      setReviewMessage('Đánh giá của bạn đã được gửi thành công.')
     } catch (error) {
-      setReviewError(error.response?.data?.message || 'Khong the gui danh gia luc nay.')
+      setReviewError(error.response?.data?.message || 'Không thể gửi đánh giá lúc này.')
     } finally {
       setReviewSubmitting(false)
     }
@@ -357,12 +345,7 @@ const PitchDetail = () => {
     }
 
     if (!selectedSlotInfo || !selectedSlot) {
-      setBookingError('Ban can chon mot khung gio kha dung truoc khi thanh toan.')
-      return
-    }
-
-    if (selectedSlotInfo.isPreview) {
-      setBookingError('Khung gio nay chi la du lieu minh hoa. Hay tao lich that tu backend truoc khi dat san.')
+      setBookingError('Bạn cần chọn một khung giờ khả dụng trước khi thanh toán.')
       return
     }
 
@@ -372,7 +355,7 @@ const PitchDetail = () => {
         '/api/bookings',
         {
           fieldScheduleId: selectedSlot,
-          paymentMethod: 'BANK_TRANSFER',
+          paymentMethod: 'VNPAY',
         },
         {
           headers: {
@@ -381,14 +364,26 @@ const PitchDetail = () => {
         }
       )
 
-      sessionStorage.setItem('pendingBooking', JSON.stringify(response.data))
-      navigate('/payment', {
-        state: {
-          booking: response.data,
+      const booking = response.data
+      sessionStorage.setItem('pendingBooking', JSON.stringify(booking))
+
+      const paymentResponse = await axios.post('/api/payment/vnpay', null, {
+        params: {
+          bookingId: booking.bookingId,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       })
+
+      const paymentUrl = paymentResponse.data?.paymentUrl || paymentResponse.data
+      if (!paymentUrl || typeof paymentUrl !== 'string') {
+        throw new Error('Không nhận được link thanh toán VNPay')
+      }
+
+      window.location.href = paymentUrl
     } catch (error) {
-      setBookingError(error.response?.data?.message || 'Khong the tao booking luc nay. Ban thu lai sau nhe.')
+      setBookingError(error.response?.data?.message || error.message || 'Không thể tạo booking lúc này. Bạn thử lại sau nhé.')
     } finally {
       setBookingSubmitting(false)
     }
@@ -419,12 +414,12 @@ const PitchDetail = () => {
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100">
                 <ImageIcon className="h-7 w-7 text-slate-500" />
               </div>
-              <h1 className="mt-5 text-4xl font-semibold text-slate-950">Khong tai duoc thong tin san</h1>
+              <h1 className="mt-5 text-4xl font-semibold text-slate-950">Không tải được thông tin sân</h1>
               <p className="mt-4 text-sm leading-7 text-slate-600">
-                Co the id san khong ton tai hoac backend chua tra ve du lieu chi tiet. Ban thu quay lai danh sach va mo lai mot san khac nhe.
+                Có thể ID sân không tồn tại hoặc backend chưa trả về dữ liệu chi tiết. Bạn thử quay lại danh sách và mở lại một sân khác nhé.
               </p>
               <Button asChild className="mt-8 rounded-2xl">
-                <Link to="/search">Ve trang tim kiem</Link>
+                <Link to="/search">Về trang tìm kiếm</Link>
               </Button>
             </CardContent>
           </Card>
@@ -437,7 +432,9 @@ const PitchDetail = () => {
   const centerName = detail.sportsCenter?.name || 'Trung tam the thao dang cap nhat'
   const centerAddress = detail.sportsCenter?.address || detail.address || 'Dia chi dang cap nhat'
   const selectedSlotPrice = selectedSlotInfo?.price ?? detail.price
-  const hasPreviewSchedule = normalizedSchedules.some((item) => item.isPreview)
+  const bookingDurationHours = calculateDurationHours(selectedSlotInfo?.startTime, selectedSlotInfo?.endTime)
+  const bookingTotal = Number(selectedSlotPrice || 0) * Math.max(bookingDurationHours || 1, 1)
+  const hasRealSchedules = normalizedSchedules.length > 0
 
   return (
     <PublicShell>
@@ -450,7 +447,7 @@ const PitchDetail = () => {
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02),rgba(15,23,42,0.38))]" />
                 <div className="absolute left-5 top-5">
                   <Badge className="rounded-full bg-white/85 px-4 py-1.5 text-slate-900 hover:bg-white/85">
-                    {detail.sportsType || 'The thao'}
+                    {detail.sportsType || 'Thể thao'}
                   </Badge>
                 </div>
               </div>
@@ -483,26 +480,26 @@ const PitchDetail = () => {
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="rounded-[24px] bg-slate-50 px-5 py-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Gia tu</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Giá từ</p>
                     <p className="mt-2 text-2xl font-semibold text-slate-950">{formatPrice(detail.price)}</p>
                   </div>
                   <div className="rounded-[24px] bg-slate-50 px-5 py-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Danh gia</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Đánh giá</p>
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex items-center gap-1">{renderStars(averageReviewRating)}</div>
                       <span className="font-semibold text-slate-950">{formatRating(averageReviewRating)}</span>
                     </div>
                   </div>
                   <div className="rounded-[24px] bg-slate-50 px-5 py-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Trang thai</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Trạng thái</p>
                     <Badge variant="outline" className={`mt-3 rounded-full px-3 py-1 ${getStatusClasses(detail.status)}`}>
-                      {detail.status || 'Dang cap nhat'}
+                      {detail.status || 'Đang cập nhật'}
                     </Badge>
                   </div>
                 </div>
 
                 <p className="text-sm leading-8 text-slate-600">
-                  {detail.description || 'San duoc bao duong dinh ky, khong gian sach se va toi uu cho ca tap luyen dinh ky lan thi dau phong trao.'}
+                  {detail.description || 'Sân được bảo dưỡng định kỳ, không gian sạch sẽ và tối ưu cho cả tập luyện định kỳ lẫn thi đấu phong trào.'}
                 </p>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -518,7 +515,7 @@ const PitchDetail = () => {
 
             <Card className="border-0 bg-white/92 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
               <CardHeader>
-                <CardTitle className="text-2xl">Thong tin trung tam</CardTitle>
+                <CardTitle className="text-2xl">Thông tin trung tâm</CardTitle>
                 <CardDescription>{centerName}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -540,7 +537,7 @@ const PitchDetail = () => {
                   <div>
                     <CardTitle className="text-2xl">Review & Rating</CardTitle>
                     <CardDescription className="mt-2">
-                      Xem nhan xet thuc te tu nguoi dung va chia se trai nghiem cua ban ve san nay.
+                      Xem nhận xét thực tế từ người dùng và chia sẻ trải nghiệm của bạn về sân này.
                     </CardDescription>
                   </div>
                   <div className="rounded-[24px] bg-amber-50 px-5 py-4">
@@ -548,7 +545,7 @@ const PitchDetail = () => {
                       <span className="text-4xl font-semibold text-slate-950">{formatRating(averageReviewRating)}</span>
                       <div>
                         <div className="flex items-center gap-1">{renderStars(averageReviewRating)}</div>
-                        <p className="mt-1 text-sm text-slate-500">{reviews.length} danh gia</p>
+                        <p className="mt-1 text-sm text-slate-500">{reviews.length} đánh giá</p>
                       </div>
                     </div>
                   </div>
@@ -557,17 +554,17 @@ const PitchDetail = () => {
               <CardContent className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_380px]">
                 <div className="space-y-4">
                   {reviewsLoading ? (
-                    <div className="rounded-[24px] bg-slate-50 px-6 py-10 text-center text-slate-500">Dang tai danh sach danh gia...</div>
+                    <div className="rounded-[24px] bg-slate-50 px-6 py-10 text-center text-slate-500">Đang tải danh sách đánh giá...</div>
                   ) : reviews.length === 0 ? (
                     <div className="rounded-[24px] bg-slate-50 px-6 py-10 text-center text-slate-500">
-                      Chua co danh gia nao. Ban co the la nguoi dau tien chia se trai nghiem.
+                      Chưa có đánh giá nào. Bạn có thể là người đầu tiên chia sẻ trải nghiệm.
                     </div>
                   ) : (
                     reviews.map((review) => (
                       <article key={review.id} className="rounded-[24px] border border-slate-200 bg-slate-50 px-5 py-5">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div>
-                            <p className="font-semibold text-slate-950">{review.username || 'Nguoi dung Sports Now'}</p>
+                            <p className="font-semibold text-slate-950">{review.username || 'Người dùng Sports Now'}</p>
                             <div className="mt-2 flex items-center gap-1">{renderStars(review.rating)}</div>
                           </div>
                           <p className="text-sm text-slate-500">{formatReviewDate(review.createdAt)}</p>
@@ -580,27 +577,27 @@ const PitchDetail = () => {
 
                 <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-6">
                   <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Your Review</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-slate-950">Gui danh gia cua ban</h3>
+                  <h3 className="mt-2 text-2xl font-semibold text-slate-950">Gửi đánh giá của bạn</h3>
                   <p className="mt-3 text-sm leading-7 text-slate-600">
-                    Chi nguoi dung da hoan thanh booking cua san nay moi co the gui danh gia.
+                    Chỉ người dùng đã hoàn thành booking của sân này mới có thể gửi đánh giá.
                   </p>
 
                   {!token ? (
                     <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-                      Ban can <Link to="/login" className="font-semibold underline underline-offset-4">dang nhap</Link> de kiem tra quyen danh gia.
+                      Bạn cần <Link to="/login" className="font-semibold underline underline-offset-4">đăng nhập</Link> để kiểm tra quyền đánh giá.
                     </div>
                   ) : reviewEligibilityLoading ? (
                     <div className="mt-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
-                      Dang kiem tra dieu kien danh gia...
+                      Đang kiểm tra điều kiện đánh giá...
                     </div>
                   ) : !eligibleToReview ? (
                     <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                      Nut danh gia chi mo sau khi booking cua ban chuyen sang trang thai COMPLETED.
+                      Nút đánh giá chỉ mở sau khi booking của bạn chuyển sang trạng thái COMPLETED.
                     </div>
                   ) : (
                     <form onSubmit={handleSubmitReview} className="mt-6 space-y-5">
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">So sao</label>
+                        <label className="mb-2 block text-sm font-medium text-slate-700">Số sao</label>
                         <div className="grid grid-cols-5 gap-2">
                           {[1, 2, 3, 4, 5].map((value) => {
                             const active = Number(reviewForm.rating) === value
@@ -624,14 +621,14 @@ const PitchDetail = () => {
 
                       <div>
                         <label htmlFor="review-comment" className="mb-2 block text-sm font-medium text-slate-700">
-                          Binh luan
+                          Bình luận
                         </label>
                         <textarea
                           id="review-comment"
                           name="comment"
                           value={reviewForm.comment}
                           onChange={handleReviewFieldChange}
-                          placeholder="San co sach se, den sang, nhan vien ho tro tot..."
+                          placeholder="Sân có sạch sẽ, đèn sáng, nhân viên hỗ trợ tốt..."
                           rows={5}
                           className="w-full rounded-[22px] border border-slate-200 bg-white px-4 py-3.5 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
                           maxLength={1000}
@@ -652,7 +649,7 @@ const PitchDetail = () => {
                       )}
 
                       <Button type="submit" className="w-full rounded-2xl" disabled={reviewSubmitting}>
-                        {reviewSubmitting ? 'Dang gui danh gia...' : 'Gui danh gia'}
+                        {reviewSubmitting ? 'Đang gửi đánh giá...' : 'Gửi đánh giá'}
                       </Button>
                     </form>
                   )}
@@ -667,10 +664,10 @@ const PitchDetail = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <CardTitle className="text-[clamp(2rem,4vw,2.6rem)] leading-[1.04]">{detail.fieldName}</CardTitle>
-                    <CardDescription className="mt-2">Co so: {centerName}</CardDescription>
+                    <CardDescription className="mt-2">Cơ sở: {centerName}</CardDescription>
                   </div>
                   <Badge variant="outline" className={`rounded-full px-3 py-1 ${getStatusClasses(detail.status)}`}>
-                    {detail.status || 'Dang cap nhat'}
+                    {detail.status || 'Đang cập nhật'}
                   </Badge>
                 </div>
               </CardHeader>
@@ -683,7 +680,7 @@ const PitchDetail = () => {
                   <div className="flex items-center gap-3">
                     <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                     <span className="font-medium text-slate-950">
-                      {formatRating(averageReviewRating)} <span className="font-normal text-slate-500">({reviews.length} danh gia)</span>
+                      {formatRating(averageReviewRating)} <span className="font-normal text-slate-500">({reviews.length} đánh giá)</span>
                     </span>
                   </div>
                 </div>
@@ -694,78 +691,155 @@ const PitchDetail = () => {
                     <span className="pb-1 text-sm text-slate-500">/ gio</span>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <Button type="button" className="rounded-2xl">Dat san ngay</Button>
-                  <Button type="button" variant="outline" className="rounded-2xl border-slate-300 bg-white">Luu san</Button>
-                </div>
               </CardContent>
             </Card>
 
             <Card className="border-0 bg-white/92 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
               <CardHeader>
-                <CardTitle className="text-2xl">Khung gio kha dung</CardTitle>
-                <CardDescription>Chon ngay dat san va xem khung gio hien co.</CardDescription>
+                <CardTitle className="text-2xl">Khung giờ khả dụng</CardTitle>
+                <CardDescription>
+                  {hasRealSchedules ? 'Chọn ngày đặt sân và xem khung giờ hiện có.' : 'Chủ sân cần tạo lịch hoạt động trước khi khách có thể đặt sân.'}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
-                <div className="grid grid-cols-2 gap-3">
-                  {groupedDates.map(({ date }) => {
-                    const active = selectedDate === date
-                    return (
-                      <button
-                        key={date}
-                        type="button"
-                        onClick={() => setSelectedDate(date)}
-                        className={`rounded-[18px] border px-3 py-3 text-left text-sm font-medium transition ${
-                          active ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-slate-50 text-slate-700'
-                        }`}
-                      >
-                        {formatDateChip(date)}
-                      </button>
-                    )
-                  })}
-                </div>
+                {hasRealSchedules ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      {groupedDates.map(({ date }) => {
+                        const active = selectedDate === date
+                        return (
+                          <button
+                            key={date}
+                            type="button"
+                            onClick={() => setSelectedDate(date)}
+                            className={`rounded-[18px] border px-3 py-3 text-left text-sm font-medium transition ${
+                              active ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-slate-200 bg-slate-50 text-slate-700'
+                            }`}
+                          >
+                            {formatDateChip(date)}
+                          </button>
+                        )
+                      })}
+                    </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {selectedDateSlots.map((slot) => {
-                    const active = selectedSlot === slot.id
-                    const unavailable = slot.status === 'BOOKED' || slot.status === 'RESERVED'
-                    return (
-                      <button
-                        key={slot.id}
-                        type="button"
-                        disabled={unavailable}
-                        onClick={() => setSelectedSlot(slot.id)}
-                        className={`rounded-[18px] border px-3 py-3 text-sm font-semibold transition ${
-                          unavailable
-                            ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                            : active
-                              ? 'border-sky-500 bg-sky-50 text-sky-700'
-                              : 'border-slate-200 bg-white text-slate-700'
-                        }`}
-                      >
-                        {formatSlotLabel(slot.startTime, slot.endTime)}
-                      </button>
-                    )
-                  })}
-                </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {selectedDateSlots.map((slot) => {
+                        const active = selectedSlot === slot.id
+                        const unavailable = slot.status === 'BOOKED' || slot.status === 'RESERVED'
+                        return (
+                          <button
+                            key={slot.id}
+                            type="button"
+                            disabled={unavailable}
+                            onClick={() => setSelectedSlot(slot.id)}
+                            className={`rounded-[18px] border px-3 py-3 text-sm font-semibold transition ${
+                              unavailable
+                                ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
+                                : active
+                                  ? 'border-sky-500 bg-sky-50 text-sky-700'
+                                  : 'border-slate-200 bg-white text-slate-700'
+                            }`}
+                          >
+                            {formatSlotLabel(slot.startTime, slot.endTime)}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <div className="rounded-[22px] border border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-sm leading-7 text-slate-600">
+                    Sân này đã được hiển thị trên hệ thống nhưng chưa có lịch hoạt động. Chủ sân cần vào khu quản lý để tạo các khung giờ đặt sân, sau đó khách mới có thể chọn giờ và thanh toán.
+                  </div>
+                )}
 
                 <div className="rounded-[22px] bg-slate-50 px-4 py-4 text-sm text-slate-600">
                   <div className="flex items-center justify-between gap-3">
                     <span className="flex items-center gap-2">
                       <CalendarClock className="h-4 w-4 text-slate-400" />
-                      Khung gio dang chon
+                      Khung giờ đang chọn
                     </span>
                     <span className="font-semibold text-slate-950">
-                      {selectedSlotInfo ? formatSlotLabel(selectedSlotInfo.startTime, selectedSlotInfo.endTime) : 'Chua chon'}
+                      {selectedSlotInfo ? formatSlotLabel(selectedSlotInfo.startTime, selectedSlotInfo.endTime) : 'Chưa chọn'}
                     </span>
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <span className="flex items-center gap-2">
                       <Clock3 className="h-4 w-4 text-slate-400" />
-                      Tam tinh
+                      Tạm tính
                     </span>
                     <span className="font-semibold text-slate-950">{formatPrice(selectedSlotPrice)}</span>
+                  </div>
+                </div>
+
+                <div className="rounded-[26px] border border-slate-200 bg-white px-5 py-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-lg font-semibold text-slate-950">Thông tin đặt lịch</h3>
+                    <Badge variant="outline" className="rounded-full border-sky-200 bg-sky-50 px-3 py-1 text-sky-700">
+                      {selectedSlotInfo ? 'Sẵn sàng thanh toán' : 'Chọn khung giờ'}
+                    </Badge>
+                  </div>
+
+                  <div className="mt-5 space-y-5">
+                    <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                      <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Thông tin sân</p>
+                      <div className="mt-3 space-y-2 text-sm text-slate-600">
+                        <p className="font-semibold text-slate-950">{detail.fieldName}</p>
+                        <p>{detail.address || centerAddress}</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[22px] bg-slate-50 px-4 py-4">
+                      <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Thông tin lịch đặt</p>
+                      <div className="mt-3 space-y-3 text-sm text-slate-600">
+                        <div className="flex items-center justify-between gap-4">
+                          <span>Ngày đặt</span>
+                          <span className="font-medium text-slate-950">
+                            {selectedDate ? formatDateChip(selectedDate) : 'Chưa chọn'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>Sân</span>
+                          <span className="font-medium text-slate-950">{detail.fieldName}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>Khung giờ</span>
+                          <span className="font-medium text-slate-950">
+                            {selectedSlotInfo ? formatSlotLabel(selectedSlotInfo.startTime, selectedSlotInfo.endTime) : 'Chưa chọn'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>Giá / giờ</span>
+                          <span className="font-medium text-slate-950">{formatPrice(selectedSlotPrice)}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>Tổng giờ</span>
+                          <span className="font-medium text-slate-950">
+                            {bookingDurationHours ? `${bookingDurationHours} giờ` : '0 giờ'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 border-t border-slate-200 pt-3">
+                          <span className="font-semibold text-slate-950">Tổng tiền</span>
+                          <span className="text-base font-semibold text-slate-950">
+                            {selectedSlotInfo ? formatPrice(bookingTotal) : 'Chưa chọn'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {bookingError && (
+                      <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                        {bookingError}
+                      </div>
+                    )}
+
+                    <Button
+                      type="button"
+                      className="w-full rounded-2xl"
+                      disabled={!selectedSlotInfo || bookingSubmitting}
+                      onClick={handleProceedToPayment}
+                    >
+                      {bookingSubmitting ? 'Đang tạo booking...' : 'Xác nhận và thanh toán'}
+                    </Button>
                   </div>
                 </div>
 
@@ -773,26 +847,11 @@ const PitchDetail = () => {
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="mt-0.5 h-4 w-4" />
                     <p>
-                      * Thoi luong dat toi thieu la 60 phut.
-                      {hasPreviewSchedule ? ' Khung gio hien tai dang o che do minh hoa vi san chua co lich dat tu backend.' : ''}
+                      * Thời lượng đặt tối thiểu là 60 phút.
                     </p>
                   </div>
                 </div>
 
-                {bookingError && (
-                  <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-                    {bookingError}
-                  </div>
-                )}
-
-                <Button
-                  type="button"
-                  className="w-full rounded-2xl"
-                  disabled={!selectedSlotInfo || bookingSubmitting || selectedSlotInfo?.isPreview}
-                  onClick={handleProceedToPayment}
-                >
-                  {bookingSubmitting ? 'Dang tao booking...' : 'Tien hanh thanh toan'}
-                </Button>
               </CardContent>
             </Card>
           </aside>

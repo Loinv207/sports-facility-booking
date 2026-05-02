@@ -189,39 +189,6 @@ public class BookingService {
         return toUserBookingResponse(booking, schedule, field, payment);
     }
 
-    @Transactional
-    public UserBookingResponse confirmPayment(String bookingId, String username) {
-        User user = findCurrentUser(username);
-
-        Booking booking = bookingRepository.findByIdAndUserId(bookingId, user.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay booking cua nguoi dung voi id: " + bookingId));
-
-        if (!"PENDING_PAYMENT".equalsIgnoreCase(booking.getStatus())) {
-            throw new BusinessException("Chi co the xac nhan thanh toan voi booking dang o trang thai PENDING_PAYMENT");
-        }
-
-        FieldSchedule schedule = fieldScheduleRepository.findById(booking.getFieldScheduleId())
-            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay lich san cua booking: " + bookingId));
-
-        Payment payment = paymentRepository.findByBookingId(booking.getId())
-            .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay thong tin thanh toan cho booking: " + bookingId));
-
-        booking.setStatus("PAID");
-        bookingRepository.save(booking);
-
-        payment.setPaymentStatus("PAID");
-        if (payment.getTransactionId() == null || payment.getTransactionId().isBlank()) {
-            payment.setTransactionId(UUID.randomUUID().toString());
-        }
-        paymentRepository.save(payment);
-
-        schedule.setStatus("BOOKED");
-        fieldScheduleRepository.save(schedule);
-
-        Field field = fieldRepository.findById(booking.getFieldId()).orElse(null);
-        return toUserBookingResponse(booking, schedule, field, payment);
-    }
-
     private User findCurrentUser(String username) {
         if (username == null || username.isBlank()) {
             throw new BusinessException("Ban can dang nhap de su dung chuc nang nay");

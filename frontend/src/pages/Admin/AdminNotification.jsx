@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Megaphone } from 'lucide-react';
+import { Megaphone, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import AdminSidebar from './AdminSidebar';
 
-const toast = {
-  error: (message) => window.alert(message),
-  success: (message) => window.alert(message),
-};
-
 const AdminNotification = () => {
   const [target, setTarget] = useState("ALL");
   const [form, setForm] = useState({ title: '', message: '' });
   const [isSending, setIsSending] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [statusTone, setStatusTone] = useState('success');
 
   const handleBroadcast = async () => {
     if (!form.title || !form.message) {
-      toast.error("Vui lòng nhập đầy đủ thông tin!");
+      setStatusTone('error');
+      setStatusMessage("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
@@ -33,10 +31,12 @@ const AdminNotification = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      toast.success("Thông báo đã được gửi đi!");
+      setStatusTone('success');
+      setStatusMessage("Thông báo đã được gửi đi!");
       setForm({ title: '', message: '' });
     } catch {
-      toast.error("Lỗi khi gửi thông báo hệ thống.");
+      setStatusTone('error');
+      setStatusMessage("Lỗi khi gửi thông báo hệ thống.");
     } finally {
       setIsSending(false);
     }
@@ -51,6 +51,17 @@ const AdminNotification = () => {
         <Megaphone className="w-8 h-8 text-blue-600" />
         <h1 className="text-2xl font-bold">Hệ thống thông báo</h1>
       </div>
+
+      {statusMessage ? (
+        <div className={`flex items-start gap-3 rounded-xl border px-4 py-4 text-sm ${
+          statusTone === 'success'
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+            : 'border-rose-200 bg-rose-50 text-rose-800'
+        }`}>
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{statusMessage}</span>
+        </div>
+      ) : null}
 
       <Card className="shadow-xl">
         <CardHeader>

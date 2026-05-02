@@ -10,23 +10,13 @@ import {
   CircleAlert,
   CircleDollarSign,
   Clock3,
-  Copy,
-  Image as ImageIcon,
   Phone,
-  Plus,
   Trophy,
   UsersRound,
   X,
 } from 'lucide-react'
 
 import './Payment.css'
-
-const bankInfo = {
-  accountName: 'Ho Ngoc Minh',
-  accountNumber: '1032102190',
-  bankName: 'Vietcombank',
-  bankBin: '970436',
-}
 
 const holdDurationSeconds = 10 * 60
 
@@ -90,7 +80,7 @@ const fallbackBooking = () => {
     const raw = sessionStorage.getItem('pendingBooking')
     return raw ? JSON.parse(raw) : null
   } catch (error) {
-    console.error('Khong doc duoc pending booking tu sessionStorage', error)
+    console.error('Không đọc được pending booking từ sessionStorage', error)
     return null
   }
 }
@@ -108,35 +98,6 @@ const calculateHoldSeconds = (createdAt) => {
   const expiresAt = createdTime + holdDurationSeconds * 1000
   return Math.ceil((expiresAt - Date.now()) / 1000)
 }
-
-const buildVietQrUrl = (booking, orderCode) => {
-  const amount = Math.max(0, Math.round(Number(booking?.totalPrice || 0)))
-  const addInfo = encodeURIComponent(`SPORTS NOW ${orderCode}`)
-  const accountName = encodeURIComponent(bankInfo.accountName)
-
-  return `https://img.vietqr.io/image/${bankInfo.bankBin}-${bankInfo.accountNumber}-compact2.png?amount=${amount}&addInfo=${addInfo}&accountName=${accountName}`
-}
-
-const makePreview = (file) => ({
-  file,
-  preview: file?.type?.startsWith('image/') ? URL.createObjectURL(file) : '',
-})
-
-const UploadBox = ({ id, icon, fileState, title, required, onChange }) => (
-  <label className={`payment-upload-box ${fileState ? 'has-file' : ''}`} htmlFor={id}>
-    <input id={id} type="file" accept="image/*" className="sr-only" onChange={onChange} />
-    {fileState?.preview ? (
-      <img src={fileState.preview} alt={fileState.file.name} />
-    ) : (
-      <span className="payment-upload-placeholder">
-        {icon}
-        <span>{title}</span>
-      </span>
-    )}
-    {fileState ? <span className="payment-upload-name">{fileState.file.name}</span> : null}
-    {required ? <span className="payment-upload-required">(*)</span> : null}
-  </label>
-)
 
 const InfoRow = ({ icon, label, children }) => (
   <div className="payment-info-row">
@@ -166,28 +127,66 @@ export const Payment = () => {
 
   const [booking, setBooking] = useState(initialBooking)
   const [profile, setProfile] = useState(getStoredProfile)
-  const [paymentProof, setPaymentProof] = useState(null)
-  const [discountProof, setDiscountProof] = useState(null)
   const [secondsLeft, setSecondsLeft] = useState(() => calculateHoldSeconds(initialBooking?.createdAt))
   const [isPaymentExpired, setIsPaymentExpired] = useState(() => {
     const status = String(initialBooking?.bookingStatus || '').toUpperCase()
     return Boolean(initialBooking) && (status === 'CANCELLED' || calculateHoldSeconds(initialBooking?.createdAt) <= 0)
   })
-  const [submitting, setSubmitting] = useState(false)
+  const [redirectingVnpay, setRedirectingVnpay] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [qrFailed, setQrFailed] = useState(false)
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false)
   const cancelRequestStarted = useRef(false)
+  const callbackHandled = useRef(false)
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : ''
   const orderCode = useMemo(() => createOrderCode(booking?.bookingId), [booking?.bookingId])
-  const qrImageUrl = useMemo(() => buildVietQrUrl(booking, orderCode), [booking, orderCode])
   const totalAmount = formatCurrency(booking?.totalPrice)
   const customerName = profile.fullName || profile.username || profile.email || 'Khách hàng Sports Now'
   const customerPhone = profile.phoneNumber || 'Chưa cập nhật'
   const scheduleTime = `${formatTime(booking?.startTime)} - ${formatTime(booking?.endTime)}`
   const canConfirm = booking?.bookingStatus === 'PENDING_PAYMENT'
+
+  useEffect(() => {
+    if (!booking?.bookingId || callbackHandled.current) {
+      return
+    }
+
+    const searchParams = new URLSearchParams(location.search)
+    const txnRef = searchParams.get('vnp_TxnRef')
+    if (!txnRef) {
+      return
+    }
+
+    callbackHandled.current = true
+
+    const callbackParams = {}
+    searchParams.forEach((value, key) => {
+      callbackParams[key] = value
+    })
+
+    axios.get('/api/payment/callback', {
+      params: callbackParams,
+    }).then((response) => {
+      setMessage(typeof response.data === 'string' ? response.data : 'Đã xử lý thanh toán VNPay.')
+      setError('')
+
+      if (!token) {
+        return
+      }
+
+      return axios.get('/api/bookings/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((bookingResponse) => {
+        const matched = (bookingResponse.data || []).find((item) => item.bookingId === booking.bookingId)
+        if (matched) {
+          setBooking(matched)
+          sessionStorage.setItem('pendingBooking', JSON.stringify(matched))
+        }
+      })
+    }).catch((requestError) => {
+      setError(requestError.response?.data?.message || 'Không thể xử lý callback thanh toán VNPay.')
+    })
+  }, [booking?.bookingId, location.search, token])
 
   useEffect(() => {
     if (!token) {
@@ -228,7 +227,6 @@ export const Payment = () => {
 
     cancelRequestStarted.current = true
     setIsPaymentExpired(true)
-    setIsQrModalOpen(false)
 
     if (!token) {
       return
@@ -248,38 +246,6 @@ export const Payment = () => {
     })
   }, [booking, secondsLeft, token])
 
-  useEffect(() => () => {
-    if (paymentProof?.preview) {
-      URL.revokeObjectURL(paymentProof.preview)
-    }
-  }, [paymentProof])
-
-  useEffect(() => () => {
-    if (discountProof?.preview) {
-      URL.revokeObjectURL(discountProof.preview)
-    }
-  }, [discountProof])
-
-  useEffect(() => {
-    if (!isQrModalOpen) {
-      return undefined
-    }
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setIsQrModalOpen(false)
-      }
-    }
-
-    document.body.style.overflow = 'hidden'
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isQrModalOpen])
-
   const handleBack = () => {
     if (booking?.fieldId) {
       navigate(`/pitch/${booking.fieldId}`)
@@ -289,59 +255,33 @@ export const Payment = () => {
     navigate('/search')
   }
 
-  const handleCopyAccount = async () => {
-    try {
-      await navigator.clipboard.writeText(bankInfo.accountNumber)
-      setMessage('Đã sao chép số tài khoản ngân hàng.')
-      setError('')
-    } catch {
-      setError('Không thể sao chép tự động. Bạn vui lòng copy số tài khoản thủ công.')
-    }
-  }
-
-  const handleSaveQr = () => {
-    const link = document.createElement('a')
-    link.href = qrImageUrl
-    link.download = `sports-now-qr-${orderCode}.png`
-    link.target = '_blank'
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-  }
-
-  const handleConfirmPayment = async () => {
-    if (!paymentProof) {
-      setError('Vui lòng tải ảnh thanh toán trước khi xác nhận đặt.')
-      return
-    }
-
+  const handlePayWithVnpay = async () => {
     if (!booking?.bookingId || !token) {
-      setError('Bạn cần đăng nhập lại để xác nhận thanh toán.')
+      setError('Bạn cần đăng nhập và có booking hợp lệ để thanh toán VNPay.')
       return
     }
 
     try {
-      setSubmitting(true)
+      setRedirectingVnpay(true)
       setError('')
       setMessage('')
 
-      const response = await axios.post(
-        `/api/bookings/user/${booking.bookingId}/confirm-payment`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      const response = await axios.post('/api/payment/vnpay', null, {
+        params: { bookingId: booking.bookingId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-      setBooking(response.data)
-      sessionStorage.setItem('pendingBooking', JSON.stringify(response.data))
-      setMessage('Thanh toan da duoc xac nhan. Booking cua ban hien da chuyen sang PAID va dang cho chu san xu ly.')
+      const paymentUrl = response.data?.paymentUrl || response.data
+      if (!paymentUrl || typeof paymentUrl !== 'string') {
+        throw new Error('Không nhận được link thanh toán VNPay')
+      }
+
+      window.location.href = paymentUrl
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Không thể xác nhận thanh toán lúc này.')
-    } finally {
-      setSubmitting(false)
+      setError(requestError.response?.data?.message || 'Không tạo được link thanh toán VNPay.')
+      setRedirectingVnpay(false)
     }
   }
 
@@ -379,7 +319,7 @@ export const Payment = () => {
           </div>
 
           <h2>Lịch đặt đã bị hủy</h2>
-          <p>Đơn đã quá giờ thanh toán. Vui lòng tạo đơn mới.</p>
+          <p className="font-medium !text-red-500">Đơn đã quá giờ thanh toán. Vui lòng tạo đơn mới.</p>
 
           <div className="payment-expired-actions">
             <Link className="payment-expired-primary" to="/profile">Xem lịch đặt sân</Link>
@@ -398,81 +338,44 @@ export const Payment = () => {
         <section className="payment-main">
           <div className="payment-bank-card">
             <div className="payment-bank-details">
-              <h2>1. Tài khoản ngân hàng</h2>
+              <h2>1. Thanh toán qua VNPay</h2>
               <p>
-                <span>Tên tài khoản:</span>
-                <strong>{bankInfo.accountName}</strong>
+                <span>Mã đơn:</span>
+                <strong>#{orderCode}</strong>
               </p>
               <p>
-                <span>Số tài khoản:</span>
-                <strong>{bankInfo.accountNumber}</strong>
+                <span>Trạng thái booking:</span>
+                <strong>{booking?.bookingStatus || 'PENDING_PAYMENT'}</strong>
               </p>
               <p>
-                <span>Ngân hàng:</span>
-                <strong>{bankInfo.bankName}</strong>
+                <span>Trạng thái payment:</span>
+                <strong>{booking?.paymentStatus || 'PENDING'}</strong>
               </p>
             </div>
-
-            <button type="button" className="payment-copy-button" onClick={handleCopyAccount} aria-label="Sao chép số tài khoản">
-              <Copy aria-hidden="true" />
-            </button>
-
-            <button type="button" className="payment-qr" onClick={() => setIsQrModalOpen(true)} aria-label="Mở mã QR thanh toán">
-              {qrFailed ? (
-                <div className="payment-qr-fallback">QR</div>
-              ) : (
-                <img src={qrImageUrl} alt="Mã QR chuyển khoản" onError={() => setQrFailed(true)} />
-              )}
-            </button>
           </div>
 
           <div className="payment-alert">
             <AlertTriangle aria-hidden="true" />
             <span>
-              Vui lòng chuyển khoản <strong>{totalAmount}</strong> và gửi ảnh vào ô bên dưới để hoàn tất đặt lịch.
+              Thanh toán đơn <strong>{totalAmount}</strong> qua VNPay. Hệ thống chỉ ghi nhận thanh toán khi callback từ VNPay trả về hợp lệ.
             </span>
           </div>
 
           <div className="payment-note">
-            <p>Sau khi gửi ảnh, vui lòng kiểm tra trạng thái lịch đặt tại tab “Tài khoản” tới khi chủ sân xác nhận đơn.</p>
+            <p>Bạn sẽ được chuyển đến cổng thanh toán VNPay để hoàn tất giao dịch.</p>
             <p>Đơn của bạn còn được giữ chỗ trong</p>
             <strong>{formatCountdown(secondsLeft)}</strong>
           </div>
 
-          <div className="payment-upload-grid">
-            <UploadBox
-              id="payment-proof"
-              icon={<ImageIcon aria-hidden="true" />}
-              fileState={paymentProof}
-              title="Nhấn vào để tải hình thanh toán"
-              required
-              onChange={(event) => {
-                const file = event.target.files?.[0]
-                if (file) setPaymentProof(makePreview(file))
-              }}
-            />
-            <UploadBox
-              id="discount-proof"
-              icon={<Plus aria-hidden="true" />}
-              fileState={discountProof}
-              title="Nhấn vào để tải minh chứng bạn là HSSV, hoặc đối tượng được ưu đãi khác."
-              onChange={(event) => {
-                const file = event.target.files?.[0]
-                if (file) setDiscountProof(makePreview(file))
-              }}
-            />
-          </div>
-
           {message ? <div className="payment-message success">{message}</div> : null}
           {error ? <div className="payment-message error">{error}</div> : null}
-
           <button
             type="button"
             className="payment-submit-button"
-            disabled={submitting || !canConfirm}
-            onClick={handleConfirmPayment}
+            disabled={redirectingVnpay || !canConfirm}
+            onClick={handlePayWithVnpay}
           >
-            {submitting ? 'ĐANG XÁC NHẬN...' : canConfirm ? 'XÁC NHẬN ĐẶT' : 'ĐÃ XÁC NHẬN'}
+            {redirectingVnpay ? 'ĐANG CHUYỂN TỚI VNPAY...' : canConfirm ? 'THANH TOÁN VNPAY' : 'ĐÃ THANH TOÁN'}
           </button>
         </section>
 
@@ -507,38 +410,6 @@ export const Payment = () => {
         </aside>
       </main>
 
-      {isQrModalOpen ? (
-        <div className="payment-qr-modal" role="dialog" aria-modal="true" aria-labelledby="payment-qr-modal-title">
-          <div className="payment-qr-modal-header">
-            <h2 id="payment-qr-modal-title">Mã QR thanh toán</h2>
-            <button type="button" className="payment-qr-modal-close" onClick={() => setIsQrModalOpen(false)} aria-label="Đóng mã QR">
-              <X aria-hidden="true" />
-            </button>
-          </div>
-
-          <div className="payment-qr-modal-body">
-            {qrFailed ? (
-              <div className="payment-qr-modal-fallback">QR</div>
-            ) : (
-              <img className="payment-qr-modal-image" src={qrImageUrl} alt="Mã QR thanh toán" onError={() => setQrFailed(true)} />
-            )}
-            <div className="payment-qr-modal-info">
-              <strong>{bankInfo.accountName}</strong>
-              <span>{bankInfo.accountNumber}</span>
-              <span>{bankInfo.bankName}</span>
-            </div>
-          </div>
-
-          <div className="payment-qr-modal-actions">
-            <button type="button" className="payment-qr-save-button" onClick={handleSaveQr}>
-              Lưu mã QR
-            </button>
-            <button type="button" className="payment-qr-copy-button" onClick={handleCopyAccount}>
-              Sao chép STK
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

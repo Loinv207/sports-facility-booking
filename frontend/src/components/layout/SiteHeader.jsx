@@ -5,10 +5,10 @@ import { UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const navItems = [
-  { to: '/', label: 'Trang chu' },
-  { to: '/search', label: 'San the thao' },
-  { to: '/owner-management', label: 'Co so' },
-  { to: '/profile', label: 'Dat san cua toi' },
+  { to: '/', label: 'Trang chủ' },
+  { to: '/search', label: 'Sân thể thao' },
+  { to: '/owner-management', label: 'Cơ sở' },
+  { to: '/profile', label: 'Đặt sân của tôi' },
 ]
 
 const getProfileName = () => {
@@ -83,16 +83,16 @@ export const SiteHeader = () => {
               </Link>
             </Button>
             <Button type="button" variant="outline" className="rounded-xl border-slate-300 bg-white" onClick={handleLogout}>
-              Dang xuat
+              Đăng xuất
             </Button>
           </div>
         ) : (
           <div className="flex items-center gap-3">
             <Button asChild variant="outline" className="rounded-xl border-slate-300 bg-white">
-              <Link to="/login">Dang nhap</Link>
+              <Link to="/login">Đăng nhập</Link>
             </Button>
             <Button asChild className="rounded-xl">
-              <Link to="/register">Dang ky</Link>
+              <Link to="/register">Đăng ký</Link>
             </Button>
           </div>
         )}

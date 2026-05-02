@@ -5,24 +5,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.sportsfacilitybooking.backend.dto.FieldScheduleRequest;
 import com.sportsfacilitybooking.backend.dto.FieldScheduleResponse;
+import com.sportsfacilitybooking.backend.entity.Field;
 import com.sportsfacilitybooking.backend.entity.FieldSchedule;
+import com.sportsfacilitybooking.backend.entity.User;
 import com.sportsfacilitybooking.backend.exception.BusinessException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
 import com.sportsfacilitybooking.backend.repository.FieldScheduleRepository;
+import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
 public class FieldScheduleService {
     private final FieldScheduleRepository fieldScheduleRepository;
     private final FieldRepository fieldRepository;
+    private final UserRepository userRepository;
 
-    public FieldScheduleService(FieldScheduleRepository fieldScheduleRepository, FieldRepository fieldRepository) {
+    public FieldScheduleService(
+        FieldScheduleRepository fieldScheduleRepository,
+        FieldRepository fieldRepository,
+        UserRepository userRepository
+    ) {
         this.fieldScheduleRepository = fieldScheduleRepository;
         this.fieldRepository = fieldRepository;
+        this.userRepository = userRepository;
     }
 
     public List<FieldScheduleResponse> getSchedulesByField(String fieldId) {
@@ -44,9 +54,23 @@ public class FieldScheduleService {
             .toList();
     }
 
-    public List<FieldScheduleResponse> createSchedules(String fieldId, FieldScheduleRequest request) {
-        if (!fieldRepository.existsById(fieldId)) {
-            throw new ResourceNotFoundException("Không tìm thấy sân với id: " + fieldId);
+    public List<FieldScheduleResponse> createSchedules(String fieldId, FieldScheduleRequest request, UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException("Bạn cần đăng nhập bằng tài khoản chủ sân để tạo lịch");
+        }
+
+        Field field = fieldRepository.findById(fieldId)
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sân với id: " + fieldId));
+
+        User owner = userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy chủ sân theo username: " + userDetails.getUsername()));
+
+        if (field.getOwnerId() == null || !field.getOwnerId().equals(owner.getId())) {
+            throw new BusinessException("Bạn không có quyền tạo lịch cho sân này");
+        }
+
+        if (!"ACTIVE".equalsIgnoreCase(field.getStatus())) {
+            throw new BusinessException("Chỉ được tạo lịch khi sân đã được admin duyệt và ở trạng thái ACTIVE");
         }
 
         if (request.slotMinutes() == null || request.slotMinutes() <= 0) {
