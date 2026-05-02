@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ShieldCheck, UserCog, Lock, Unlock, Mail, Phone } from "lucide-react";
+import { Search, ShieldCheck, UserCog, Lock, Unlock, Mail, Phone, AlertTriangle, X } from "lucide-react";
 import AdminSidebar from './AdminSidebar';
 
 
@@ -19,6 +19,10 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [pendingUser, setPendingUser] = useState(null);
+  const [submittingToggle, setSubmittingToggle] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [statusTone, setStatusTone] = useState('success');
 
   const fetchUsers = async () => {
     try {
@@ -47,16 +51,23 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
   user.email?.toLowerCase().includes(searchTerm.toLowerCase())
 ) : []; 
 
-  const handleToggleStatus = async (userId) => {
-    if (!window.confirm("Bạn có chắc chắn muốn thay đổi trạng thái người dùng này?")) return;
+  const handleToggleStatus = async () => {
+    if (!pendingUser) return;
     try {
-      const token = localStorage.getItem('token'); // Đã sửa từ admin_token thành token cho khớp
-      await axios.put(`/api/admin/users/${userId}/toggle-status`, {}, {
+      setSubmittingToggle(true);
+      const token = localStorage.getItem('token');
+      await axios.put(`/api/admin/users/${pendingUser.id}/toggle-status`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchUsers(); 
+      await fetchUsers();
+      setStatusTone('success');
+      setStatusMessage(`Đã cập nhật trạng thái cho ${pendingUser.fullName || pendingUser.email}.`);
+      setPendingUser(null);
     } catch {
-      alert("Lỗi: Không thể cập nhật trạng thái người dùng.");
+      setStatusTone('error');
+      setStatusMessage("Lỗi: Không thể cập nhật trạng thái người dùng.");
+    } finally {
+      setSubmittingToggle(false);
     }
   };
 
@@ -93,6 +104,16 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
 
           {/* Table Section */}
           <div className="overflow-hidden bg-white border shadow-sm rounded-xl border-slate-100">
+            {statusMessage ? (
+              <div className={`mx-6 mt-6 flex items-start gap-3 rounded-xl border px-4 py-4 text-sm ${
+                statusTone === 'success'
+                  ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                  : 'border-rose-200 bg-rose-50 text-rose-800'
+              }`}>
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{statusMessage}</span>
+              </div>
+            ) : null}
             {loading ? (
               <div className="py-20 text-center text-slate-500 animate-pulse">
                 Đang tải dữ liệu người dùng...
@@ -149,7 +170,10 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
                           <Button 
                             variant="outline" 
                             size="sm"
-                            onClick={() => handleToggleStatus(user.id)}
+                            onClick={() => {
+                              setPendingUser(user);
+                              setStatusMessage('');
+                            }}
                             className={`font-medium transition-all ${
                               user.status === 'ACTIVE' 
                               ? "text-red-600 border-red-100 hover:bg-red-50 hover:text-red-700" 
@@ -181,6 +205,57 @@ const filteredUsers = Array.isArray(users) ? users.filter(user =>
           </div>
         </div>
       </main>
+
+      {pendingUser ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">Xác nhận thay đổi trạng thái</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Hành động này sẽ {pendingUser.status === 'ACTIVE' ? 'khóa' : 'mở khóa'} tài khoản người dùng.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !submittingToggle && setPendingUser(null)}
+                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                aria-label="Đóng"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="space-y-4 px-6 py-5">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+                <p className="text-sm font-semibold text-slate-900">{pendingUser.fullName || 'Người dùng'}</p>
+                <p className="mt-1 text-sm text-slate-600">{pendingUser.email}</p>
+                <p className="mt-1 text-sm text-slate-500">Vai trò: {pendingUser.role}</p>
+                <p className="mt-3 text-sm font-medium text-slate-700">
+                  Trạng thái hiện tại: {pendingUser.status === 'ACTIVE' ? 'Đang hoạt động' : 'Bị khóa'}
+                </p>
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPendingUser(null)}
+                  disabled={submittingToggle}
+                  className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  onClick={handleToggleStatus}
+                  disabled={submittingToggle}
+                  className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {submittingToggle ? 'Đang xử lý...' : (pendingUser.status === 'ACTIVE' ? 'Xác nhận khóa' : 'Xác nhận mở khóa')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

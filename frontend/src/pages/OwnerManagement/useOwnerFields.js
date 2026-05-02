@@ -190,14 +190,14 @@ export const useOwnerFields = (token, onStatusChange) => {
       throw new Error('Tạo hoặc chọn sân trước rồi mới thêm lịch được.')
     }
 
-    const data = await api.createSchedules(selectedFieldId, {
+    await api.createSchedules(selectedFieldId, {
       ...scheduleForm,
       price: Number(scheduleForm.price),
       slotMinutes: Number(scheduleForm.slotMinutes),
     })
-    setSchedules(data)
+    const refreshedSchedules = await loadSchedules(selectedFieldId)
     onStatusChange('Đã tạo lịch cho sân.')
-    return data
+    return refreshedSchedules
   }
 
   const saveCenter = async () => {

@@ -65,16 +65,4 @@ public class BookingController {
 
         return ResponseEntity.ok(bookingService.cancelBooking(id, userDetails.getUsername()));
     }
-
-    @PostMapping("/user/{id}/confirm-payment")
-    public ResponseEntity<UserBookingResponse> confirmPayment(
-        @PathVariable String id,
-        @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        return ResponseEntity.ok(bookingService.confirmPayment(id, userDetails.getUsername()));
-    }
 }

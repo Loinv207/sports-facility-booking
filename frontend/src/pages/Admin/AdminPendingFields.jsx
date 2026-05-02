@@ -1,11 +1,15 @@
-import React, { Activity, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import AdminSidebar from './AdminSidebar';
-import { CheckCircle, Clock, MapPin, Search } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle, Clock, MapPin, Search, X } from 'lucide-react';
 
 const AdminPendingFields = () => {
     const [fields, setFields] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [approvingField, setApprovingField] = useState(null);
+    const [submittingApprove, setSubmittingApprove] = useState(false);
+    const [statusMessage, setStatusMessage] = useState('');
+    const [statusTone, setStatusTone] = useState('success');
 
     
     const fetchPendingFields = async () => {
@@ -41,24 +45,32 @@ const AdminPendingFields = () => {
 }, []); 
 
     
-    const handleApprove = async (id) => {
-        if (window.confirm("Xác nhận duyệt sân này?")) {
-            try {
-                
-                const token = localStorage.getItem('token'); 
-                await axios.put(`/api/admin/fields/${id}/approve`, {}, {
-                    headers: {
-                        'Authorization': `Bearer ${token}` 
-                    }
-                });
-                alert("Đã duyệt thành công!");
-                
-                
-                setFields(fields.filter(f => f.id !== id));
-            } catch (error) {
-                console.error("Chi tiết lỗi duyệt sân:", error); 
-                alert("Lỗi khi duyệt sân. Vui lòng kiểm tra lại Backend!");
-            }
+    const handleApprove = async () => {
+        if (!approvingField) {
+            return;
+        }
+
+        try {
+            setSubmittingApprove(true);
+            setStatusMessage('');
+
+            const token = localStorage.getItem('token'); 
+            await axios.put(`/api/admin/fields/${approvingField.id}/approve`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+
+            setFields((current) => current.filter((field) => field.id !== approvingField.id));
+            setStatusTone('success');
+            setStatusMessage(`Đã duyệt sân "${approvingField.fieldName}" thành công.`);
+            setApprovingField(null);
+        } catch (error) {
+            console.error("Chi tiết lỗi duyệt sân:", error); 
+            setStatusTone('error');
+            setStatusMessage('Lỗi khi duyệt sân. Vui lòng kiểm tra lại backend hoặc thử lại sau.');
+        } finally {
+            setSubmittingApprove(false);
         }
     };
 
@@ -86,6 +98,17 @@ const AdminPendingFields = () => {
                             </div>
                         </div>
                     </div>
+
+                    {statusMessage ? (
+                        <div className={`mb-6 flex items-start gap-3 rounded-xl border px-4 py-4 text-sm shadow-sm ${
+                            statusTone === 'success'
+                                ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                                : 'border-rose-200 bg-rose-50 text-rose-800'
+                        }`}>
+                            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                            <span>{statusMessage}</span>
+                        </div>
+                    ) : null}
 
                     {/* Table Section */}
                     <div className="overflow-hidden bg-white border shadow-sm rounded-xl border-slate-100">
@@ -139,7 +162,10 @@ const AdminPendingFields = () => {
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <button 
-                                                        onClick={() => handleApprove(field.id)}
+                                                        onClick={() => {
+                                                            setApprovingField(field);
+                                                            setStatusMessage('');
+                                                        }}
                                                         className="inline-flex items-center px-4 py-2 text-sm font-bold text-white transition duration-200 bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 shadow-blue-200 active:scale-95"
                                                     >
                                                         <CheckCircle className="w-4 h-4 mr-2" />
@@ -155,6 +181,60 @@ const AdminPendingFields = () => {
                     </div>
                 </div>
             </main>
+
+            {approvingField ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+                    <div className="w-full max-w-lg rounded-2xl bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
+                        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+                            <div>
+                                <h3 className="text-xl font-bold text-slate-900">Xác nhận duyệt sân</h3>
+                                <p className="mt-2 text-sm leading-6 text-slate-500">
+                                    Sau khi duyệt, sân sẽ chuyển sang trạng thái <strong>ACTIVE</strong> và có thể hiển thị cho người dùng cuối.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => !submittingApprove && setApprovingField(null)}
+                                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                                aria-label="Đóng"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4 px-6 py-5">
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                <p className="text-sm font-semibold text-slate-900">{approvingField.fieldName}</p>
+                                <p className="mt-2 text-sm text-slate-600">{approvingField.sportsType}</p>
+                                <p className="mt-1 text-sm text-slate-500">{approvingField.address}</p>
+                                <p className="mt-3 text-sm font-medium text-slate-700">
+                                    Giá: {new Intl.NumberFormat('vi-VN').format(approvingField.price)} VND
+                                </p>
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setApprovingField(null)}
+                                    disabled={submittingApprove}
+                                    className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleApprove}
+                                    disabled={submittingApprove}
+                                    className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                    {submittingApprove ? 'Đang duyệt...' : 'Xác nhận duyệt'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
         </div>
     );
 };

@@ -14,6 +14,7 @@ import UserManagement from './pages/Admin/UserManagement'
 import AdminConfig from './pages/Admin/AdminConfig'
 import FinanceDashboard from './pages/Admin/FinanceDashboard'
 import AdminNotification from './pages/Admin/AdminNotification'
+import PaymentSuccess from './pages/Payment/PaymentSuccess'
 
 const OwnerRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -89,6 +90,8 @@ function App() {
           element={<AdminRoute><AdminNotification /></AdminRoute>} 
         />
 
+
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
     </Router>
   )

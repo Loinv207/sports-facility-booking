@@ -22,6 +22,7 @@ const OwnerFieldManager = ({
   deleteImage,
   createSchedules,
   selectedFieldId,
+  canCreateSchedules,
 }) => {
   const handleUpdateChange = ({ target }) => {
     const { name, value } = target
@@ -105,14 +106,19 @@ const OwnerFieldManager = ({
           </DashboardCard>
 
           <DashboardCard title="Quản lý lịch hoạt động" description="Tạo hàng loạt khung giờ theo ngày, giờ bắt đầu, giờ kết thúc và giá cho từng khung giờ.">
+            {!canCreateSchedules ? (
+              <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm leading-6 text-amber-800">
+                Sân cần được admin duyệt và chuyển sang trạng thái ACTIVE trước khi chủ sân có thể tạo lịch hoạt động.
+              </div>
+            ) : null}
             <div className="grid gap-5 md:grid-cols-2">
-              <TextInput label="Ngày áp dụng" type="date" name="scheduleDate" value={scheduleForm.scheduleDate} onChange={handleScheduleChange} />
-              <TextInput label="Giá cho mỗi khung giờ" name="price" value={scheduleForm.price} onChange={handleScheduleChange} placeholder="250000" />
-              <TextInput label="Bắt đầu" type="time" name="startTime" value={scheduleForm.startTime} onChange={handleScheduleChange} />
-              <TextInput label="Kết thúc" type="time" name="endTime" value={scheduleForm.endTime} onChange={handleScheduleChange} />
-              <TextInput label="Thời lượng mỗi khung giờ (phút)" name="slotMinutes" value={scheduleForm.slotMinutes} onChange={handleScheduleChange} />
+              <TextInput label="Ngày áp dụng" type="date" name="scheduleDate" value={scheduleForm.scheduleDate} onChange={handleScheduleChange} disabled={!canCreateSchedules} />
+              <TextInput label="Giá cho mỗi khung giờ" name="price" value={scheduleForm.price} onChange={handleScheduleChange} placeholder="250000" disabled={!canCreateSchedules} />
+              <TextInput label="Bắt đầu" type="time" name="startTime" value={scheduleForm.startTime} onChange={handleScheduleChange} disabled={!canCreateSchedules} />
+              <TextInput label="Kết thúc" type="time" name="endTime" value={scheduleForm.endTime} onChange={handleScheduleChange} disabled={!canCreateSchedules} />
+              <TextInput label="Thời lượng mỗi khung giờ (phút)" name="slotMinutes" value={scheduleForm.slotMinutes} onChange={handleScheduleChange} disabled={!canCreateSchedules} />
             </div>
-            <ActionButton type="button" tone="emerald" className="mt-5" onClick={createSchedules}>Tạo lịch hàng loạt</ActionButton>
+            <ActionButton type="button" tone="emerald" className="mt-5" onClick={createSchedules} disabled={!canCreateSchedules}>Tạo lịch hàng loạt</ActionButton>
             <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
               <div className="grid grid-cols-5 bg-slate-50 px-4 py-3 text-xs uppercase tracking-[0.18em] text-slate-500">
                 <span>Ngày</span>

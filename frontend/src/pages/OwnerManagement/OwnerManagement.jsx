@@ -152,6 +152,10 @@ const OwnerManagement = () => {
     return fieldForm.fieldName.trim() && fieldForm.sportsType.trim() && fieldForm.address.trim()
   }, [fieldForm])
 
+  const canCreateSchedules = useMemo(() => {
+    return Boolean(field?.id) && String(field?.status || '').toUpperCase() === 'ACTIVE'
+  }, [field])
+
   const chartBars = revenue?.chart || []
   const maxRevenue = Math.max(...chartBars.map((item) => Number(item.totalRevenue || 0)), 1)
 
@@ -235,6 +239,7 @@ const OwnerManagement = () => {
           deleteImage={(imageId) => handleAction(() => deleteImage(imageId))}
           createSchedules={() => handleAction(createSchedules)}
           selectedFieldId={selectedFieldId}
+          canCreateSchedules={canCreateSchedules}
         />
       )
     }

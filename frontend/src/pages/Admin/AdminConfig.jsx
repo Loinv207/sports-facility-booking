@@ -1,22 +1,18 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Save, Settings2, LayoutGrid } from 'lucide-react';
+import { Plus, Trash2, Save, Settings2, LayoutGrid, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminSidebar from './AdminSidebar';
 
-const toast = {
-  error: (message) => window.alert(message),
-  success: (message) => window.alert(message),
-  warning: (message) => window.alert(message),
-};
-
 const AdminConfig = () => {
   const [sportsTypes, setSportsTypes] = useState([]);
   const [newType, setNewType] = useState({ name: '', description: '' });
   const [commissionRate, setCommissionRate] = useState("");
+  const [statusMessage, setStatusMessage] = useState('');
+  const [statusTone, setStatusTone] = useState('success');
 
   const fetchData = useCallback(async () => {
     try {
@@ -31,7 +27,8 @@ const AdminConfig = () => {
       setSportsTypes(resTypes.data);
       setCommissionRate(resComm.data.commissionRate);
     } catch {
-      toast.error("Không thể tải dữ liệu cấu hình");
+      setStatusTone('error');
+      setStatusMessage("Không thể tải dữ liệu cấu hình");
     }
   }, []);
 
@@ -41,7 +38,11 @@ const AdminConfig = () => {
   }, [fetchData]);
 
   const handleAddType = async () => {
-    if (!newType.name) return toast.warning("Vui lòng nhập tên loại sân");
+    if (!newType.name) {
+      setStatusTone('error');
+      setStatusMessage("Vui lòng nhập tên loại sân");
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       await axios.post('/api/categories', newType, {
@@ -49,9 +50,11 @@ const AdminConfig = () => {
       });
       setNewType({ name: '', description: '' });
       fetchData();
-      toast.success("Đã thêm loại sân mới");
+      setStatusTone('success');
+      setStatusMessage("Đã thêm loại sân mới");
     } catch {
-      toast.error("Lỗi khi thêm loại sân");
+      setStatusTone('error');
+      setStatusMessage("Lỗi khi thêm loại sân");
     }
   };
 
@@ -64,9 +67,11 @@ const AdminConfig = () => {
           'Content-Type': 'application/json'
         }
       });
-      toast.success("Cập nhật tỷ lệ hoa hồng thành công");
+      setStatusTone('success');
+      setStatusMessage("Cập nhật tỷ lệ hoa hồng thành công");
     } catch {
-      toast.error("Lỗi cập nhật cấu hình");
+      setStatusTone('error');
+      setStatusMessage("Lỗi cập nhật cấu hình");
     }
   };
 
@@ -78,6 +83,17 @@ const AdminConfig = () => {
         <Settings2 className="w-8 h-8 text-primary" />
         <h1 className="text-3xl font-bold tracking-tight">Cấu hình hệ thống</h1>
       </div>
+
+      {statusMessage ? (
+        <div className={`mb-6 flex items-start gap-3 rounded-xl border px-4 py-4 text-sm ${
+          statusTone === 'success'
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+            : 'border-rose-200 bg-rose-50 text-rose-800'
+        }`}>
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span>{statusMessage}</span>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         

@@ -29,7 +29,7 @@ const RegisterPage = () => {
       return data.details.map((item) => item.message || item.field).filter(Boolean).join(' ')
     }
 
-    return data?.message || 'Dang ky that bai'
+    return data?.message || 'Đăng ký thất bại'
   }
 
   const handleSubmit = async (event) => {
@@ -46,7 +46,7 @@ const RegisterPage = () => {
     }
 
     if (payload.phoneNumber && !/^[0-9]{9,15}$/.test(payload.phoneNumber)) {
-      setErrorMessage('So dien thoai chi nhap 9-15 chu so.')
+      setErrorMessage('Số điện thoại chỉ nhập 9-15 chữ số.')
       setLoading(false)
       return
     }
