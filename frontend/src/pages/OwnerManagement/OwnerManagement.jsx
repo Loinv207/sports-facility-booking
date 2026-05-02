@@ -55,11 +55,15 @@ const OwnerManagement = () => {
     setCenterForm,
     imageLinks,
     setImageLinks,
+    fieldImageFiles,
+    addFieldImageFiles,
+    removeFieldImageFile,
     fields,
     field,
     images,
     schedules,
     isSavingField,
+    isUploadingFieldImages,
     selectedFieldId,
     selectField,
     loadFields,
@@ -200,6 +204,10 @@ const OwnerManagement = () => {
           previewField={previewField}
           canCreateField={canCreateField}
           isSavingField={isSavingField}
+          isUploadingFieldImages={isUploadingFieldImages}
+          fieldImageFiles={fieldImageFiles}
+          addFieldImageFiles={addFieldImageFiles}
+          removeFieldImageFile={removeFieldImageFile}
           createField={() => handleAction(createField)}
           formatPrice={formatPrice}
         />

@@ -75,8 +75,11 @@ export const PreviewCard = ({ field, badge = 'Sẵn sàng gửi duyệt', badgeT
 
   return (
     <div className="overflow-hidden rounded-[24px] border border-blue-100 bg-white shadow-sm">
-      <div className="flex h-[210px] items-center justify-center bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.22),transparent_45%),linear-gradient(180deg,#f8fbff_0%,#dbeafe_100%)]">
-        <div className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badgeClass[badgeTone]}`}>
+      <div className="relative flex h-[210px] items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,rgba(96,165,250,0.22),transparent_45%),linear-gradient(180deg,#f8fbff_0%,#dbeafe_100%)]">
+        {field.coverImageUrl ? (
+          <img src={field.coverImageUrl} alt={field.fieldName} className="h-full w-full object-cover" />
+        ) : null}
+        <div className={`absolute left-4 top-4 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${badgeClass[badgeTone]}`}>
           {badge}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { createOwnerApi } from './ownerApi'
+import { uploadFieldImagesToCloudinary, validateFieldImageFiles } from './cloudinaryUpload'
 
 const emptyField = {
   fieldName: '',
@@ -44,11 +45,13 @@ export const useOwnerFields = (token, onStatusChange) => {
   const [scheduleForm, setScheduleForm] = useState(emptySchedule)
   const [centerForm, setCenterForm] = useState(emptyCenter)
   const [imageLinks, setImageLinks] = useState([''])
+  const [fieldImageFiles, setFieldImageFiles] = useState([])
   const [fields, setFields] = useState([])
   const [field, setField] = useState(null)
   const [images, setImages] = useState([])
   const [schedules, setSchedules] = useState([])
   const [isSavingField, setIsSavingField] = useState(false)
+  const [isUploadingFieldImages, setIsUploadingFieldImages] = useState(false)
 
   const selectedFieldId = field?.id || fields[0]?.id || ''
 
@@ -91,17 +94,44 @@ export const useOwnerFields = (token, onStatusChange) => {
     return data
   }, [api])
 
+  const addFieldImageFiles = useCallback((files) => {
+    const nextFiles = validateFieldImageFiles(files)
+    setFieldImageFiles((prev) => [...prev, ...nextFiles].slice(0, 8))
+  }, [])
+
+  const removeFieldImageFile = useCallback((index) => {
+    setFieldImageFiles((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
+  }, [])
+
   const createField = async () => {
     setIsSavingField(true)
     try {
-      const data = await api.createField(fieldForm)
+      let uploadedImageUrls = []
+
+      if (fieldImageFiles.length) {
+        setIsUploadingFieldImages(true)
+        uploadedImageUrls = await uploadFieldImagesToCloudinary(fieldImageFiles)
+      }
+
+      const data = await api.createField({
+        ...fieldForm,
+        price: Number(fieldForm.price || 0),
+      })
+
+      if (uploadedImageUrls.length) {
+        const savedImages = await api.saveFieldImages(data.id, uploadedImageUrls)
+        setImages(savedImages)
+        setImageLinks([''])
+      }
       setField(data)
       setFields((prev) => [data, ...prev])
       setUpdateForm(mapFieldToForm(data))
       setFieldForm(emptyField)
+      setFieldImageFiles([])
       onStatusChange('Tạo sân thành công. M có thể thêm ảnh, lịch và cấu hình tiếp ở các tab bên dưới.')
       return data
     } finally {
+      setIsUploadingFieldImages(false)
       setIsSavingField(false)
     }
   }
@@ -192,11 +222,15 @@ export const useOwnerFields = (token, onStatusChange) => {
     setCenterForm,
     imageLinks,
     setImageLinks,
+    fieldImageFiles,
+    addFieldImageFiles,
+    removeFieldImageFile,
     fields,
     field,
     images,
     schedules,
     isSavingField,
+    isUploadingFieldImages,
     selectedFieldId,
     selectField,
     loadFields,
