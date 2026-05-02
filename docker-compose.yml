@@ -10,9 +10,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://sportsnow.ccv6i6g4e9td.us-east-1.rds.amazonaws.com:3306/sports_now?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: sportsadmin
-    depends_on:
-      db:
-        condition: service_healthy
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     networks:
       - sports-booking-network
 
