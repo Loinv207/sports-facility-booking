@@ -242,7 +242,7 @@ const OwnerManagement = () => {
 
   return (
     <PublicShell breadcrumb="Trang chủ / Chủ sân / Quản lý cơ sở">
-      <div className="mx-auto w-full max-w-7xl px-1 pb-10 text-slate-900">
+      <div className="w-full px-1 pb-10 mx-auto max-w-7xl text-slate-900">
         <div className="mb-8 overflow-hidden rounded-[32px] border border-blue-100 bg-[linear-gradient(135deg,rgba(255,255,255,0.98),rgba(239,246,255,0.92))] px-6 py-8 shadow-[0_25px_70px_rgba(59,130,246,0.08)] md:px-8">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
@@ -263,13 +263,13 @@ const OwnerManagement = () => {
           </div>
         </div>
 
-        <div className="mb-8 flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+        <div className="flex flex-col gap-6 mb-8 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <p className="text-sm text-slate-500">Trang chủ / Chủ sân / Quản lý cơ sở</p>
             <h2 className="mt-4 text-[38px] font-bold leading-tight text-slate-900">Không gian quản lý theo từng tab</h2>
-            <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-600">
+            {/* <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-600">
               `OwnerManagement.jsx` giờ chỉ giữ layout chính, tab điều hướng và ghép dữ liệu từ hooks.
-            </p>
+            </p> */}
           </div>
 
           <div className="flex flex-wrap gap-3">

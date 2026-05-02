@@ -174,11 +174,13 @@ export const Payment = () => {
     return Boolean(initialBooking) && (status === 'CANCELLED' || calculateHoldSeconds(initialBooking?.createdAt) <= 0)
   })
   const [submitting, setSubmitting] = useState(false)
+  const [redirectingVnpay, setRedirectingVnpay] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [qrFailed, setQrFailed] = useState(false)
   const [isQrModalOpen, setIsQrModalOpen] = useState(false)
   const cancelRequestStarted = useRef(false)
+  const callbackHandled = useRef(false)
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : ''
   const orderCode = useMemo(() => createOrderCode(booking?.bookingId), [booking?.bookingId])
@@ -188,6 +190,48 @@ export const Payment = () => {
   const customerPhone = profile.phoneNumber || 'Chưa cập nhật'
   const scheduleTime = `${formatTime(booking?.startTime)} - ${formatTime(booking?.endTime)}`
   const canConfirm = booking?.bookingStatus === 'PENDING_PAYMENT'
+
+  useEffect(() => {
+    if (!booking?.bookingId || callbackHandled.current) {
+      return
+    }
+
+    const searchParams = new URLSearchParams(location.search)
+    const txnRef = searchParams.get('vnp_TxnRef')
+    if (!txnRef) {
+      return
+    }
+
+    callbackHandled.current = true
+
+    const callbackParams = {}
+    searchParams.forEach((value, key) => {
+      callbackParams[key] = value
+    })
+
+    axios.get('/api/payment/callback', {
+      params: callbackParams,
+    }).then((response) => {
+      setMessage(typeof response.data === 'string' ? response.data : 'Da xu ly thanh toan VNPay.')
+      setError('')
+
+      if (!token) {
+        return
+      }
+
+      return axios.get('/api/bookings/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then((bookingResponse) => {
+        const matched = (bookingResponse.data || []).find((item) => item.bookingId === booking.bookingId)
+        if (matched) {
+          setBooking(matched)
+          sessionStorage.setItem('pendingBooking', JSON.stringify(matched))
+        }
+      })
+    }).catch((requestError) => {
+      setError(requestError.response?.data?.message || 'Khong the xu ly callback thanh toan VNPay.')
+    })
+  }, [booking?.bookingId, location.search, token])
 
   useEffect(() => {
     if (!token) {
@@ -345,6 +389,36 @@ export const Payment = () => {
     }
   }
 
+  const handlePayWithVnpay = async () => {
+    if (!booking?.bookingId || !token) {
+      setError('Ban can dang nhap va co booking hop le de thanh toan VNPay.')
+      return
+    }
+
+    try {
+      setRedirectingVnpay(true)
+      setError('')
+      setMessage('')
+
+      const response = await axios.post('/api/payment/vnpay', null, {
+        params: { bookingId: booking.bookingId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      const paymentUrl = response.data?.paymentUrl || response.data
+      if (!paymentUrl || typeof paymentUrl !== 'string') {
+        throw new Error('Khong nhan duoc link thanh toan VNPay')
+      }
+
+      window.location.href = paymentUrl
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Khong tao duoc link thanh toan VNPay.')
+      setRedirectingVnpay(false)
+    }
+  }
+
   if (!booking) {
     return (
       <div className="payment-page">
@@ -473,6 +547,14 @@ export const Payment = () => {
             onClick={handleConfirmPayment}
           >
             {submitting ? 'ĐANG XÁC NHẬN...' : canConfirm ? 'XÁC NHẬN ĐẶT' : 'ĐÃ XÁC NHẬN'}
+          </button>
+          <button
+            type="button"
+            className="payment-submit-button"
+            disabled={redirectingVnpay || !canConfirm}
+            onClick={handlePayWithVnpay}
+          >
+            {redirectingVnpay ? 'DANG CHUYEN TOI VNPAY...' : canConfirm ? 'THANH TOAN VNPAY' : 'DA THANH TOAN'}
           </button>
         </section>
 
