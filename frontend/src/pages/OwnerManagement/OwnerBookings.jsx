@@ -99,7 +99,7 @@ const OwnerBookings = ({ bookings, checkInForm, setCheckInForm, updateBookingSta
           </div>
         </DashboardCard>
 
-        <DashboardCard title="Check-in thủ công" description="Dùng khi m muốn nhập booking id, thu thêm tiền mặt rồi xác nhận hoàn tất tại sân.">
+        <DashboardCard title="Check-in thủ công" description="Nếu khách đến sân và chưa check-in online, chủ sân có thể nhập mã đơn đặt để hoàn tất check-in tại đây.">
           <div className="space-y-5">
             <TextInput label="Mã đơn đặt sân" value={checkInForm.bookingId} onChange={(event) => setCheckInForm((prev) => ({ ...prev, bookingId: event.target.value }))} placeholder="Dán booking id" />
             <TextInput label="Tiền mặt thu tại sân" value={checkInForm.extraCash} onChange={(event) => setCheckInForm((prev) => ({ ...prev, extraCash: event.target.value }))} placeholder="50000" />

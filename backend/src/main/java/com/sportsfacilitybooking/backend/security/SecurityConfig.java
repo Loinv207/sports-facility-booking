@@ -38,7 +38,6 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
             .requestMatchers("/public/**").permitAll()
-            .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/fields", "/api/fields/**").permitAll()
@@ -63,7 +62,6 @@ public class SecurityConfig {
             .accessDeniedHandler(accessDeniedHandler)
         )
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-        http.headers(headers -> headers.frameOptions(f -> f.sameOrigin()));
         return http.build();
     }
 
