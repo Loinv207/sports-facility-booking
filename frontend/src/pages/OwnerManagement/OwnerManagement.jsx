@@ -58,12 +58,16 @@ const OwnerManagement = () => {
     fieldImageFiles,
     addFieldImageFiles,
     removeFieldImageFile,
+    libraryImageFiles,
+    addLibraryImageFiles,
+    removeLibraryImageFile,
     fields,
     field,
     images,
     schedules,
     isSavingField,
     isUploadingFieldImages,
+    isSavingImages,
     selectedFieldId,
     selectField,
     loadFields,
@@ -223,6 +227,9 @@ const OwnerManagement = () => {
           setUpdateForm={setUpdateForm}
           imageLinks={imageLinks}
           setImageLinks={setImageLinks}
+          libraryImageFiles={libraryImageFiles}
+          addLibraryImageFiles={addLibraryImageFiles}
+          removeLibraryImageFile={removeLibraryImageFile}
           images={images}
           schedules={schedules}
           scheduleForm={scheduleForm}
@@ -231,6 +238,7 @@ const OwnerManagement = () => {
           selectField={selectField}
           updateField={() => handleAction(updateField)}
           hideField={() => handleAction(hideField)}
+          isSavingImages={isSavingImages}
           saveImages={() => handleAction(saveImages)}
           deleteImage={(imageId) => handleAction(() => deleteImage(imageId))}
           createSchedules={() => handleAction(createSchedules)}
