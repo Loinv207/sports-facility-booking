@@ -1,6 +1,6 @@
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'djmdzzkch'
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'sports_field_upload'
-const CLOUDINARY_FOLDER = import.meta.env.VITE_CLOUDINARY_FIELD_FOLDER || 'sports-facility-booking/fields'
+const CLOUDINARY_FOLDER = import.meta.env.VITE_CLOUDINARY_FIELD_FOLDER || ''
 
 const MAX_IMAGE_SIZE_MB = 8
 const MAX_IMAGE_SIZE = MAX_IMAGE_SIZE_MB * 1024 * 1024
@@ -43,7 +43,9 @@ export const uploadFieldImagesToCloudinary = async (files) => {
       const formData = new FormData()
       formData.append('file', file)
       formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
-      formData.append('folder', CLOUDINARY_FOLDER)
+      if (CLOUDINARY_FOLDER) {
+        formData.append('folder', CLOUDINARY_FOLDER)
+      }
 
       const response = await fetch(uploadUrl, {
         method: 'POST',
