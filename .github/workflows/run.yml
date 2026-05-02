@@ -16,6 +16,9 @@ jobs:
     name: Build and deploy with Docker Compose
     runs-on: self-hosted
 
+    env:
+      COMPOSE_BAKE: "false"
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -33,18 +36,34 @@ jobs:
             exit 1
           fi
 
+      - name: Free Docker disk space
+        shell: bash
+        run: |
+          echo "Disk before cleanup:"
+          df -h
+          docker system df || true
+
+          docker container prune -f || true
+          docker image prune -af || true
+          docker builder prune -af || true
+          docker network prune -f || true
+
+          echo "Disk after cleanup:"
+          df -h
+          docker system df || true
+
       - name: Validate compose file
         shell: bash
         run: ${{ steps.compose.outputs.cmd }} config --quiet
 
       - name: Build compose images
         shell: bash
-        run: ${{ steps.compose.outputs.cmd }} build
+        run: ${{ steps.compose.outputs.cmd }} build --no-cache
 
       - name: Deploy compose stack
         if: github.event_name != 'pull_request'
         shell: bash
-        run: ${{ steps.compose.outputs.cmd }} up -d --build --remove-orphans
+        run: ${{ steps.compose.outputs.cmd }} up -d --remove-orphans
 
       - name: Show compose status
         if: always() && github.event_name != 'pull_request'
