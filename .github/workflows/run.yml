@@ -35,16 +35,18 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Build backend
-        shell: powershell
+        shell: bash
         working-directory: backend
-        run: .\mvnw.cmd -DskipTests package
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -DskipTests package
 
       - name: Install frontend dependencies
-        shell: powershell
+        shell: bash
         working-directory: frontend
         run: npm ci
 
       - name: Build frontend
-        shell: powershell
+        shell: bash
         working-directory: frontend
         run: npm run build
