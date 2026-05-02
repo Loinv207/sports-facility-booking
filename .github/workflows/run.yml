@@ -1,0 +1,57 @@
+name: Sports Facility Booking Docker Compose
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+jobs:
+  compose:
+    name: Build and deploy with Docker Compose
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Detect Docker Compose
+        id: compose
+        shell: bash
+        run: |
+          if docker compose version >/dev/null 2>&1; then
+            echo "cmd=docker compose" >> "$GITHUB_OUTPUT"
+          elif command -v docker-compose >/dev/null 2>&1; then
+            echo "cmd=docker-compose" >> "$GITHUB_OUTPUT"
+          else
+            echo "Docker Compose is not installed on this runner." >&2
+            exit 1
+          fi
+
+      - name: Validate compose file
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} config --quiet
+
+      - name: Build compose images
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} build
+
+      - name: Deploy compose stack
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} up -d --build --remove-orphans
+
+      - name: Show compose status
+        if: always() && github.event_name != 'pull_request'
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} ps
+
+      - name: Show compose logs on failure
+        if: failure()
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} logs --tail=120
