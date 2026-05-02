@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     container_name: sports-booking-frontend
     ports:
-      - "4173:4173"
+      - "443:4173"
     depends_on:
       - backend
     networks:
