@@ -1,21 +1,4 @@
 services:
-  db:
-    image: mysql:8.4
-    container_name: sports-booking-db
-    environment:
-      MYSQL_DATABASE: sports_now
-      MYSQL_USER: sportsadmin
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-sportsbooking}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    volumes:
-      - sports-booking-db-data:/var/lib/mysql
-    networks:
-      - sports-booking-network
 
   backend:
     build:
@@ -25,10 +8,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/sports_now?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://sportsnow.ccv6i6g4e9td.us-east-1.rds.amazonaws.com:3306/sports_now?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: sportsadmin
-      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-sportsbooking}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       db:
         condition: service_healthy
@@ -41,7 +22,7 @@ services:
       dockerfile: Dockerfile
     container_name: sports-booking-frontend
     ports:
-      - "80:80"
+      - "80:5173"
     depends_on:
       - backend
     networks:
@@ -50,6 +31,3 @@ services:
 networks:
   sports-booking-network:
     driver: bridge
-
-volumes:
-  sports-booking-db-data:
