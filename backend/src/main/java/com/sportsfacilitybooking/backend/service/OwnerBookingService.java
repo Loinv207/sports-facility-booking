@@ -92,7 +92,7 @@ public class OwnerBookingService {
         Booking booking = getOwnerBookingOrThrow(request.bookingId(), userDetails);
 
         String currentStatus = normalizeStatus(booking.getStatus());
-        if (!currentStatus.equals("CONFIRMED") && !currentStatus.equals("COMPLETED")) {
+        if (!currentStatus.equals("PAID") && !currentStatus.equals("CONFIRMED") && !currentStatus.equals("COMPLETED")) {
             throw new BusinessException("Chi booking da duoc xac nhan moi co the check-in");
         }
 
@@ -113,15 +113,19 @@ public class OwnerBookingService {
     public OwnerRevenueReportResponse getRevenueReport(UserDetails userDetails) {
         List<Booking> bookings = getBookingsForOwner(userDetails);
 
-        BigDecimal totalDepositOnline = sum(bookings.stream().map(Booking::getDepositAmount).toList());
-        BigDecimal totalExtraCash = sum(bookings.stream().filter(booking -> "COMPLETED".equals(normalizeStatus(booking.getStatus()))).map(Booking::getExtraCash).toList());
+        List<Booking> revenueBookings = bookings.stream()
+            .filter(booking -> isRevenueStatus(normalizeStatus(booking.getStatus())))
+            .toList();
+
+        BigDecimal totalDepositOnline = sum(revenueBookings.stream().map(Booking::getDepositAmount).toList());
+        BigDecimal totalExtraCash = sum(revenueBookings.stream().filter(booking -> "COMPLETED".equals(normalizeStatus(booking.getStatus()))).map(Booking::getExtraCash).toList());
         BigDecimal totalRevenue = totalDepositOnline.add(totalExtraCash);
 
         long completedBookings = bookings.stream().filter(booking -> "COMPLETED".equals(normalizeStatus(booking.getStatus()))).count();
         long confirmedBookings = bookings.stream().filter(booking -> "CONFIRMED".equals(normalizeStatus(booking.getStatus()))).count();
 
         Map<LocalDate, RevenueAccumulator> grouped = new TreeMap<>();
-        bookings.stream()
+        revenueBookings.stream()
             .sorted(Comparator.comparing(Booking::getBookingDate, Comparator.nullsLast(Comparator.naturalOrder())))
             .forEach(booking -> {
                 LocalDate bookingDate = Optional.ofNullable(booking.getBookingDate())
@@ -264,6 +268,10 @@ public class OwnerBookingService {
 
     private String normalizeStatus(String status) {
         return status == null ? "PENDING" : status.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private boolean isRevenueStatus(String status) {
+        return status.equals("PAID") || status.equals("CONFIRMED") || status.equals("COMPLETED");
     }
 
     private String cleanText(String value) {

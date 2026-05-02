@@ -23,6 +23,7 @@ import com.sportsfacilitybooking.backend.entity.Field;
 import com.sportsfacilitybooking.backend.entity.FieldImage;
 import com.sportsfacilitybooking.backend.entity.FieldSchedule;
 import com.sportsfacilitybooking.backend.entity.SportsCenter;
+import com.sportsfacilitybooking.backend.exception.BusinessException;
 import com.sportsfacilitybooking.backend.exception.ResourceNotFoundException;
 import com.sportsfacilitybooking.backend.repository.FieldImageRepository;
 import com.sportsfacilitybooking.backend.repository.FieldRepository;
@@ -148,6 +149,10 @@ public class FieldService {
     }
 
     public FieldResponse createField(FieldRequest request, UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException("Ban can dang nhap de tao san");
+        }
+
         Field field = new Field();
         field.setId(UUID.randomUUID().toString());
         field.setFieldName(request.fieldName());
@@ -164,9 +169,10 @@ public class FieldService {
         return toResponse(field);
     }
 
-    public FieldResponse updateField(String id, FieldRequest request) {
+    public FieldResponse updateField(String id, FieldRequest request, UserDetails userDetails) {
         Field field = fieldRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay san voi id: " + id));
+        validateFieldOwnership(field, userDetails);
 
         field.setFieldName(request.fieldName());
         field.setSportsType(request.sportsType());
@@ -183,9 +189,10 @@ public class FieldService {
         return toResponse(field);
     }
 
-    public void deleteField(String id) {
+    public void deleteField(String id, UserDetails userDetails) {
         Field field = fieldRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay san voi id: " + id));
+        validateFieldOwnership(field, userDetails);
 
         field.setStatus("HIDDEN");
         fieldRepository.save(field);
@@ -336,8 +343,29 @@ public class FieldService {
     }
 
     private Long resolveOwnerId(UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException("Ban can dang nhap de su dung chuc nang nay");
+        }
+
         return userRepository.findByUsername(userDetails.getUsername())
             .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay owner theo username: " + userDetails.getUsername()))
             .getId();
+    }
+
+    private void validateFieldOwnership(Field field, UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new BusinessException("Ban can dang nhap de quan ly san");
+        }
+
+        boolean isAdmin = userDetails.getAuthorities().stream()
+            .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        if (isAdmin) {
+            return;
+        }
+
+        Long ownerId = resolveOwnerId(userDetails);
+        if (field.getOwnerId() == null || !field.getOwnerId().equals(ownerId)) {
+            throw new ResourceNotFoundException("Khong tim thay san thuoc owner hien tai: " + field.getId());
+        }
     }
 }

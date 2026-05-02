@@ -46,12 +46,14 @@ export const useOwnerFields = (token, onStatusChange) => {
   const [centerForm, setCenterForm] = useState(emptyCenter)
   const [imageLinks, setImageLinks] = useState([''])
   const [fieldImageFiles, setFieldImageFiles] = useState([])
+  const [libraryImageFiles, setLibraryImageFiles] = useState([])
   const [fields, setFields] = useState([])
   const [field, setField] = useState(null)
   const [images, setImages] = useState([])
   const [schedules, setSchedules] = useState([])
   const [isSavingField, setIsSavingField] = useState(false)
   const [isUploadingFieldImages, setIsUploadingFieldImages] = useState(false)
+  const [isSavingImages, setIsSavingImages] = useState(false)
 
   const selectedFieldId = field?.id || fields[0]?.id || ''
 
@@ -101,6 +103,15 @@ export const useOwnerFields = (token, onStatusChange) => {
 
   const removeFieldImageFile = useCallback((index) => {
     setFieldImageFiles((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
+  }, [])
+
+  const addLibraryImageFiles = useCallback((files) => {
+    const nextFiles = validateFieldImageFiles(files)
+    setLibraryImageFiles((prev) => [...prev, ...nextFiles].slice(0, 8))
+  }, [])
+
+  const removeLibraryImageFile = useCallback((index) => {
+    setLibraryImageFiles((prev) => prev.filter((_, currentIndex) => currentIndex !== index))
   }, [])
 
   const createField = async () => {
@@ -168,15 +179,25 @@ export const useOwnerFields = (token, onStatusChange) => {
     }
 
     const imageUrls = imageLinks.map((url) => url.trim()).filter(Boolean)
-    if (!imageUrls.length) {
-      throw new Error('Nhập ít nhất 1 link ảnh.')
+    if (!imageUrls.length && !libraryImageFiles.length) {
+      throw new Error('Nhập ít nhất 1 link ảnh hoặc chọn ảnh từ máy.')
     }
 
-    const data = await api.saveFieldImages(selectedFieldId, imageUrls)
-    setImages(data)
-    setImageLinks([''])
-    onStatusChange('Đã lưu thư viện ảnh.')
-    return data
+    setIsSavingImages(true)
+    try {
+      const uploadedImageUrls = libraryImageFiles.length
+        ? await uploadFieldImagesToCloudinary(libraryImageFiles)
+        : []
+
+      const data = await api.saveFieldImages(selectedFieldId, [...imageUrls, ...uploadedImageUrls])
+      setImages(data)
+      setImageLinks([''])
+      setLibraryImageFiles([])
+      onStatusChange('Đã lưu thư viện ảnh.')
+      return data
+    } finally {
+      setIsSavingImages(false)
+    }
   }
 
   const deleteImage = async (imageId) => {
@@ -225,12 +246,16 @@ export const useOwnerFields = (token, onStatusChange) => {
     fieldImageFiles,
     addFieldImageFiles,
     removeFieldImageFile,
+    libraryImageFiles,
+    addLibraryImageFiles,
+    removeLibraryImageFile,
     fields,
     field,
     images,
     schedules,
     isSavingField,
     isUploadingFieldImages,
+    isSavingImages,
     selectedFieldId,
     selectField,
     loadFields,

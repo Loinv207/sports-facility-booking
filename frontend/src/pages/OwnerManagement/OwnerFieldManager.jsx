@@ -1,7 +1,14 @@
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { ImagePlus, Trash2, UploadCloud } from 'lucide-react'
 import { ActionButton, DashboardCard, PreviewCard, TextArea, TextInput } from './ownerManagementSections'
 
 const softCardClass = 'rounded-3xl border border-slate-200 bg-white p-5'
+
+const formatFileSize = (size) => {
+  if (!size) return '0 KB'
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+}
 
 const OwnerFieldManager = ({
   fields,
@@ -10,6 +17,9 @@ const OwnerFieldManager = ({
   setUpdateForm,
   imageLinks,
   setImageLinks,
+  libraryImageFiles = [],
+  addLibraryImageFiles,
+  removeLibraryImageFile,
   images,
   schedules,
   scheduleForm,
@@ -18,6 +28,7 @@ const OwnerFieldManager = ({
   selectField,
   updateField,
   hideField,
+  isSavingImages = false,
   saveImages,
   deleteImage,
   createSchedules,
@@ -33,6 +44,28 @@ const OwnerFieldManager = ({
     const { name, value } = target
     setScheduleForm((prev) => ({ ...prev, [name]: value }))
   }
+
+  const imagePreviews = useMemo(() => libraryImageFiles.map((file, index) => ({
+    id: `${file.name}-${file.lastModified}-${index}`,
+    name: file.name,
+    size: formatFileSize(file.size),
+    url: URL.createObjectURL(file),
+  })), [libraryImageFiles])
+
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((image) => URL.revokeObjectURL(image.url))
+    }
+  }, [imagePreviews])
+
+  const handleLibraryImageChange = ({ target }) => {
+    if (target.files?.length) {
+      addLibraryImageFiles(target.files)
+    }
+    target.value = ''
+  }
+
+  const saveImageLabel = isSavingImages ? 'Đang upload ảnh...' : 'Lưu thư viện ảnh'
 
   return (
     <div className="space-y-6">
@@ -84,9 +117,46 @@ const OwnerFieldManager = ({
                   <ActionButton type="button" tone="ghost" onClick={() => setImageLinks((prev) => prev.length === 1 ? prev : prev.filter((_, idx) => idx !== index))}>Xóa</ActionButton>
                 </div>
               ))}
+              <div className="rounded-[24px] border border-dashed border-blue-200 bg-blue-50/70 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+                      <ImagePlus size={21} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">Ảnh sân</p>
+                      <p className="text-xs text-slate-500">Tối đa 8 ảnh, mỗi ảnh tối đa 8MB.</p>
+                    </div>
+                  </div>
+                  <label className={`inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-[0_18px_30px_rgba(37,99,235,0.18)] transition hover:bg-blue-500 ${!selectedFieldId || isSavingImages ? 'pointer-events-none opacity-60' : ''}`}>
+                    <UploadCloud size={17} />
+                    Chọn ảnh
+                    <input type="file" multiple accept="image/*" className="sr-only" onChange={handleLibraryImageChange} disabled={!selectedFieldId || isSavingImages} />
+                  </label>
+                </div>
+
+                {imagePreviews.length > 0 ? (
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {imagePreviews.map((image, index) => (
+                      <div key={image.id} className="group overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-sm">
+                        <div className="relative h-32">
+                          <img src={image.url} alt={image.name} className="h-full w-full object-cover" />
+                          <button type="button" onClick={() => removeLibraryImageFile(index)} className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-rose-500 shadow-sm transition hover:bg-rose-50" aria-label="Xóa ảnh">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                        <div className="px-3 py-3">
+                          <p className="truncate text-sm font-semibold text-slate-800">{image.name}</p>
+                          <p className="mt-1 text-xs text-slate-500">{image.size}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
               <div className="flex flex-wrap gap-3">
                 <ActionButton type="button" tone="ghost" onClick={() => setImageLinks((prev) => [...prev, ''])}>+ Thêm link ảnh</ActionButton>
-                <ActionButton type="button" tone="blue" onClick={saveImages}>Lưu thư viện ảnh</ActionButton>
+                <ActionButton type="button" tone="blue" onClick={saveImages} disabled={isSavingImages}>{saveImageLabel}</ActionButton>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 {images.map((image) => (

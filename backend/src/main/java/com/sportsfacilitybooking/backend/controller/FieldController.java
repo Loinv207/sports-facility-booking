@@ -43,12 +43,16 @@ public class FieldController {
     public ResponseEntity<List<FieldResponse>> getAllFields(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails != null) {
             boolean isOwner = userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_OWNER"));
+            boolean isAdmin = userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
             if (isOwner) {
                 return ResponseEntity.ok(fieldService.getFieldsByOwner(userDetails));
             }
+            if (isAdmin) {
+                return ResponseEntity.ok(fieldService.getAllFields());
+            }
         }
 
-        return ResponseEntity.ok(fieldService.getAllFields());
+        return ResponseEntity.ok(fieldService.getActiveFields());
     }
 
     @GetMapping("/active")
@@ -117,13 +121,17 @@ public class FieldController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FieldResponse> updateField(@PathVariable String id, @Valid @RequestBody FieldRequest request) {
-        return ResponseEntity.ok(fieldService.updateField(id, request));
+    public ResponseEntity<FieldResponse> updateField(
+        @PathVariable String id,
+        @Valid @RequestBody FieldRequest request,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(fieldService.updateField(id, request, userDetails));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteField(@PathVariable String id) {
-        fieldService.deleteField(id);
+    public ResponseEntity<Void> deleteField(@PathVariable String id, @AuthenticationPrincipal UserDetails userDetails) {
+        fieldService.deleteField(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }
