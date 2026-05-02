@@ -24,11 +24,11 @@ const OwnerCenterForm = ({ centerForm, setCenterForm, saveCenter }) => {
         <ActionButton type="button" tone="violet" className="mt-5" onClick={saveCenter}>Lưu thông tin trung tâm</ActionButton>
       </DashboardCard>
 
-      <DashboardCard title="Ghi chú vận hành" description="Khu vực phụ để trình bày đẹp hơn và hỗ trợ lúc demo.">
+      <DashboardCard title="Ghi chú vận hành" description="Thông tin này chỉ mang tính chất tham khảo để đảm bảo chủ sân hiểu rõ về quyền hạn và cách sử dụng trang quản lý.">
         <div className="space-y-4 text-sm leading-6 text-slate-600">
           <p>• Chủ sân chỉ nhìn thấy trang này khi đăng nhập bằng role OWNER.</p>
           <p>• Khách hàng sẽ không thấy menu Quản lý chủ sân và không vào được route này.</p>
-          <p>• M có thể dùng tab Quản lý sân để tạo dữ liệu trước, sau đó quay lại đây để hoàn thiện hồ sơ cơ sở.</p>
+          <p>• Vui lòng đảm bảo rằng tất cả thông tin trung tâm đều chính xác trước khi lưu.</p>
         </div>
       </DashboardCard>
     </div>

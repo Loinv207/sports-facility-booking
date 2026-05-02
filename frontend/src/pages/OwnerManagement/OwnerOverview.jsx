@@ -55,15 +55,6 @@ const OwnerOverview = ({ bookings, revenue, images, schedules, previewField, cha
           {!chartBars.length && <p className="text-sm text-slate-500">Chưa có dữ liệu doanh thu để hiển thị.</p>}
         </div>
       </DashboardCard>
-
-      <DashboardCard title="Kiểm tra API nhanh" description="Checklist ngắn để m chụp Postman hoặc test lại flow demo.">
-        <ul className="space-y-4 text-sm leading-6 text-slate-600">
-          <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-blue-500" />GET /api/owner/bookings để lấy danh sách đơn đặt.</li>
-          <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-blue-500" />PUT /api/owner/bookings/{'{id}'}/status để xác nhận hoặc từ chối.</li>
-          <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-blue-500" />POST /api/owner/check-in để hoàn tất check-in.</li>
-          <li className="flex gap-3"><span className="mt-2 h-2 w-2 rounded-full bg-blue-500" />GET /api/owner/reports/revenue để xem doanh thu.</li>
-        </ul>
-      </DashboardCard>
     </div>
   </div>
 )
