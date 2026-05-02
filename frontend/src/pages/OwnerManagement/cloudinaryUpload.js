@@ -1,5 +1,5 @@
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || ''
-const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || ''
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'djmdzzkch'
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'sports_field_upload'
 const CLOUDINARY_FOLDER = import.meta.env.VITE_CLOUDINARY_FIELD_FOLDER || 'sports-facility-booking/fields'
 
 const MAX_IMAGE_SIZE_MB = 8
