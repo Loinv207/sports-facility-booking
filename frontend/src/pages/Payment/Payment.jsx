@@ -1,48 +1,88 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
-import { Link, useLocation } from 'react-router-dom'
-import { CalendarClock, CircleAlert, CreditCard, Landmark, ReceiptText, ShieldCheck, Wallet } from 'lucide-react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import {
+  AlertTriangle,
+  Banknote,
+  CalendarDays,
+  ChevronLeft,
+  ChevronUp,
+  CircleAlert,
+  CircleDollarSign,
+  Clock3,
+  Copy,
+  Image as ImageIcon,
+  Phone,
+  Plus,
+  Trophy,
+  UsersRound,
+  X,
+} from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { SiteHeader } from '@/components/layout/SiteHeader'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import './Payment.css'
+
+const bankInfo = {
+  accountName: 'Ho Ngoc Minh',
+  accountNumber: '1032102190',
+  bankName: 'Vietcombank',
+  bankBin: '970436',
+}
+
+const holdDurationSeconds = 10 * 60
 
 const formatCurrency = (value) => {
   const amount = Number(value || 0)
-  return new Intl.NumberFormat('vi-VN').format(amount)
+  return `${new Intl.NumberFormat('vi-VN').format(amount)} đ`
 }
 
-const formatDateLine = (bookingDate, startTime, endTime) => {
+const formatDate = (bookingDate) => {
   if (!bookingDate) {
-    return 'Dang cap nhat lich dat'
+    return 'Đang cập nhật'
   }
 
-  const dateText = new Intl.DateTimeFormat('vi-VN', {
-    weekday: 'long',
+  return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   }).format(new Date(`${bookingDate}T00:00:00`))
-
-  if (!startTime || !endTime) {
-    return dateText
-  }
-
-  return `${dateText} • ${String(startTime).slice(0, 5)} - ${String(endTime).slice(0, 5)}`
 }
 
-const paymentMethodConfig = {
-  BANK_TRANSFER: {
-    label: 'Chuyen khoan ngan hang',
-    hint: 'Thuc hien chuyen khoan theo noi dung ma booking de he thong de doi soat.',
-    icon: Landmark,
-  },
-  CASH: {
-    label: 'Thanh toan tai san',
-    hint: 'Thanh toan truc tiep tai quay truoc gio bat dau tran.',
-    icon: Wallet,
-  },
+const formatTime = (time) => {
+  if (!time) {
+    return '--h--'
+  }
+
+  const [hour, minute] = String(time).slice(0, 5).split(':')
+  return `${hour}h${minute}`
+}
+
+const formatCountdown = (seconds) => {
+  const safeSeconds = Math.max(0, Number(seconds || 0))
+  const minutes = Math.floor(safeSeconds / 60)
+  const remainSeconds = safeSeconds % 60
+  return `${String(minutes).padStart(2, '0')}:${String(remainSeconds).padStart(2, '0')}`
+}
+
+const createOrderCode = (bookingId) => {
+  if (!bookingId) {
+    return '----'
+  }
+
+  const compact = String(bookingId).replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+  return compact.slice(-6) || compact
+}
+
+const getStoredProfile = () => {
+  if (typeof window === 'undefined') {
+    return {}
+  }
+
+  return {
+    fullName: localStorage.getItem('fullName') || '',
+    username: localStorage.getItem('username') || '',
+    email: localStorage.getItem('email') || '',
+    phoneNumber: localStorage.getItem('phoneNumber') || '',
+  }
 }
 
 const fallbackBooking = () => {
@@ -55,21 +95,228 @@ const fallbackBooking = () => {
   }
 }
 
+const calculateHoldSeconds = (createdAt) => {
+  if (!createdAt) {
+    return holdDurationSeconds
+  }
+
+  const createdTime = new Date(createdAt).getTime()
+  if (Number.isNaN(createdTime)) {
+    return holdDurationSeconds
+  }
+
+  const expiresAt = createdTime + holdDurationSeconds * 1000
+  return Math.ceil((expiresAt - Date.now()) / 1000)
+}
+
+const buildVietQrUrl = (booking, orderCode) => {
+  const amount = Math.max(0, Math.round(Number(booking?.totalPrice || 0)))
+  const addInfo = encodeURIComponent(`SPORTS NOW ${orderCode}`)
+  const accountName = encodeURIComponent(bankInfo.accountName)
+
+  return `https://img.vietqr.io/image/${bankInfo.bankBin}-${bankInfo.accountNumber}-compact2.png?amount=${amount}&addInfo=${addInfo}&accountName=${accountName}`
+}
+
+const makePreview = (file) => ({
+  file,
+  preview: file?.type?.startsWith('image/') ? URL.createObjectURL(file) : '',
+})
+
+const UploadBox = ({ id, icon, fileState, title, required, onChange }) => (
+  <label className={`payment-upload-box ${fileState ? 'has-file' : ''}`} htmlFor={id}>
+    <input id={id} type="file" accept="image/*" className="sr-only" onChange={onChange} />
+    {fileState?.preview ? (
+      <img src={fileState.preview} alt={fileState.file.name} />
+    ) : (
+      <span className="payment-upload-placeholder">
+        {icon}
+        <span>{title}</span>
+      </span>
+    )}
+    {fileState ? <span className="payment-upload-name">{fileState.file.name}</span> : null}
+    {required ? <span className="payment-upload-required">(*)</span> : null}
+  </label>
+)
+
+const InfoRow = ({ icon, label, children }) => (
+  <div className="payment-info-row">
+    <span className="payment-info-icon">
+      {icon}
+    </span>
+    <span>
+      <span className="payment-info-label">{label}</span>
+      <span className="payment-info-value">{children}</span>
+    </span>
+  </div>
+)
+
+const PaymentTopbar = ({ onBack }) => (
+  <header className="payment-topbar">
+    <button type="button" className="payment-back-button" onClick={onBack} aria-label="Quay lại">
+      <ChevronLeft aria-hidden="true" />
+    </button>
+    <h1>Thanh toán</h1>
+  </header>
+)
+
 export const Payment = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const initialBooking = useMemo(() => location.state?.booking || fallbackBooking(), [location.state])
+
+  const [booking, setBooking] = useState(initialBooking)
+  const [profile, setProfile] = useState(getStoredProfile)
+  const [paymentProof, setPaymentProof] = useState(null)
+  const [discountProof, setDiscountProof] = useState(null)
+  const [secondsLeft, setSecondsLeft] = useState(() => calculateHoldSeconds(initialBooking?.createdAt))
+  const [isPaymentExpired, setIsPaymentExpired] = useState(() => {
+    const status = String(initialBooking?.bookingStatus || '').toUpperCase()
+    return Boolean(initialBooking) && (status === 'CANCELLED' || calculateHoldSeconds(initialBooking?.createdAt) <= 0)
+  })
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [qrFailed, setQrFailed] = useState(false)
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false)
+  const cancelRequestStarted = useRef(false)
 
-  const initialBooking = useMemo(() => location.state?.booking || fallbackBooking(), [location.state])
-  const [booking, setBooking] = useState(initialBooking)
-  const paymentInfo = paymentMethodConfig[booking?.paymentMethod] || paymentMethodConfig.BANK_TRANSFER
-  const PaymentIcon = paymentInfo.icon
-  const token = localStorage.getItem('token')
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : ''
+  const orderCode = useMemo(() => createOrderCode(booking?.bookingId), [booking?.bookingId])
+  const qrImageUrl = useMemo(() => buildVietQrUrl(booking, orderCode), [booking, orderCode])
+  const totalAmount = formatCurrency(booking?.totalPrice)
+  const customerName = profile.fullName || profile.username || profile.email || 'Khách hàng Sports Now'
+  const customerPhone = profile.phoneNumber || 'Chưa cập nhật'
+  const scheduleTime = `${formatTime(booking?.startTime)} - ${formatTime(booking?.endTime)}`
+  const canConfirm = booking?.bookingStatus === 'PENDING_PAYMENT'
+
+  useEffect(() => {
+    if (!token) {
+      return
+    }
+
+    axios.get('/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      const nextProfile = response.data || {}
+      setProfile(nextProfile)
+
+      if (nextProfile.username) localStorage.setItem('username', nextProfile.username)
+      if (nextProfile.fullName) localStorage.setItem('fullName', nextProfile.fullName)
+      if (nextProfile.email) localStorage.setItem('email', nextProfile.email)
+      if (nextProfile.phoneNumber) localStorage.setItem('phoneNumber', nextProfile.phoneNumber)
+    }).catch(() => {
+      setProfile(getStoredProfile())
+    })
+  }, [token])
+
+  useEffect(() => {
+    setSecondsLeft(calculateHoldSeconds(booking?.createdAt))
+
+    const timer = window.setInterval(() => {
+      setSecondsLeft(calculateHoldSeconds(booking?.createdAt))
+    }, 1000)
+
+    return () => window.clearInterval(timer)
+  }, [booking?.createdAt])
+
+  useEffect(() => {
+    const status = String(booking?.bookingStatus || '').toUpperCase()
+
+    if (!booking || status !== 'PENDING_PAYMENT' || secondsLeft > 0 || cancelRequestStarted.current) {
+      return
+    }
+
+    cancelRequestStarted.current = true
+    setIsPaymentExpired(true)
+    setIsQrModalOpen(false)
+
+    if (!token) {
+      return
+    }
+
+    axios.put(`/api/bookings/user/${booking.bookingId}/cancel`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((response) => {
+      setBooking(response.data)
+      sessionStorage.setItem('pendingBooking', JSON.stringify(response.data))
+    }).catch(() => {
+      sessionStorage.setItem('pendingBooking', JSON.stringify({
+        ...booking,
+        bookingStatus: 'CANCELLED',
+        paymentStatus: 'CANCELLED',
+      }))
+    })
+  }, [booking, secondsLeft, token])
+
+  useEffect(() => () => {
+    if (paymentProof?.preview) {
+      URL.revokeObjectURL(paymentProof.preview)
+    }
+  }, [paymentProof])
+
+  useEffect(() => () => {
+    if (discountProof?.preview) {
+      URL.revokeObjectURL(discountProof.preview)
+    }
+  }, [discountProof])
+
+  useEffect(() => {
+    if (!isQrModalOpen) {
+      return undefined
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsQrModalOpen(false)
+      }
+    }
+
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isQrModalOpen])
+
+  const handleBack = () => {
+    if (booking?.fieldId) {
+      navigate(`/pitch/${booking.fieldId}`)
+      return
+    }
+
+    navigate('/search')
+  }
+
+  const handleCopyAccount = async () => {
+    try {
+      await navigator.clipboard.writeText(bankInfo.accountNumber)
+      setMessage('Đã sao chép số tài khoản ngân hàng.')
+      setError('')
+    } catch {
+      setError('Không thể sao chép tự động. Bạn vui lòng copy số tài khoản thủ công.')
+    }
+  }
+
+  const handleSaveQr = () => {
+    const link = document.createElement('a')
+    link.href = qrImageUrl
+    link.download = `sports-now-qr-${orderCode}.png`
+    link.target = '_blank'
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+  }
 
   const handleConfirmPayment = async () => {
+    if (!paymentProof) {
+      setError('Vui lòng tải ảnh thanh toán trước khi xác nhận đặt.')
+      return
+    }
+
     if (!booking?.bookingId || !token) {
-      setError('Ban can dang nhap lai de xac nhan thanh toan.')
+      setError('Bạn cần đăng nhập lại để xác nhận thanh toán.')
       return
     }
 
@@ -92,7 +339,7 @@ export const Payment = () => {
       sessionStorage.setItem('pendingBooking', JSON.stringify(response.data))
       setMessage('Thanh toan da duoc xac nhan. Booking cua ban hien da chuyen sang PAID va dang cho chu san xu ly.')
     } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Khong the xac nhan thanh toan luc nay.')
+      setError(requestError.response?.data?.message || 'Không thể xác nhận thanh toán lúc này.')
     } finally {
       setSubmitting(false)
     }
@@ -100,187 +347,198 @@ export const Payment = () => {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4f8ff,_#eef2ff_42%,_#f8fafc_100%)] text-slate-900">
-        <SiteHeader />
-        <main className="mx-auto max-w-4xl px-4 py-10 lg:px-6">
-          <Card className="border-0 bg-white/92 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
-            <CardContent className="px-8 py-14 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-50">
-                <CircleAlert className="h-8 w-8 text-amber-600" />
-              </div>
-              <h1 className="mt-5 text-3xl font-semibold text-slate-950">Khong tim thay don thanh toan</h1>
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-600">
-                Co the ban vua reload trang hoac chua tao booking tu trang chi tiet san. Ban quay lai Pitch Detail de chon khung gio va tao booking moi nhe.
-              </p>
-              <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <Button asChild className="rounded-2xl">
-                  <Link to="/search">Ve trang tim kiem</Link>
-                </Button>
-                <Button asChild variant="outline" className="rounded-2xl border-slate-300 bg-white">
-                  <Link to="/profile">Xem booking cua toi</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="payment-page">
+        <PaymentTopbar onBack={handleBack} />
+        <main className="payment-empty">
+          <div className="payment-empty-card">
+            <CircleAlert aria-hidden="true" />
+            <h2>Không tìm thấy đơn thanh toán</h2>
+            <p>Có thể bạn vừa tải lại trang hoặc chưa tạo booking từ trang chi tiết sân.</p>
+            <div>
+              <Link to="/search">Về trang tìm kiếm</Link>
+              <Link to="/profile">Xem booking của tôi</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (isPaymentExpired) {
+    return (
+      <div className="payment-page payment-expired-page">
+        <PaymentTopbar onBack={() => navigate('/')} />
+        <main className="payment-expired">
+          <div className="payment-expired-illustration" aria-hidden="true">
+            <div className="payment-expired-clock">
+              <Clock3 />
+            </div>
+            <div className="payment-expired-x">
+              <X />
+            </div>
+          </div>
+
+          <h2>Lịch đặt đã bị hủy</h2>
+          <p>Đơn đã quá giờ thanh toán. Vui lòng tạo đơn mới.</p>
+
+          <div className="payment-expired-actions">
+            <Link className="payment-expired-primary" to="/profile">Xem lịch đặt sân</Link>
+            <Link className="payment-expired-secondary" to="/">Quay về</Link>
+          </div>
         </main>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4f8ff,_#eef2ff_42%,_#f8fafc_100%)] text-slate-900">
-      <SiteHeader />
+    <div className="payment-page">
+      <PaymentTopbar onBack={handleBack} />
 
-      <main className="mx-auto max-w-6xl px-4 py-8 lg:px-6 lg:py-10">
-        <section className="rounded-[32px] border border-slate-200/70 bg-white/88 p-6 shadow-[0_30px_80px_rgba(15,23,42,0.08)] lg:p-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-sky-600">Payment</p>
-              <h1 className="mt-3 text-[clamp(2rem,4vw,3.2rem)] font-semibold leading-[1.02] text-slate-950">
-                Hoan tat thanh toan cho booking cua ban
-              </h1>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600">
-                Booking da duoc tao o trang thai cho thanh toan. Ban co the dung thong tin ben duoi de thanh toan va theo doi don trong trang profile.
+      <main className="payment-layout">
+        <section className="payment-main">
+          <div className="payment-bank-card">
+            <div className="payment-bank-details">
+              <h2>1. Tài khoản ngân hàng</h2>
+              <p>
+                <span>Tên tài khoản:</span>
+                <strong>{bankInfo.accountName}</strong>
+              </p>
+              <p>
+                <span>Số tài khoản:</span>
+                <strong>{bankInfo.accountNumber}</strong>
+              </p>
+              <p>
+                <span>Ngân hàng:</span>
+                <strong>{bankInfo.bankName}</strong>
               </p>
             </div>
 
-            <Badge className="w-fit rounded-full bg-amber-50 px-4 py-2 text-amber-700 hover:bg-amber-50">
-              {booking.bookingStatus || 'PENDING_PAYMENT'}
-            </Badge>
+            <button type="button" className="payment-copy-button" onClick={handleCopyAccount} aria-label="Sao chép số tài khoản">
+              <Copy aria-hidden="true" />
+            </button>
+
+            <button type="button" className="payment-qr" onClick={() => setIsQrModalOpen(true)} aria-label="Mở mã QR thanh toán">
+              {qrFailed ? (
+                <div className="payment-qr-fallback">QR</div>
+              ) : (
+                <img src={qrImageUrl} alt="Mã QR chuyển khoản" onError={() => setQrFailed(true)} />
+              )}
+            </button>
           </div>
+
+          <div className="payment-alert">
+            <AlertTriangle aria-hidden="true" />
+            <span>
+              Vui lòng chuyển khoản <strong>{totalAmount}</strong> và gửi ảnh vào ô bên dưới để hoàn tất đặt lịch.
+            </span>
+          </div>
+
+          <div className="payment-note">
+            <p>Sau khi gửi ảnh, vui lòng kiểm tra trạng thái lịch đặt tại tab “Tài khoản” tới khi chủ sân xác nhận đơn.</p>
+            <p>Đơn của bạn còn được giữ chỗ trong</p>
+            <strong>{formatCountdown(secondsLeft)}</strong>
+          </div>
+
+          <div className="payment-upload-grid">
+            <UploadBox
+              id="payment-proof"
+              icon={<ImageIcon aria-hidden="true" />}
+              fileState={paymentProof}
+              title="Nhấn vào để tải hình thanh toán"
+              required
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) setPaymentProof(makePreview(file))
+              }}
+            />
+            <UploadBox
+              id="discount-proof"
+              icon={<Plus aria-hidden="true" />}
+              fileState={discountProof}
+              title="Nhấn vào để tải minh chứng bạn là HSSV, hoặc đối tượng được ưu đãi khác."
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (file) setDiscountProof(makePreview(file))
+              }}
+            />
+          </div>
+
+          {message ? <div className="payment-message success">{message}</div> : null}
+          {error ? <div className="payment-message error">{error}</div> : null}
+
+          <button
+            type="button"
+            className="payment-submit-button"
+            disabled={submitting || !canConfirm}
+            onClick={handleConfirmPayment}
+          >
+            {submitting ? 'ĐANG XÁC NHẬN...' : canConfirm ? 'XÁC NHẬN ĐẶT' : 'ĐÃ XÁC NHẬN'}
+          </button>
         </section>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_360px]">
-          <section className="space-y-6">
-            <Card className="border-0 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-              <CardHeader>
-                <CardTitle className="text-2xl">Thong tin don dat san</CardTitle>
-                <CardDescription>Ma booking va lich dat da duoc tao tu trang chi tiet san.</CardDescription>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <div className="rounded-[22px] bg-slate-50 px-5 py-5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Ma booking</p>
-                  <p className="mt-2 font-semibold text-slate-950">{booking.bookingId}</p>
-                </div>
-                <div className="rounded-[22px] bg-slate-50 px-5 py-5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Ma payment</p>
-                  <p className="mt-2 font-semibold text-slate-950">{booking.paymentId}</p>
-                </div>
-                <div className="rounded-[22px] bg-slate-50 px-5 py-5 md:col-span-2">
-                  <div className="flex items-start gap-3">
-                    <CalendarClock className="mt-0.5 h-4 w-4 text-slate-400" />
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Lich dat</p>
-                      <p className="mt-2 font-semibold text-slate-950">
-                        {formatDateLine(booking.bookingDate, booking.startTime, booking.endTime)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <aside className="payment-summary-card">
+          <div className="payment-summary-header">
+            <h2>Thông tin lịch đặt</h2>
+            <ChevronUp aria-hidden="true" />
+          </div>
 
-            <Card className="border-0 bg-white/92 shadow-[0_24px_60px_rgba(15,23,42,0.08)]">
-              <CardHeader>
-                <CardTitle className="text-2xl">Huong dan thanh toan</CardTitle>
-                <CardDescription>
-                  Backend hien da tao booking va payment pending. Buoc confirm payment thuc te co the duoc bo sung sau.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-[24px] border border-slate-200 bg-slate-50 px-5 py-5">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
-                      <PaymentIcon className="h-5 w-5 text-sky-700" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-950">{paymentInfo.label}</p>
-                      <p className="mt-2 text-sm leading-7 text-slate-600">{paymentInfo.hint}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[24px] border border-sky-200 bg-sky-50 px-5 py-5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-sky-700">Noi dung chuyen khoan goi y</p>
-                  <p className="mt-2 break-all text-sm font-semibold text-slate-950">BOOKING {booking.bookingId}</p>
-                </div>
-
-                <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-5 text-sm leading-7 text-emerald-800">
-                  Sau khi thanh toan, ban co the theo doi booking trong trang Profile. Hien tai frontend da hoan tat buoc tao booking va hien thi thong tin pending payment.
-                </div>
-
-                {message && (
-                  <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
-                    {message}
-                  </div>
-                )}
-
-                {error && (
-                  <div className="rounded-[24px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
-                    {error}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </section>
-
-          <aside className="space-y-6">
-            <Card className="border-0 bg-slate-950 text-white shadow-[0_30px_80px_rgba(15,23,42,0.22)]">
-              <CardHeader>
-                <CardTitle className="text-2xl text-white">Tom tat thanh toan</CardTitle>
-                <CardDescription className="text-slate-300">Thong tin tong hop cua don booking vua tao.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <div className="rounded-[22px] border border-white/10 bg-white/10 px-5 py-5">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-300">Tong thanh toan</p>
-                  <p className="mt-2 text-4xl font-semibold">{formatCurrency(booking.totalPrice)} VND</p>
-                </div>
-
-                <div className="space-y-3 text-sm text-slate-200">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="flex items-center gap-2">
-                      <ReceiptText className="h-4 w-4 text-slate-400" />
-                      Trang thai booking
-                    </span>
-                    <span>{booking.bookingStatus}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-slate-400" />
-                      Trang thai payment
-                    </span>
-                    <span>{booking.paymentStatus}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-slate-400" />
-                      Phuong thuc
-                    </span>
-                    <span>{paymentInfo.label}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3 pt-2">
-                  <Button
-                    type="button"
-                    className="rounded-2xl"
-                    disabled={submitting || booking.bookingStatus !== 'PENDING_PAYMENT'}
-                    onClick={handleConfirmPayment}
-                  >
-                    {submitting ? 'Dang xac nhan thanh toan...' : 'Xac nhan da thanh toan'}
-                  </Button>
-                  <Button asChild className="rounded-2xl">
-                    <Link to="/profile">Xem booking cua toi</Link>
-                  </Button>
-                  <Button asChild variant="outline" className="rounded-2xl border-white/20 bg-white/10 text-white hover:bg-white/15">
-                    <Link to={`/pitch/${booking.fieldId}`}>Quay lai chi tiet san</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </aside>
-        </div>
+          <div className="payment-info-list">
+            <InfoRow icon={<UsersRound aria-hidden="true" />} label="Tên">
+              {customerName}
+            </InfoRow>
+            <InfoRow icon={<Phone aria-hidden="true" />} label="SĐT">
+              {customerPhone}
+            </InfoRow>
+            <InfoRow icon={<Trophy aria-hidden="true" />} label="Mã đơn">
+              #{orderCode}
+            </InfoRow>
+            <InfoRow icon={<CalendarDays aria-hidden="true" />} label="Chi tiết đơn">
+              {formatDate(booking.bookingDate)}
+              <br />
+              - {booking.fieldName || 'Sân đã chọn'}: {scheduleTime}
+            </InfoRow>
+            <InfoRow icon={<Banknote aria-hidden="true" />} label="Tổng đơn">
+              {totalAmount}
+            </InfoRow>
+            <InfoRow icon={<CircleDollarSign aria-hidden="true" />} label="Cần thanh toán">
+              {totalAmount}
+            </InfoRow>
+          </div>
+        </aside>
       </main>
+
+      {isQrModalOpen ? (
+        <div className="payment-qr-modal" role="dialog" aria-modal="true" aria-labelledby="payment-qr-modal-title">
+          <div className="payment-qr-modal-header">
+            <h2 id="payment-qr-modal-title">Mã QR thanh toán</h2>
+            <button type="button" className="payment-qr-modal-close" onClick={() => setIsQrModalOpen(false)} aria-label="Đóng mã QR">
+              <X aria-hidden="true" />
+            </button>
+          </div>
+
+          <div className="payment-qr-modal-body">
+            {qrFailed ? (
+              <div className="payment-qr-modal-fallback">QR</div>
+            ) : (
+              <img className="payment-qr-modal-image" src={qrImageUrl} alt="Mã QR thanh toán" onError={() => setQrFailed(true)} />
+            )}
+            <div className="payment-qr-modal-info">
+              <strong>{bankInfo.accountName}</strong>
+              <span>{bankInfo.accountNumber}</span>
+              <span>{bankInfo.bankName}</span>
+            </div>
+          </div>
+
+          <div className="payment-qr-modal-actions">
+            <button type="button" className="payment-qr-save-button" onClick={handleSaveQr}>
+              Lưu mã QR
+            </button>
+            <button type="button" className="payment-qr-copy-button" onClick={handleCopyAccount}>
+              Sao chép STK
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

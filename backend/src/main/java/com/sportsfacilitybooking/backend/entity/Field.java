@@ -1,5 +1,6 @@
 package com.sportsfacilitybooking.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -15,6 +16,14 @@ public class Field {
 
     @Column(name = "sports_type")
     private String sportsType;
+
+    @Column(name = "sports_type_id")
+    private Integer sportsTypeId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sports_type_id", insertable = false, updatable = false)
+    @JsonIgnore
+    private SportsType sportsTypeRef;
 
     private String address;
 
@@ -64,6 +73,22 @@ public class Field {
 
     public void setSportsType(String sportsType) {
         this.sportsType = sportsType;
+    }
+
+    public Integer getSportsTypeId() {
+        return sportsTypeId;
+    }
+
+    public void setSportsTypeId(Integer sportsTypeId) {
+        this.sportsTypeId = sportsTypeId;
+    }
+
+    public SportsType getSportsTypeRef() {
+        return sportsTypeRef;
+    }
+
+    public void setSportsTypeRef(SportsType sportsTypeRef) {
+        this.sportsTypeRef = sportsTypeRef;
     }
 
     public String getAddress() {

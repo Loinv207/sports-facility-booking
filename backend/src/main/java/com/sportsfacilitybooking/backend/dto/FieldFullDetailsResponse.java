@@ -7,6 +7,7 @@ public record FieldFullDetailsResponse(
     String id,
     String fieldName,
     String sportsType,
+    Integer sportsTypeId,
     String address,
     BigDecimal price,
     Double rating,

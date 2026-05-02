@@ -1,10 +1,11 @@
 import React from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 const navLinkClass = ({ isActive }) =>
   `transition ${isActive ? 'text-blue-700' : 'text-slate-600 hover:text-slate-950'}`
 
 const PublicShell = ({ breadcrumb, children, actions }) => {
+  const location = useLocation()
   const navigate = useNavigate()
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
   const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null
@@ -28,7 +29,12 @@ const PublicShell = ({ breadcrumb, children, actions }) => {
 
           <nav className="auth-nav">
             <NavLink to="/" end className={navLinkClass}>Trang chủ</NavLink>
-            <NavLink to="/search" className={navLinkClass}>Sân thể thao</NavLink>
+            <NavLink
+              to="/search"
+              className={({ isActive }) => navLinkClass({ isActive: isActive || location.pathname.startsWith('/pitch/') })}
+            >
+              Sân thể thao
+            </NavLink>
             {laChuSan ? <NavLink to="/owner-management" className={navLinkClass}>Quản lý chủ sân</NavLink> : null}
             <a href="#footer" className="text-slate-600 transition hover:text-slate-950">Liên hệ</a>
           </nav>

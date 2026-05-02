@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import PublicShell from '../../components/PublicShell'
 import {
   CalendarClock,
   CheckCircle2,
@@ -13,7 +14,6 @@ import {
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { SiteHeader } from '@/components/layout/SiteHeader'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 const fallbackImagesBySport = {
@@ -396,22 +396,24 @@ const PitchDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4f8ff,_#eef2ff_42%,_#f8fafc_100%)] px-4 py-8">
-        <div className="mx-auto max-w-7xl space-y-6">
-          <div className="h-16 animate-pulse rounded-[28px] bg-white/80" />
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_380px]">
-            <div className="h-[520px] animate-pulse rounded-[32px] bg-white/80" />
-            <div className="h-[520px] animate-pulse rounded-[32px] bg-white/80" />
+      <PublicShell>
+        <div className="pitch-detail-page mx-auto max-w-7xl px-1 pb-8 pt-2 text-slate-900">
+          <div className="space-y-6">
+            <div className="h-16 animate-pulse rounded-[28px] bg-white/80" />
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_380px]">
+              <div className="h-[520px] animate-pulse rounded-[32px] bg-white/80" />
+              <div className="h-[520px] animate-pulse rounded-[32px] bg-white/80" />
+            </div>
           </div>
         </div>
-      </div>
+      </PublicShell>
     )
   }
 
   if (!detail) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4f8ff,_#eef2ff_42%,_#f8fafc_100%)] px-4 py-16">
-        <div className="mx-auto max-w-3xl">
+      <PublicShell>
+        <div className="pitch-detail-page mx-auto max-w-3xl px-1 pb-8 pt-8 text-slate-900">
           <Card className="border-0 bg-white/92 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
             <CardContent className="px-8 py-16 text-center">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-100">
@@ -427,7 +429,7 @@ const PitchDetail = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </PublicShell>
     )
   }
 
@@ -438,10 +440,8 @@ const PitchDetail = () => {
   const hasPreviewSchedule = normalizedSchedules.some((item) => item.isPreview)
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#f4f8ff,_#eef2ff_42%,_#f8fafc_100%)] text-slate-900">
-      <SiteHeader />
-
-      <main className="mx-auto max-w-7xl px-4 py-8 lg:px-6 lg:py-10">
+    <PublicShell>
+      <main className="pitch-detail-page mx-auto max-w-7xl px-1 pb-8 pt-2 text-slate-900">
         <div className="grid gap-7 lg:grid-cols-[minmax(0,1.25fr)_380px]">
           <section className="space-y-7">
             <Card className="overflow-hidden border-0 bg-white/92 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
@@ -798,7 +798,7 @@ const PitchDetail = () => {
           </aside>
         </div>
       </main>
-    </div>
+    </PublicShell>
   )
 }
 

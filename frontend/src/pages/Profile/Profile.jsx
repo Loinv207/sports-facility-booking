@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 import PublicShell from '../../components/PublicShell'
 
 const emptyPasswordForm = {
@@ -51,7 +52,13 @@ const getBookingStatus = (status) => {
   }
 }
 
+const getBookingCode = (bookingId) => {
+  const compact = String(bookingId || '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+  return compact ? `#${compact.slice(-6)}` : '#------'
+}
+
 const Profile = () => {
+  const navigate = useNavigate()
   const role = typeof window !== 'undefined' ? localStorage.getItem('role') : null
   const laChuSan = role === 'OWNER'
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -90,6 +97,7 @@ const Profile = () => {
     if (user.username) localStorage.setItem('username', user.username)
     if (user.fullName || user.fullname) localStorage.setItem('fullName', user.fullName || user.fullname)
     if (user.email) localStorage.setItem('email', user.email)
+    if (user.phoneNumber) localStorage.setItem('phoneNumber', user.phoneNumber)
   }, [])
 
   useEffect(() => {
@@ -210,6 +218,15 @@ const Profile = () => {
     } finally {
       setSavingPassword(false)
     }
+  }
+
+  const handlePayBooking = (booking) => {
+    sessionStorage.setItem('pendingBooking', JSON.stringify(booking))
+    navigate('/payment', {
+      state: {
+        booking,
+      },
+    })
   }
 
   return (
@@ -373,21 +390,28 @@ const Profile = () => {
               )}
               {!loadingBookings && !bookingError && bookings.map((booking) => {
                 const status = getBookingStatus(booking.bookingStatus)
+                const isPendingPayment = String(booking.bookingStatus || '').toUpperCase() === 'PENDING_PAYMENT'
 
                 return (
                   <article key={booking.bookingId} className="profile-booking-item">
-                    <div>
-                      <h3>{booking.fieldName || booking.fieldId || 'Sân thể thao'}</h3>
-                      <p>
-                        Mã booking: {booking.bookingId}
-                        {booking.paymentStatus ? ` | Thanh toán: ${booking.paymentStatus}` : ''}
-                      </p>
+                    <div className="profile-booking-main">
+                      <div className="profile-booking-title-row">
+                        <h3>{booking.fieldName || 'Sân thể thao'}</h3>
+                        <span className="profile-booking-code">{getBookingCode(booking.bookingId)}</span>
+                      </div>
+                      <div className="profile-booking-detail">
+                        <span>{formatBookingDate(booking.bookingDate)}</span>
+                        <span>{formatBookingTime(booking.startTime, booking.endTime)}</span>
+                      </div>
                     </div>
-                    <div className="profile-booking-meta">
-                      <span>{formatBookingDate(booking.bookingDate)}</span>
-                      <span>{formatBookingTime(booking.startTime, booking.endTime)}</span>
+                    <div className="profile-booking-side">
                       <span className={`profile-status ${status.className}`}>{status.label}</span>
-                      <strong>{formatCurrency(booking.totalPrice)}</strong>
+                      <strong className="profile-booking-price">{formatCurrency(booking.totalPrice)}</strong>
+                      {isPendingPayment ? (
+                        <button type="button" className="profile-pay-button" onClick={() => handlePayBooking(booking)}>
+                          Thanh toán
+                        </button>
+                      ) : null}
                     </div>
                   </article>
                 )

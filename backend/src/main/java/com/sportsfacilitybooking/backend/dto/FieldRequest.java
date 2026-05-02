@@ -16,6 +16,8 @@ public record FieldRequest(
     @Size(max = 100, message = "Loai san toi da 100 ky tu")
     String sportsType,
 
+    Integer sportsTypeId,
+
     @NotBlank(message = "Dia chi khong duoc de trong")
     @Size(max = 255, message = "Dia chi toi da 255 ky tu")
     String address,
