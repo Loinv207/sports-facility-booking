@@ -1,4 +1,4 @@
-name: Sports Facility Booking CI
+name: Sports Facility Booking Docker Compose
 
 on:
   push:
@@ -12,41 +12,46 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build frontend and backend
+  compose:
+    name: Build and deploy with Docker Compose
     runs-on: self-hosted
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-          cache: maven
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Build backend
+      - name: Detect Docker Compose
+        id: compose
         shell: bash
-        working-directory: backend
         run: |
-          chmod +x ./mvnw
-          ./mvnw -DskipTests package
+          if docker compose version >/dev/null 2>&1; then
+            echo "cmd=docker compose" >> "$GITHUB_OUTPUT"
+          elif command -v docker-compose >/dev/null 2>&1; then
+            echo "cmd=docker-compose" >> "$GITHUB_OUTPUT"
+          else
+            echo "Docker Compose is not installed on this runner." >&2
+            exit 1
+          fi
 
-      - name: Install frontend dependencies
+      - name: Validate compose file
         shell: bash
-        working-directory: frontend
-        run: npm ci
+        run: ${{ steps.compose.outputs.cmd }} config --quiet
 
-      - name: Build frontend
+      - name: Build compose images
         shell: bash
-        working-directory: frontend
-        run: npm run build
+        run: ${{ steps.compose.outputs.cmd }} build
+
+      - name: Deploy compose stack
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} up -d --build --remove-orphans
+
+      - name: Show compose status
+        if: always() && github.event_name != 'pull_request'
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} ps
+
+      - name: Show compose logs on failure
+        if: failure()
+        shell: bash
+        run: ${{ steps.compose.outputs.cmd }} logs --tail=120
