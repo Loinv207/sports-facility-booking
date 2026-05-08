@@ -77,6 +77,8 @@ public class AuthService {
             requestedRole = Role.USER;
         }
 
+        LocalDateTime now = LocalDateTime.now();
+
         User user = User.builder()
         .username(request.username())
         .email(request.email())
@@ -84,6 +86,9 @@ public class AuthService {
         .fullName(request.fullName())
         .phoneNumber(request.phoneNumber())
         .role(requestedRole)
+        .status("ACTIVE")
+        .createdAt(now)
+        .updatedAt(now)
         .build();
 
         user = userRepository.save(user);

@@ -29,7 +29,7 @@ import com.sportsfacilitybooking.backend.repository.UserRepository;
 
 @Service
 public class BookingService {
-    private static final List<String> BLOCKING_BOOKING_STATUSES = List.of("PENDING_PAYMENT", "PAID");
+    private static final List<String> BLOCKING_BOOKING_STATUSES = List.of("PENDING_PAYMENT", "PAID", "CONFIRMED", "COMPLETED");
 
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;

@@ -58,12 +58,16 @@ const OwnerManagement = () => {
     fieldImageFiles,
     addFieldImageFiles,
     removeFieldImageFile,
+    libraryImageFiles,
+    addLibraryImageFiles,
+    removeLibraryImageFile,
     fields,
     field,
     images,
     schedules,
     isSavingField,
     isUploadingFieldImages,
+    isSavingImages,
     selectedFieldId,
     selectField,
     loadFields,
@@ -98,7 +102,7 @@ const OwnerManagement = () => {
         await Promise.all([loadFields(), loadBookings(), loadRevenue()])
       } catch (error) {
         if (isMounted) {
-          setStatusMessage(error.message || 'CĂ³ lá»—i xáº£y ra.')
+          setStatusMessage(error.message || 'Có lỗi xảy ra khi tải dữ liệu chủ sân.')
         }
       }
     }
@@ -121,7 +125,7 @@ const OwnerManagement = () => {
         await Promise.all([loadImages(selectedFieldId), loadSchedules(selectedFieldId)])
       } catch (error) {
         if (isMounted) {
-          setStatusMessage(error.message || 'CĂ³ lá»—i xáº£y ra.')
+          setStatusMessage(error.message || 'Có lỗi xảy ra.')
         }
       }
     }
@@ -227,6 +231,9 @@ const OwnerManagement = () => {
           setUpdateForm={setUpdateForm}
           imageLinks={imageLinks}
           setImageLinks={setImageLinks}
+          libraryImageFiles={libraryImageFiles}
+          addLibraryImageFiles={addLibraryImageFiles}
+          removeLibraryImageFile={removeLibraryImageFile}
           images={images}
           schedules={schedules}
           scheduleForm={scheduleForm}
@@ -235,6 +242,7 @@ const OwnerManagement = () => {
           selectField={selectField}
           updateField={() => handleAction(updateField)}
           hideField={() => handleAction(hideField)}
+          isSavingImages={isSavingImages}
           saveImages={() => handleAction(saveImages)}
           deleteImage={(imageId) => handleAction(() => deleteImage(imageId))}
           createSchedules={() => handleAction(createSchedules)}
@@ -264,7 +272,7 @@ const OwnerManagement = () => {
               </div>
               <h1 className="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">Trang quản lý chủ sân</h1>
               <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-600 md:text-base">
-                Tao tách trang này ra thành từng file cụ thể để m dễ đọc, dễ sửa và đỡ conflict hơn khi merge nhóm.
+                Chào mừng bạn đến với trang quản lý chủ sân! Tại đây, bạn có thể dễ dàng theo dõi và quản lý các đơn đặt sân, doanh thu, hình ảnh và khung giờ của cơ sở mình. Hãy sử dụng các tab bên dưới để truy cập vào từng phần nội dung và tận hưởng trải nghiệm quản lý hiệu quả nhất.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -278,7 +286,6 @@ const OwnerManagement = () => {
 
         <div className="flex flex-col gap-6 mb-8 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="text-sm text-slate-500">Trang chủ / Chủ sân / Quản lý cơ sở</p>
             <h2 className="mt-4 text-[38px] font-bold leading-tight text-slate-900">Không gian quản lý theo từng tab</h2>
             {/* <p className="mt-3 max-w-3xl text-[15px] leading-7 text-slate-600">
               `OwnerManagement.jsx` giờ chỉ giữ layout chính, tab điều hướng và ghép dữ liệu từ hooks.

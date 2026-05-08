@@ -199,6 +199,7 @@ public class ReportService {
 
         BigDecimal totalRevenue = paidBookings.stream()
                 .map(Booking::getTotalPrice)
+                .map(amount -> amount == null ? BigDecimal.ZERO : amount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal rate = commissionService.getSystemCommission().getCommissionRate();
