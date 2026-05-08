@@ -77,7 +77,7 @@ public class PaymentController {
         String amount = allParams.get("vnp_Amount");
 
         
-        String redirectUrl = String.format("http://localhost:5173/payment-result?status=%s&bookingId=%s&amount=%s", 
+        String redirectUrl = String.format("http://sportnow.duckou.id.vn/payment-result?status=%s&bookingId=%s&amount=%s", 
                                             status, bookingId, amount);
 
        
