@@ -139,7 +139,7 @@ export const useOwnerFields = (token, onStatusChange) => {
       setUpdateForm(mapFieldToForm(data))
       setFieldForm(emptyField)
       setFieldImageFiles([])
-      onStatusChange('Tạo sân thành công. M có thể thêm ảnh, lịch và cấu hình tiếp ở các tab bên dưới.')
+      onStatusChange('Tạo sân thành công. Bạn có thể thêm ảnh, lịch và cấu hình tiếp ở các tab bên dưới.')
       return data
     } finally {
       setIsUploadingFieldImages(false)
