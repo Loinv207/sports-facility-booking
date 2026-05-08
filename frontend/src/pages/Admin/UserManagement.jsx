@@ -138,7 +138,7 @@ const UserManagement = () => {
                         <TableCell>
                           <div className="flex flex-col">
                             
-                            <span className="font-bold text-slate-800">{user.fullName || "Chưa đặt tên"}</span>
+                            <span className="font-bold text-slate-800">{user.username || "Chưa đặt tên"}</span>
                             <div className="flex items-center mt-1 text-xs text-slate-400">
                               <Mail className="w-3 h-3 mr-1" /> {user.email}
                             </div>
