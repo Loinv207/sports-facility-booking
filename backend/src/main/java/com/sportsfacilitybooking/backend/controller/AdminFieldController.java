@@ -17,7 +17,6 @@ public class AdminFieldController {
         this.fieldService = fieldService;
     }
 
-    // 1. API lấy danh sách các sân đang chờ duyệt (PENDING)
     @GetMapping("/pending")
     public ResponseEntity<List<FieldResponse>> getPendingFields() {
         return ResponseEntity.ok(fieldService.getPendingFields());

@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import HomePage from './pages/Home/Home'
@@ -14,7 +15,8 @@ import UserManagement from './pages/Admin/UserManagement'
 import AdminConfig from './pages/Admin/AdminConfig'
 import FinanceDashboard from './pages/Admin/FinanceDashboard'
 import AdminNotification from './pages/Admin/AdminNotification'
-import PaymentSuccess from './pages/Payment/PaymentSuccess'
+import AdminLayout from './pages/Admin/AdminLayout'
+import PaymentResult from './pages/Payment/PaymentResult'
 
 const OwnerRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -60,41 +62,34 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         <Route path="/profile" element={<AuthRoute><Profile /></AuthRoute>} />
         
-        {/* Route dành cho Chủ sân (Owner) */}
         <Route path="/owner-management" element={<OwnerRoute><OwnerManagement /></OwnerRoute>} />
         <Route path="/search" element={<Search />} />
 
         {/* --- ADMIN --- */}
         <Route 
-          path="/admin/fields/pending" 
-          element={<AdminRoute><AdminPendingFields /></AdminRoute>} 
-        />
-        <Route 
-          path="/admin/dashboard" 
-          element={<AdminRoute><AdminDashboard /></AdminRoute>} 
-        />
-        <Route 
-          path="/admin/users" 
-          element={<AdminRoute><UserManagement /></AdminRoute>} 
-        />
-        <Route 
-          path="/admin/config" 
-          element={<AdminRoute><AdminConfig /></AdminRoute>} 
-        />
-        <Route 
-          path="/admin/finance" 
-          element={<AdminRoute><FinanceDashboard /></AdminRoute>} 
-        />
-        <Route 
-          path="/admin/notifications" 
-          element={<AdminRoute><AdminNotification /></AdminRoute>} 
-        />
+          path="/admin" 
+          element={<AdminRoute><AdminLayout /></AdminRoute>}
+        >
+          
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path="fields/pending" element={<AdminPendingFields />} />
+          <Route path="config" element={<AdminConfig />} />
+          <Route path="finance" element={<FinanceDashboard />} />
+          <Route path="notifications" element={<AdminNotification />} />
+          
+         
+          <Route index element={<Navigate to="dashboard" replace />} />
+        </Route>
 
 
-        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-result" element={<PaymentResult />} />
       </Routes>
     </Router>
   )
 }
 
 export default App
+
+
+

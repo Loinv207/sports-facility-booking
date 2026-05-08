@@ -20,4 +20,9 @@ public class AdminReportController {
     public ResponseEntity<SystemSummaryResponse> getSummary() {
         return ResponseEntity.ok(reportService.getSystemSummary());
     }
+
+    @GetMapping("/monthly")
+    public ResponseEntity<?> getMonthlyStats() {
+        return ResponseEntity.ok(reportService.getMonthlyStatistics());
+}
 }

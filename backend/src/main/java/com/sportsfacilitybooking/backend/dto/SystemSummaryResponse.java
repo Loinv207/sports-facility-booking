@@ -8,4 +8,6 @@ import lombok.Data;
 public class SystemSummaryResponse {
     private Double totalRevenue;
     private Long totalBookings;
+    private Long newUsers;         
+    private Double occupancyRate;
 }

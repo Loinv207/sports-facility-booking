@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-// Format lỗi thống nhất
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiError(
     String error,

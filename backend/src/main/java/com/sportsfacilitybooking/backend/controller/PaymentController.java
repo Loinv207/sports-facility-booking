@@ -6,10 +6,13 @@ import com.sportsfacilitybooking.backend.repository.BookingRepository;
 import com.sportsfacilitybooking.backend.repository.PaymentRepository;
 import com.sportsfacilitybooking.backend.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,20 +29,14 @@ public class PaymentController {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    /**
-     * API: Tạo URL Thanh toán VNPay cho đơn đặt sân
-     * Luồng: Kiểm tra đơn hàng -> Lấy số tiền cọc (depositAmount) -> Tạo URL
-     */
     @PostMapping("/vnpay")
     public ResponseEntity<?> createPayment(
             @RequestParam String bookingId, 
             HttpServletRequest request) {
         
-        // 1. Tìm Booking theo ID kiểu String từ Repository
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn đặt sân mã: " + bookingId));
 
-        // 2. Kiểm tra trạng thái đơn hàng (Chỉ cho phép thanh toán nếu đang PENDING)
         Payment payment = paymentRepository.findByBookingId(bookingId)
             .orElseThrow(() -> new RuntimeException("Khong tim thay thong tin payment cua booking: " + bookingId));
 
@@ -47,17 +44,12 @@ public class PaymentController {
             return ResponseEntity.badRequest().body("Đơn hàng này đã được thanh toán trước đó.");
         }
 
-        // 3. Lấy số tiền cần thanh toán
-        // Theo Entity của bạn, ta nên dùng depositAmount (số tiền cọc) hoặc totalPrice.
-        // Ở đây tôi dùng depositAmount để thực hiện đúng logic "Đặt cọc".
         if (booking.getDepositAmount() == null) {
             return ResponseEntity.badRequest().body("Đơn hàng không có thông tin số tiền cọc.");
         }
 
-        // Chuyển BigDecimal sang long (VNPay yêu cầu đơn vị là VNĐ số nguyên)
         long amount = booking.getDepositAmount().longValue(); 
 
-        // 4. Tạo URL thanh toán
         String paymentUrl = paymentService.createPaymentUrl(amount, bookingId, request);
         
         Map<String, String> result = new HashMap<>();
@@ -66,12 +58,29 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * API: Nhận kết quả từ VNPay
-     */
+    // @GetMapping("/callback")
+    // public ResponseEntity<?> paymentCallback(@RequestParam Map<String, String> allParams) {
+    //     String message = paymentService.processCallback(allParams);
+    //     return ResponseEntity.ok(message);
+    // }
+
     @GetMapping("/callback")
-    public ResponseEntity<?> paymentCallback(@RequestParam Map<String, String> allParams) {
-        String message = paymentService.processCallback(allParams);
-        return ResponseEntity.ok(message);
+    public void paymentCallback(@RequestParam Map<String, String> allParams, HttpServletResponse response) throws IOException {
+    
+        String result = paymentService.processCallback(allParams);
+        
+        
+        String status = result.contains("thành công") ? "success" : "failed";
+        
+   
+        String bookingId = allParams.get("vnp_TxnRef").split("_")[0];
+        String amount = allParams.get("vnp_Amount");
+
+        
+        String redirectUrl = String.format("http://localhost:5173/payment-result?status=%s&bookingId=%s&amount=%s", 
+                                            status, bookingId, amount);
+
+       
+        response.sendRedirect(redirectUrl);
     }
 }
