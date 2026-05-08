@@ -79,7 +79,7 @@ const UserManagement = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
       <main className="flex-1 p-8">
         <div className="mx-auto space-y-6 max-w-7xl">
           
@@ -156,7 +156,7 @@ const UserManagement = () => {
                         <TableCell className="text-sm italic text-slate-600">
                           <div className="flex items-center">
                             <Phone className="w-3 h-3 mr-1 text-slate-400" />
-                            {user.phone || "Chưa cập nhật"}
+                            {user.phoneNumber || "Chưa cập nhật"}
                           </div>
                         </TableCell>
                         <TableCell>

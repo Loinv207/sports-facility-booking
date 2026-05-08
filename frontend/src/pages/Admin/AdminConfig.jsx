@@ -77,7 +77,7 @@ const AdminConfig = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
       <main className="flex-1 p-8 space-y-8">
       <div className="flex items-center gap-2 mb-6">
         <Settings2 className="w-8 h-8 text-primary" />
@@ -95,10 +95,10 @@ const AdminConfig = () => {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         
         {/*  QUẢN LÝ LOẠI SÂN  */}
-        <Card className="md:col-span-2 shadow-md">
+        <Card className="shadow-md md:col-span-2">
           <CardHeader>
             <div className="flex items-center gap-2">
               <LayoutGrid className="w-5 h-5 text-muted-foreground" />
@@ -107,7 +107,7 @@ const AdminConfig = () => {
             <CardDescription>Thêm hoặc xóa các loại sân có trong hệ thống (Sân 5, Sân 7, Cầu lông...)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-3 items-end">
+            <div className="flex items-end gap-3">
               <div className="grid w-full items-center gap-1.5">
                 <label htmlFor="typeName" className="text-sm font-medium">Tên loại sân</label>
                 <Input 
@@ -122,7 +122,7 @@ const AdminConfig = () => {
               </Button>
             </div>
 
-            <div className="rounded-md border bg-white">
+            <div className="bg-white border rounded-md">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -151,7 +151,7 @@ const AdminConfig = () => {
 
         {/* CẤU HÌNH HOA HỒNG */}
         <div className="space-y-6">
-          <Card className="shadow-md border-t-4 border-t-primary">
+          <Card className="border-t-4 shadow-md border-t-primary">
             <CardHeader>
               <CardTitle>Tỷ lệ hoa hồng</CardTitle>
               <CardDescription>Thiết lập % phí hệ thống thu trên mỗi đơn đặt sân</CardDescription>
@@ -167,10 +167,10 @@ const AdminConfig = () => {
                     value={commissionRate}
                     onChange={(e) => setCommissionRate(e.target.value)}
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                  <span className="absolute -translate-y-1/2 right-3 top-1/2 text-muted-foreground">%</span>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground italic">
+              <p className="text-xs italic text-muted-foreground">
                 * Lưu ý: Thay đổi này sẽ áp dụng cho tất cả các Booking mới từ thời điểm này.
               </p>
             </CardContent>

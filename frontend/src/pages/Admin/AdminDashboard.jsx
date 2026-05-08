@@ -211,7 +211,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
 
       <main className="flex-1 p-8 space-y-8 overflow-y-auto">
         <div className="flex items-center justify-between">

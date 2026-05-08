@@ -6,10 +6,13 @@ import com.sportsfacilitybooking.backend.repository.BookingRepository;
 import com.sportsfacilitybooking.backend.repository.PaymentRepository;
 import com.sportsfacilitybooking.backend.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,9 +58,29 @@ public class PaymentController {
         return ResponseEntity.ok(result);
     }
 
+    // @GetMapping("/callback")
+    // public ResponseEntity<?> paymentCallback(@RequestParam Map<String, String> allParams) {
+    //     String message = paymentService.processCallback(allParams);
+    //     return ResponseEntity.ok(message);
+    // }
+
     @GetMapping("/callback")
-    public ResponseEntity<?> paymentCallback(@RequestParam Map<String, String> allParams) {
-        String message = paymentService.processCallback(allParams);
-        return ResponseEntity.ok(message);
+    public void paymentCallback(@RequestParam Map<String, String> allParams, HttpServletResponse response) throws IOException {
+    
+        String result = paymentService.processCallback(allParams);
+        
+        
+        String status = result.contains("thành công") ? "success" : "failed";
+        
+   
+        String bookingId = allParams.get("vnp_TxnRef").split("_")[0];
+        String amount = allParams.get("vnp_Amount");
+
+        
+        String redirectUrl = String.format("http://localhost:5173/payment-result?status=%s&bookingId=%s&amount=%s", 
+                                            status, bookingId, amount);
+
+       
+        response.sendRedirect(redirectUrl);
     }
 }

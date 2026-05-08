@@ -44,7 +44,7 @@ const AdminNotification = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
       <main className="flex-1 p-8">
       <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3 mb-4">
@@ -75,7 +75,7 @@ const AdminNotification = () => {
             <select
               value={target}
               onChange={(event) => setTarget(event.target.value)}
-              className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full h-10 px-3 text-sm bg-white border rounded-md outline-none border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               <option value="ALL">Tất cả người dùng</option>
               <option value="USER">Chỉ khách thuê sân (User)</option>
@@ -104,7 +104,7 @@ const AdminNotification = () => {
             />
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end border-t pt-5">
+        <CardFooter className="flex justify-end pt-5 border-t">
           <Button 
             onClick={handleBroadcast} 
             disabled={isSending}

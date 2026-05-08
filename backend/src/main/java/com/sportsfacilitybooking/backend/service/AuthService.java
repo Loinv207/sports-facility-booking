@@ -98,6 +98,11 @@ public class AuthService {
                     .or(() ->  userRepository.findByEmail(request.usernameOrEmail()))
                     .orElseThrow(() -> new BadCredentialsException("User/Email hoặc mật khẩu không đúng"));
 
+        if (!"ACTIVE".equals(user.getStatus())) {
+            // Bạn có thể ném ra BadCredentialsException hoặc một BusinessException tùy ý
+            throw new BadCredentialsException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.");
+        }            
+
         // 2. Authenticate bằng AuthenticationManager (Kiểm tra password qua Bcrypt)
         //    Nếu sai password -> ném lỗi BadCredentialsException -> GlobalExceptionHandler bắt và -> lỗi 401
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), request.password()));

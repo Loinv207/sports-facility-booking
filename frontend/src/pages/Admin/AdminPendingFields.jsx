@@ -79,7 +79,7 @@ const AdminPendingFields = () => {
     return (
         <div className="flex min-h-screen bg-slate-50">
             {/* Sidebar bên trái */}
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
 
             {/* Nội dung chính bên phải */}
             <main className="flex-1 p-8">
@@ -183,9 +183,9 @@ const AdminPendingFields = () => {
             </main>
 
             {approvingField ? (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-950/45">
                     <div className="w-full max-w-lg rounded-2xl bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
-                        <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+                        <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-slate-100">
                             <div>
                                 <h3 className="text-xl font-bold text-slate-900">Xác nhận duyệt sân</h3>
                                 <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -195,15 +195,15 @@ const AdminPendingFields = () => {
                             <button
                                 type="button"
                                 onClick={() => !submittingApprove && setApprovingField(null)}
-                                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                                className="p-2 transition rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                                 aria-label="Đóng"
                             >
-                                <X className="h-5 w-5" />
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <div className="space-y-4 px-6 py-5">
-                            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
+                        <div className="px-6 py-5 space-y-4">
+                            <div className="px-4 py-4 border rounded-xl border-slate-200 bg-slate-50">
                                 <p className="text-sm font-semibold text-slate-900">{approvingField.fieldName}</p>
                                 <p className="mt-2 text-sm text-slate-600">{approvingField.sportsType}</p>
                                 <p className="mt-1 text-sm text-slate-500">{approvingField.address}</p>
@@ -227,7 +227,7 @@ const AdminPendingFields = () => {
                                     disabled={submittingApprove}
                                     className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                                 >
-                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                    <CheckCircle className="w-4 h-4 mr-2" />
                                     {submittingApprove ? 'Đang duyệt...' : 'Xác nhận duyệt'}
                                 </button>
                             </div>

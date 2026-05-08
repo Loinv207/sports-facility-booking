@@ -9,50 +9,23 @@
 | 2251012092 | Hồ Ngọc Minh                  | Fullstack |
 ## Công nghệ sử dụng
 - Backend: Spring Boot
-- Frontend: React / Thymeleaf
+- Frontend: ReactJS, TailwindCSS, Shadcn UI
 - Database: MySQL
 ## Cài đặt và chạy
-### Yêu cầu
-- Java 21
-- Node.js 18+
-- MySQL hoặc quyền truy cập database RDS đã cấu hình
-
+### Yêu cầu
+- Java 25
+- Node.js 18+ 
+- MySQL
 ### Chạy Backend
-```bash
 cd backend
-./mvnw spring-boot:run
-```
-
-### Chạy Frontend
-```bash
+<br>mvn spring-boot:run
+### Chạy Frontend 
 cd frontend
-npm install
-npm run dev
-```
-
+<br>npm install
+<br>npm run dev
 ### Truy cập
 - Frontend: http://localhost:5173
 - Backend API: http://localhost:8080
-
-## Chạy bằng Docker
-Dự án đã có sẵn:
-- `backend/Dockerfile`
-- `frontend/Dockerfile`
-- `docker-compose.yml`
-
-### Build và chạy toàn bộ hệ thống
-```bash
-docker compose up --build
-```
-
-### Truy cập khi chạy Docker
-- Frontend: http://localhost:4173
-- Backend API: http://localhost:8080
-
-### Lưu ý Docker
-- `docker-compose.yml` hiện dùng cùng cấu hình database MySQL RDS như project đang chạy thật.
-- Nếu muốn demo hoàn toàn local, có thể cấu hình thêm service MySQL riêng trong `docker-compose.yml`.
-
 ## Demo
 
 ## Tài liệu

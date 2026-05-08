@@ -280,7 +280,7 @@ const FinanceDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <AdminSidebar />
+      {/* <AdminSidebar /> */}
       <main className="flex-1 p-8 space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Báo Cáo Tài Chính</h1>
